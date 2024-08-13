@@ -11,28 +11,41 @@ class Screen1 extends StatefulWidget {
 class _Screen1State extends State<Screen1> {
   int _selectedIndex = 0;
   List<File> _recentFiles = [];
+  bool _isPickingImage = false; // Flag to track image picker activity
 
   void _onFabClicked() {
     _pickImage();
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image != null) {
+    if (_isPickingImage) return; // Prevent multiple invocations
+
+    setState(() {
+      _isPickingImage = true; // Set flag to true when picking starts
+    });
+
+    try {
+      final ImagePicker picker = ImagePicker();
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        setState(() {
+          _recentFiles.add(File(image.path));
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Screen2(imageFile: File(image.path)),
+          ),
+        );
+      }
+    } catch (e) {
+      print("Image picker error: $e");
+    } finally {
       setState(() {
-        _recentFiles.add(File(image.path));
+        _isPickingImage = false; // Reset flag when picking ends
       });
-       Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Screen2(imageFile: File(image.path)),
-        ),
-      );
     }
   }
-
-  
 
   @override
   Widget build(BuildContext context) {

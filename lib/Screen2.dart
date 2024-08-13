@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
+import 'SignatureScreen.dart';
 
 class Screen2 extends StatefulWidget {
   final File imageFile;
@@ -14,6 +15,7 @@ class _Screen2State extends State<Screen2> {
   bool _isPaintingMode = false;
   Color _selectedColor = Colors.black;
   double _brushSize = 5.0;
+  List<Offset?> _points = []; // List to store drawing points
 
   void _togglePaintingMode() {
     setState(() {
@@ -21,14 +23,41 @@ class _Screen2State extends State<Screen2> {
     });
   }
 
+   
+
+  void _startDrawing(Offset point) {
+    setState(() {
+      _points.add(point);
+    });
+  }
+
+  void _updateDrawing(Offset point) {
+    setState(() {
+      _points.add(point);
+    });
+  }
+
+  void _endDrawing() {
+    setState(() {
+      _points.add(null); // Add a null point to signify the end of a stroke
+    });
+  }
+
+  void _navigateToSignatureScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => SignatureScreen(imageFile: widget.imageFile),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
-        backgroundColor: _isPaintingMode
-            ? Color.fromRGBO(43, 46, 50, 1)
-            : Color.fromRGBO(43, 46, 50, 1),
+        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
         elevation: 0,
         title: _isPaintingMode
             ? Text(
@@ -42,11 +71,31 @@ class _Screen2State extends State<Screen2> {
       body: Column(
         children: [
           Expanded(
-            child: Center(
-              child: Image.file(
-                widget.imageFile,
-                fit: BoxFit.contain,
-              ),
+            child: Stack(
+              children: [
+                Center(
+                  child: Image.file(
+                    widget.imageFile,
+                    fit: BoxFit.contain,
+                  ),
+                ),
+                if (_isPaintingMode)
+                  GestureDetector(
+                    onPanStart: (details) {
+                      _startDrawing(details.localPosition);
+                    },
+                    onPanUpdate: (details) {
+                      _updateDrawing(details.localPosition);
+                    },
+                    onPanEnd: (details) {
+                      _endDrawing();
+                    },
+                    child: CustomPaint(
+                      painter: _DrawingPainter(_points, _selectedColor, _brushSize),
+                      child: Container(),
+                    ),
+                  ),
+              ],
             ),
           ),
           if (_isPaintingMode) _buildColorPalette(),
@@ -58,9 +107,7 @@ class _Screen2State extends State<Screen2> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   _buildIconButton(Icons.draw, "Paint", _togglePaintingMode),
-                  _buildIconButton(Icons.edit, "Sign", () {
-                    // Handle Sign action
-                  }),
+                  _buildIconButton(Icons.edit, "Sign", _navigateToSignatureScreen),
                   _buildIconButton(Icons.format_paint, "Stamp", () {
                     // Handle Stamp action
                   }),
@@ -118,11 +165,11 @@ class _Screen2State extends State<Screen2> {
               });
             },
             child: Container(
-              width: 39, // Increased size
-              height: 39, // Increased size
+              width: 39,
+              height: 39,
               decoration: BoxDecoration(
                 color: color,
-                borderRadius: BorderRadius.circular(8), // Rounded corners
+                borderRadius: BorderRadius.circular(8),
                 border: _selectedColor == color
                     ? Border.all(color: Colors.white, width: 2)
                     : null,
@@ -139,13 +186,13 @@ class _Screen2State extends State<Screen2> {
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
       child: SliderTheme(
         data: SliderTheme.of(context).copyWith(
-          trackHeight: 4.0, // Increase the thickness of the slider track
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.0), // Larger thumb
-          overlayShape: RoundSliderOverlayShape(overlayRadius: 20.0), // Larger overlay when sliding
-          activeTrackColor: Colors.red, // Active track color (upper part)
-          inactiveTrackColor: Colors.grey[800], // Inactive track color (lower part)
-          thumbColor: Colors.red, // Thumb color
-          overlayColor: Colors.red.withOpacity(0.2), // Overlay color when thumb is pressed
+          trackHeight: 4.0,
+          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.0),
+          overlayShape: RoundSliderOverlayShape(overlayRadius: 20.0),
+          activeTrackColor: _selectedColor,
+          inactiveTrackColor: Colors.grey[800],
+          thumbColor: _selectedColor,
+          overlayColor: _selectedColor.withOpacity(0.2),
         ),
         child: Slider(
           value: _brushSize,
@@ -159,5 +206,34 @@ class _Screen2State extends State<Screen2> {
         ),
       ),
     );
+  }
+}
+
+class _DrawingPainter extends CustomPainter {
+  final List<Offset?> points;
+  final Color color;
+  final double brushSize;
+
+  _DrawingPainter(this.points, this.color, this.brushSize);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = color
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = brushSize;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+      } else if (points[i] != null && points[i + 1] == null) {
+        canvas.drawCircle(points[i]!, brushSize / 2, paint);
+      }
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

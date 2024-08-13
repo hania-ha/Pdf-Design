@@ -36,6 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   flutter_svg: ^2.0.10+1
   image_picker: ^1.1.2
+  draggable_resizer: ^0.0.2
 
 dev_dependencies:
   flutter_test:
