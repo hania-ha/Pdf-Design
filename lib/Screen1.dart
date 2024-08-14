@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'Screen2.dart';
+import 'PremiumScreen.dart'; // Import the PremiumScreen
 
 class Screen1 extends StatefulWidget {
   @override
@@ -47,6 +48,15 @@ class _Screen1State extends State<Screen1> {
     }
   }
 
+  void _navigateToPremiumScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PremiumScreen(),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -74,12 +84,15 @@ class _Screen1State extends State<Screen1> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(width: 33),
-                      Image.asset(
-                        'assets/crown.png',
-                        height: 40,
-                        width: 40,
-                      )
+                      SizedBox(width: 10),
+                      GestureDetector(
+                        onTap: _navigateToPremiumScreen,
+                        child: Image.asset(
+                          'assets/crown.png',
+                          height: 40,
+                          width: 40,
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 10),
@@ -147,7 +160,7 @@ class _Screen1State extends State<Screen1> {
                     child: SizedBox(
                       width: double.infinity,
                       child: Card(
-                        color: Color.fromRGBO(33, 35, 8, 1),
+                        color: Color.fromRGBO(33, 35, 38, 1),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),
                         ),
@@ -224,7 +237,7 @@ class _Screen1State extends State<Screen1> {
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(33, 35, 8, 1),
+              color: Color.fromRGBO(33, 35, 38, 1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(

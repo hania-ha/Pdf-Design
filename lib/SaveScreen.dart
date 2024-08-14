@@ -1,12 +1,24 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 class SaveScreen extends StatelessWidget {
-  final Image editedImage;
+  final File imageFile;
+  final String? editedSignature;
+  final Offset signaturePosition;
+  final Size signatureSize;
 
-  SaveScreen({required this.editedImage});
+  SaveScreen({
+    required this.imageFile,
+    this.editedSignature,
+    required this.signaturePosition,
+    required this.signatureSize,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // Get the screen size
+    final screenHeight = MediaQuery.of(context).size.height;
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(33, 35, 38, 1),
       appBar: AppBar(
@@ -17,38 +29,64 @@ class SaveScreen extends StatelessWidget {
           style: TextStyle(color: Colors.white),
         ),
         centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
+        leading: TextButton(
+          onPressed: () {
+            Navigator.pop(context); // Cancel action
+          },
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              "Cancel",
+              style: TextStyle(
+                color: Color.fromRGBO(47, 168, 255, 1),
+                fontSize: 24, // Increased font size
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              // Navigate to the Home screen
+            },
+            child: Text(
+              "Home",
+              style: TextStyle(
+                color: Color.fromRGBO(47, 168, 255, 1),
+                fontSize: 14,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
+          // Image display section
           Container(
-            height: 300, // Adjust this height as needed
-            width: double.infinity,
-            child: editedImage,
+            margin: EdgeInsets.symmetric(vertical: 16.0), // Margins around the image
+            height: screenHeight * 0.40, // Adjusted height for the image display
+            child: Center(
+              child: Image.file(
+                imageFile,
+                fit: BoxFit.contain,
+              ),
+            ),
           ),
-          Expanded(
-            child: ListView(
+          // Document info section
+          Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                ListTile(
-                  onTap: () {
-                    // Save as PDF logic
-                  },
-                  leading: Icon(Icons.picture_as_pdf, color: Colors.white),
-                  title: Text("Save as PDF", style: TextStyle(color: Colors.white)),
+                Text(
+                  "Document Name: ${imageFile.uri.pathSegments.last}",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
-                ListTile(
-                  onTap: () {
-                    // Save as PNG logic
-                  },
-                  leading: Icon(Icons.image, color: Colors.white),
-                  title: Text("Save as PNG", style: TextStyle(color: Colors.white)),
-                ),
-                ListTile(
-                  onTap: () {
-                    // Share file logic
-                  },
-                  leading: Icon(Icons.share, color: Colors.white),
-                  title: Text("Share File", style: TextStyle(color: Colors.white)),
+                Text(
+                  "File Size: ${(imageFile.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB",
+                  style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ],
             ),
@@ -57,55 +95,50 @@ class SaveScreen extends StatelessWidget {
       ),
       bottomNavigationBar: Container(
         color: Color.fromRGBO(43, 46, 50, 1),
-        height: 80, // Increased height for the bottom bar
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        height: 270, // Height of the bottom bar
+        child: Column(
           children: [
-            BottomBarItem(
+            SizedBox(height: 18), // Adds space at the top of the bottom bar
+            _buildBottomBarOption(
               icon: Icons.picture_as_pdf,
-              text: "Save as PDF",
-              onTap: () {
-                // Save as PDF logic
-              },
+              label: "Save as PDF",
             ),
-            BottomBarItem(
+            _buildBottomBarOption(
               icon: Icons.image,
-              text: "Save as PNG",
-              onTap: () {
-                // Save as PNG logic
-              },
+              label: "Save as PNG",
             ),
-            BottomBarItem(
+            _buildBottomBarOption(
               icon: Icons.share,
-              text: "Share File",
-              onTap: () {
-                // Share file logic
-              },
+              label: "Share file",
             ),
           ],
         ),
       ),
     );
   }
-}
 
-class BottomBarItem extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final VoidCallback onTap;
-
-  BottomBarItem({required this.icon, required this.text, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, color: Colors.white),
-          Text(text, style: TextStyle(color: Colors.white)),
-        ],
+  Widget _buildBottomBarOption({required IconData icon, required String label}) {
+    return Container(
+      margin: EdgeInsets.symmetric(vertical: 7), // Reduced the vertical margin
+      decoration: BoxDecoration(
+        color: Color.fromRGBO(66, 69, 73, 1),
+        borderRadius: BorderRadius.circular(8), // Smaller radius for rounded corners
+      ),
+      width: 300, // Width of each option
+      height: 60, // Height of each option
+      child: Center(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center, // Center content horizontally
+          crossAxisAlignment: CrossAxisAlignment.center, // Center content vertically
+          children: [
+            Icon(icon, color: Colors.white, size: 28), // Adjust icon size as needed
+            SizedBox(width: 12), // Space between the icon and the label
+            Text(
+              label,
+              style: TextStyle(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 18), // Increased font size
+            ),
+          ],
+        ),
       ),
     );
   }
