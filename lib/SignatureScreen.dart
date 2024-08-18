@@ -13,8 +13,8 @@ class SignatureScreen extends StatefulWidget {
 
 class _SignatureScreenState extends State<SignatureScreen> {
   String? selectedSignature;
-  Offset signaturePosition = Offset(20, 20); // Initial position
-  Size signatureSize = Size(100, 40); // Initial size
+  Offset signaturePosition = Offset(20, 20); 
+  Size signatureSize = Size(100, 40); 
 
   void _handleSignatureSelection(String signature) {
     setState(() {
@@ -101,7 +101,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                       height: signatureSize.height,
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: Color.fromRGBO(47, 168, 255, 1), // Blue border
+                          color: Color.fromRGBO(47, 168, 255, 1), 
                           width: 2,
                         ),
                       ),

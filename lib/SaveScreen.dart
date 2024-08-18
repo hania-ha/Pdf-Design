@@ -16,7 +16,6 @@ class SaveScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Get the screen size
     final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
@@ -31,7 +30,7 @@ class SaveScreen extends StatelessWidget {
         centerTitle: true,
         leading: TextButton(
           onPressed: () {
-            Navigator.pop(context); // Cancel action
+            Navigator.pop(context);
           },
           child: FittedBox(
             fit: BoxFit.scaleDown,
@@ -39,7 +38,7 @@ class SaveScreen extends StatelessWidget {
               "Cancel",
               style: TextStyle(
                 color: Color.fromRGBO(47, 168, 255, 1),
-                fontSize: 24, // Increased font size
+                fontSize: 24,
                 fontFamily: 'Inter',
               ),
             ),
@@ -61,54 +60,47 @@ class SaveScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Column(
+      body: Stack(
         children: [
-          // Image display section
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 16.0), // Margins around the image
-            height: screenHeight * 0.40, // Adjusted height for the image display
-            child: Center(
-              child: Image.file(
-                imageFile,
-                fit: BoxFit.contain,
+          // Display the image
+          Positioned.fill(
+            child: Image.file(
+              imageFile,
+              fit: BoxFit.contain,
+            ),
+          ),
+          // Display the signature if available
+          if (editedSignature != null)
+            Positioned(
+              left: signaturePosition.dx,
+              top: signaturePosition.dy,
+              child: SizedBox(
+                width: signatureSize.width,
+                height: signatureSize.height,
+                child: Image.asset(
+                  editedSignature!, // Path to the signature asset
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
-          ),
-          // Document info section
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Document Name: ${imageFile.uri.pathSegments.last}",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                Text(
-                  "File Size: ${(imageFile.lengthSync() / (1024 * 1024)).toStringAsFixed(2)} MB",
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-              ],
-            ),
-          ),
         ],
       ),
       bottomNavigationBar: Container(
         color: Color.fromRGBO(43, 46, 50, 1),
-        height: 270, // Height of the bottom bar
+        padding: EdgeInsets.symmetric(vertical: 16.0),
         child: Column(
+          mainAxisSize: MainAxisSize.min,  // Ensures it takes only the necessary height
           children: [
-            SizedBox(height: 18), // Adds space at the top of the bottom bar
             _buildBottomBarOption(
-              icon: Icons.picture_as_pdf,
+              iconPath: 'assets/pdf_icon.png', // Replace with your asset path
               label: "Save as PDF",
             ),
             _buildBottomBarOption(
-              icon: Icons.image,
+              iconPath: 'assets/png_icon.png', // Replace with your asset path
               label: "Save as PNG",
             ),
             _buildBottomBarOption(
-              icon: Icons.share,
+              iconPath: 'assets/share_icon.png', // Replace with your asset path
               label: "Share file",
             ),
           ],
@@ -117,28 +109,31 @@ class SaveScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomBarOption({required IconData icon, required String label}) {
+  Widget _buildBottomBarOption({required String iconPath, required String label}) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 7), // Reduced the vertical margin
+      margin: EdgeInsets.symmetric(vertical: 8),
+      padding: EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
         color: Color.fromRGBO(66, 69, 73, 1),
-        borderRadius: BorderRadius.circular(8), // Smaller radius for rounded corners
+        borderRadius: BorderRadius.circular(8),
       ),
-      width: 300, // Width of each option
-      height: 60, // Height of each option
-      child: Center(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center, // Center content horizontally
-          crossAxisAlignment: CrossAxisAlignment.center, // Center content vertically
-          children: [
-            Icon(icon, color: Colors.white, size: 28), // Adjust icon size as needed
-            SizedBox(width: 12), // Space between the icon and the label
-            Text(
+      width: double.infinity,
+      height: 60,
+      child: Row(
+        children: [
+          Image.asset(
+            iconPath,
+            width: 28,
+            height: 28,
+          ),
+          SizedBox(width: 12),
+          Expanded(
+            child: Text(
               label,
-              style: TextStyle(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 18), // Increased font size
+              style: TextStyle(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 18),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

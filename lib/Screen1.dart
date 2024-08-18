@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'Screen2.dart';
-import 'PremiumScreen.dart'; // Import the PremiumScreen
+import 'PremiumScreen.dart';
 
 class Screen1 extends StatefulWidget {
   @override
@@ -64,6 +64,32 @@ class _Screen1State extends State<Screen1> {
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(43, 46, 50, 1),
         elevation: 0,
+        centerTitle: false,
+        title: Padding(
+          padding: const EdgeInsets.only(top: 18.0), 
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                'PDF Stamp & Sign',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              SizedBox(width: 10),
+              GestureDetector(
+                onTap: _navigateToPremiumScreen,
+                child: Image.asset(
+                  'assets/crown.png',
+                  height: 40,
+                  width: 40,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
       body: SafeArea(
         child: LayoutBuilder(
@@ -73,28 +99,6 @@ class _Screen1State extends State<Screen1> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'PDF Stamp & Sign',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(width: 10),
-                      GestureDetector(
-                        onTap: _navigateToPremiumScreen,
-                        child: Image.asset(
-                          'assets/crown.png',
-                          height: 40,
-                          width: 40,
-                        ),
-                      ),
-                    ],
-                  ),
                   SizedBox(height: 10),
                   Container(
                     padding: EdgeInsets.all(16.0),
@@ -143,16 +147,28 @@ class _Screen1State extends State<Screen1> {
                   Row(
                     children: [
                       Expanded(
-                          child:
-                              _buildToolBox(context, Icons.edit, 'Add signature')),
+                        child: _buildToolBox(
+                          context,
+                          'assets/signicon.png', // Custom asset icon
+                          'Add signature',
+                        ),
+                      ),
                       SizedBox(width: 16),
                       Expanded(
-                          child:
-                              _buildToolBox(context, Icons.sign_language_outlined, 'Add stamp')),
+                        child: _buildToolBox(
+                          context,
+                          'assets/stampicon.png', // Custom asset icon
+                          'Add stamp',
+                        ),
+                      ),
                       SizedBox(width: 16),
                       Expanded(
-                          child: _buildToolBox(
-                              context, Icons.picture_as_pdf, 'Image to PDF')),
+                        child: _buildToolBox(
+                          context,
+                          'assets/pdficon.png', // Custom asset icon
+                          'Image to PDF',
+                        ),
+                      ),
                     ],
                   ),
                   SizedBox(height: 24),
@@ -227,7 +243,7 @@ class _Screen1State extends State<Screen1> {
     );
   }
 
-  Widget _buildToolBox(BuildContext context, IconData icon, String label) {
+  Widget _buildToolBox(BuildContext context, String assetPath, String label) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
@@ -241,10 +257,11 @@ class _Screen1State extends State<Screen1> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
-              child: Icon(
-                icon,
-                color: Colors.white,
-                size: 50,
+              child: Image.asset(
+                assetPath,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
               ),
             ),
           ),
@@ -262,30 +279,31 @@ class _Screen1State extends State<Screen1> {
     );
   }
 
-  Widget _buildRecentFilesSection() {
-    if (_recentFiles.isEmpty) {
-      return Column(
-        children: [
-          Center(
-            child: Icon(
-              Icons.search,
+ Widget _buildRecentFilesSection() {
+  if (_recentFiles.isEmpty) {
+    return Column(
+      children: [
+        Center(
+          child: Image.asset(
+            'assets/searchicon.png', 
+             
+            width: 80,
+            height: 80,
+          ),
+        ),
+        SizedBox(height: 16),
+        Center(
+          child: Text(
+            'No recent files',
+            style: TextStyle(
               color: Colors.white,
-              size: 40,
+              fontSize: 14,
             ),
           ),
-          SizedBox(height: 16),
-          Center(
-            child: Text(
-              'No recent files',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
+        ),
+      ],
+    );
+  } else {
       return GridView.builder(
         shrinkWrap: true,
         itemCount: _recentFiles.length,

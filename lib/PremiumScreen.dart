@@ -8,7 +8,6 @@ class PremiumScreen extends StatefulWidget {
 class _PremiumScreenState extends State<PremiumScreen> {
   bool isMonthlyPlanSelected = false;
   bool isYearlyPlanSelected = false;
-  String selectedLink = ''; // Track selected link
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +29,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
               TextSpan(
                 text: 'PRO',
                 style: TextStyle(
-                  color: Colors.red.shade900, // Dark Red color
+                  color: Colors.red.shade900,
                 ),
               ),
             ],
@@ -42,9 +41,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 20), // Space between the app bar and the container
+              SizedBox(height: 20),
 
-              // Center the Gradient Container
               Center(
                 child: Container(
                   padding: EdgeInsets.all(24.0),
@@ -56,8 +54,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  width: 350, // Width specified
-                  height: 120, // Height specified
+                  width: 350,
+                  height: 120,
                   child: Center(
                     child: Text(
                       'Get Access to all Unlimited features',
@@ -73,15 +71,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
 
-              SizedBox(height: 30), // Space between the gradient container and the text lines
+              SizedBox(height: 30),
 
-              // List of Features with Icons
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 30.0), // Add padding on left and right
+                padding: EdgeInsets.symmetric(horizontal: 30.0),
                 child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start, // Aligns items to the start (left)
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // First Feature
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -101,7 +97,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     SizedBox(height: 9),
 
-                    // Second Feature
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -121,7 +116,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     SizedBox(height: 9),
 
-                    // Third Feature
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -141,7 +135,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     SizedBox(height: 9),
 
-                    // Fourth Feature
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -161,7 +154,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     ),
                     SizedBox(height: 9),
 
-                    // Fifth Feature
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -183,11 +175,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
 
-              SizedBox(height: 5), // Space before the card
+              SizedBox(height: 5),
 
-              // The card with plan options
               Padding(
-                padding: EdgeInsets.all(20.0), // Add padding around the card
+                padding: EdgeInsets.all(20.0),
                 child: Card(
                   color: Color.fromRGBO(33, 35, 38, 1),
                   shape: RoundedRectangleBorder(
@@ -195,7 +186,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                   elevation: 4,
                   child: Padding(
-                    padding: EdgeInsets.all(24.0), // Increased padding for more height
+                    padding: EdgeInsets.all(24.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -203,13 +194,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           'Choose Plan',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 20, // Increased font size for better visibility
+                            fontSize: 20,
                             color: Colors.white,
                             fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        SizedBox(height: 20), // Increased space for better layout
+                        SizedBox(height: 20),
                         Column(
                           children: [
                             GestureDetector(
@@ -220,14 +211,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 });
                               },
                               child: Container(
-                                width: 350, // Increased width
-                                padding: EdgeInsets.all(25), // Increased padding for larger box
+                                width: 350,
+                                padding: EdgeInsets.all(25),
                                 decoration: BoxDecoration(
                                   color: Color.fromRGBO(66, 69, 73, 1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items at both ends
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
@@ -238,7 +229,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                             'Monthly plan',
                                             style: TextStyle(
                                               fontFamily: 'Inter',
-                                              fontSize: 20, // Increased font size for better visibility
+                                              fontSize: 20,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -249,7 +240,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       '\$8.99/mo',
                                       style: TextStyle(
                                         fontFamily: 'Inter',
-                                        fontSize: 20, // Increased font size for better visibility
+                                        fontSize: 20,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -266,14 +257,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 });
                               },
                               child: Container(
-                                width: 300, // Increased width
-                                padding: EdgeInsets.all(30), // Increased padding for larger box
+                                width: 350,
+                                padding: EdgeInsets.all(25),
                                 decoration: BoxDecoration(
                                   color: Color.fromRGBO(66, 69, 73, 1),
                                   borderRadius: BorderRadius.circular(10),
                                 ),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween, // Align items at both ends
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Row(
                                       children: [
@@ -284,7 +275,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                             'Yearly plan',
                                             style: TextStyle(
                                               fontFamily: 'Inter',
-                                              fontSize: 20, // Increased font size for better visibility
+                                              fontSize: 20,
                                               color: Colors.white,
                                             ),
                                           ),
@@ -292,10 +283,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       ],
                                     ),
                                     Text(
-                                      '\$26.99/mo',
+                                      '\$26.99/yr',
                                       style: TextStyle(
                                         fontFamily: 'Inter',
-                                        fontSize: 20, // Increased font size for better visibility
+                                        fontSize: 20,
                                         color: Colors.white,
                                       ),
                                     ),
@@ -310,17 +301,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 20), // Space between the card and the button
+              SizedBox(height: 20),
 
-              // The continue button
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0), // Add horizontal padding
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: ElevatedButton(
                   onPressed: () {
-                    // Add action here
+                    // Implement the continue button action here
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(238, 76, 76, 1), // Background color
+                    backgroundColor: Color.fromRGBO(238, 76, 76, 1),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -338,11 +328,10 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 15), // Space before the info text
+              SizedBox(height: 15),
 
-              // Information Text
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0), // Add horizontal padding
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Text(
                   'You can cancel your subscription anytime. It stays active until the current billing period remains active.',
                   style: TextStyle(
@@ -353,7 +342,48 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 30), // Space at the bottom
+              SizedBox(height: 30),
+
+              // Footer section
+              Padding(
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
+                child: Column(
+                  children: [
+                    Divider(color: Colors.white, height: 1),
+                    SizedBox(height: 10),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text(
+                          'Privacy Policy',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Terms and Conditions',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                        Text(
+                          'Restore Purchase',
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 10),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -372,6 +402,13 @@ class _PremiumScreenState extends State<PremiumScreen> {
           color: isSelected ? Colors.red.shade900 : Colors.white,
         ),
       ),
+      child: isSelected
+          ? Icon(
+              Icons.check,
+              color: Colors.white,
+              size: 20,
+            )
+          : null,
     );
   }
 }
