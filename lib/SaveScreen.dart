@@ -47,7 +47,7 @@ class SaveScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              // Navigate to the Home screen
+              
             },
             child: Text(
               "Home",
@@ -69,7 +69,7 @@ class SaveScreen extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          // Display the signature if available
+          
           if (editedSignature != null)
             Positioned(
               left: signaturePosition.dx,
@@ -78,7 +78,7 @@ class SaveScreen extends StatelessWidget {
                 width: signatureSize.width,
                 height: signatureSize.height,
                 child: Image.asset(
-                  editedSignature!, // Path to the signature asset
+                  editedSignature!, 
                   fit: BoxFit.contain,
                 ),
               ),
@@ -89,18 +89,18 @@ class SaveScreen extends StatelessWidget {
         color: Color.fromRGBO(43, 46, 50, 1),
         padding: EdgeInsets.symmetric(vertical: 16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // Ensures it takes only the necessary height
+          mainAxisSize: MainAxisSize.min,  
           children: [
             _buildBottomBarOption(
-              iconPath: 'assets/pdf_icon.png', // Replace with your asset path
+              iconPath: 'assets/pdficon.png', 
               label: "Save as PDF",
             ),
             _buildBottomBarOption(
-              iconPath: 'assets/png_icon.png', // Replace with your asset path
+              iconPath: 'assets/save.png', 
               label: "Save as PNG",
             ),
             _buildBottomBarOption(
-              iconPath: 'assets/share_icon.png', // Replace with your asset path
+              iconPath: 'assets/shareicon.png', 
               label: "Share file",
             ),
           ],

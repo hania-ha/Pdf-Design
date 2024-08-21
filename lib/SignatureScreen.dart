@@ -232,21 +232,21 @@ class _SignatureScreenState extends State<SignatureScreen> {
         ],
       ),
       bottomNavigationBar: Container(
-        color: Color.fromRGBO(43, 46, 50, 1), // Match bottom bar color
-        height: 60, // Reduced height for bottom bar
+        color: Color.fromRGBO(43, 46, 50, 1), 
+        height: 60, 
         child: ListView.builder(
           scrollDirection: Axis.horizontal,
-          itemCount: fontFamilies.length + 1, // Add one for the plus icon
+          itemCount: fontFamilies.length + 1, 
           itemBuilder: (context, index) {
             if (index == 0) {
-              // Plus icon
+              
               return Container(
                 margin: EdgeInsets.symmetric(horizontal: 8.0),
-                width: 40, // Width for plus icon
-                height: 40, // Height for plus icon
+                width: 40, 
+                height: 40,  
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  border: Border.all(color: Colors.red, width: 2), // Red outline
+                  border: Border.all(color: Colors.red, width: 2), 
                 ),
                 child: Center(
                   child: Icon(Icons.add, color: Colors.red, size: 24),
@@ -259,11 +259,11 @@ class _SignatureScreenState extends State<SignatureScreen> {
               onTap: () => _handleSignatureSelection(fontFamily),
               child: Container(
                 margin: EdgeInsets.symmetric(horizontal: 8.0),
-                width: 70, // Reduced width for signature options
-                height: 30, // Reduced height for signature options
+                width: 70, 
+                height: 30, 
                 padding: EdgeInsets.all(4.0),
                 decoration: BoxDecoration(
-                  color: Colors.white, // Background color for each signature option
+                  color: Colors.white, 
                   border: Border.all(
                     color: Colors.black,
                     width: 1,
@@ -276,7 +276,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
                     style: TextStyle(
                       fontFamily: fontFamily,
                       color: Colors.black,
-                      fontSize: 14, // Adjust font size if needed
+                      fontSize: 14, 
                     ),
                   ),
                 ),

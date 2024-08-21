@@ -224,14 +224,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       children: [
                                         _buildCheckbox(isMonthlyPlanSelected),
                                         SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'Monthly plan',
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                            ),
+                                        Text(
+                                          'Monthly plan',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 20,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],
@@ -270,14 +268,12 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       children: [
                                         _buildCheckbox(isYearlyPlanSelected),
                                         SizedBox(width: 10),
-                                        Expanded(
-                                          child: Text(
-                                            'Yearly plan',
-                                            style: TextStyle(
-                                              fontFamily: 'Inter',
-                                              fontSize: 20,
-                                              color: Colors.white,
-                                            ),
+                                        Text(
+                                          'Yearly plan',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 20,
+                                            color: Colors.white,
                                           ),
                                         ),
                                       ],

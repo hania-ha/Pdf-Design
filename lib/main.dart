@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'Screen1.dart';  
 import 'Screen2.dart';
@@ -9,7 +10,7 @@ import 'PremiumScreen.dart';
 void main() {
   runApp(
     DevicePreview(
-      enabled: true,  
+      enabled: kDebugMode?true:false,  
       builder: (context) => const MyApp(),
     ),
   );

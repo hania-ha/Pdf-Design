@@ -45,7 +45,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/Background image.png',
+            'assets/Background_image.png',
             fit: BoxFit.cover,
           ),
           Center(
@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 );
               },
               child: Image.asset(
-                'assets/App icon.png',
+                'assets/App_Icon.png',
                 width: 150,
                 height: 150,
               ),
