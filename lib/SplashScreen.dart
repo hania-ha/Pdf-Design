@@ -58,7 +58,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 );
               },
               child: Image.asset(
-                'assets/App_Icon.png',
+                'assets/App_Icon .png',
                 width: 150,
                 height: 150,
               ),

@@ -63,86 +63,91 @@ class _Screen2State extends State<Screen2> {
       ),
     );
   }
- void _openDateDialog() {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return Dialog(
-          backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              AppBar(
-                backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-                elevation: 0,
-                title: Center(
-                  child: Text(
-                    "Add Date",
-                    style: TextStyle(color: Colors.white),
-                  ),
+ void _openDateModalSheet() {
+  showModalBottomSheet(
+    context: context,
+    backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+    ),
+    builder: (BuildContext context) {
+      return SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AppBar(
+              backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+              elevation: 0,
+              title: Center(
+                child: Text(
+                  "Add Date",
+                  style: TextStyle(color: Colors.white),
                 ),
-                iconTheme: IconThemeData(color: Colors.white),
-                actions: [
-                  IconButton(
-                    icon: Icon(Icons.close, color: Colors.white),
-                    onPressed: () {
-                      Navigator.of(context).pop(); // Close the dialog
-                    },
-                  ),
-                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: 16.0),
-                      padding: EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Edit Date",
-                          style: TextStyle(color: Colors.blue, fontSize: 16),
-                        ),
+              automaticallyImplyLeading: false,
+              actions: [
+                IconButton(
+                  icon: Icon(Icons.close, color: Colors.white),
+                  onPressed: () {
+                    Navigator.of(context).pop(); // Close the modal sheet
+                  },
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(bottom: 16.0),
+                    padding: EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.blue, width: 2),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Edit Date",
+                        style: TextStyle(color: Colors.blue, fontSize: 16),
                       ),
                     ),
-                    _buildDateOption("01 Jan 2024", Colors.red),
-                    _buildDateOption("14 Feb 2024", Colors.green),
-                    _buildDateOption("25 Mar 2024", Colors.blue),
-                    _buildDateOption("01 Apr 2024", Colors.orange),
-                  ],
-                ),
+                  ),
+                  _buildDateOption("01 Jan 2024", Colors.red),
+                  _buildDateOption("14 Feb 2024", Colors.green),
+                  _buildDateOption("25 Mar 2024", Colors.blue),
+                  _buildDateOption("01 Apr 2024", Colors.orange),
+                ],
               ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+            ),
+          ],
+        ),
+      );
+    },
+  );
+}
 
-  Widget _buildDateOption(String date, Color color) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: EdgeInsets.all(12.0),
-      child: Center(
-        child: Text(
-          date,
-          style: TextStyle(
-            color: color,
-            fontSize: 16,
-          ),
+Widget _buildDateOption(String date, Color color) {
+  return Container(
+    margin: EdgeInsets.only(bottom: 8.0),
+    decoration: BoxDecoration(
+      border: Border.all(color: color, width: 2),
+      borderRadius: BorderRadius.circular(8),
+    ),
+    padding: EdgeInsets.all(12.0),
+    child: Center(
+      child: Text(
+        date,
+        style: TextStyle(
+          color: color,
+          fontSize: 16,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -218,7 +223,7 @@ class _Screen2State extends State<Screen2> {
                   _buildIconButton(Icons.text_fields, "Text", () {
                     // Handle Text action
                   }),
-                  _buildIconButton(Icons.calendar_today, "Date", _openDateDialog), 
+                  _buildIconButton(Icons.calendar_today, "Date", _openDateModalSheet ), 
                     // Handle Date action
                   
                 ],
@@ -438,3 +443,4 @@ class StampSelectionScreen extends StatelessWidget {
     );
   }
 }
+
