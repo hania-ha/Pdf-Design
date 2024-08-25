@@ -277,47 +277,67 @@ class _Screen1State extends State<Screen1> {
       ],
     );
   }
-
-  Widget _buildRecentFilesSection() {
-    if (_recentFiles.isEmpty) {
-      return Column(
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/searchicon.png',
-              width: 80,
-              height: 80,
-            ),
+Widget _buildRecentFilesSection() {
+  if (_recentFiles.isEmpty) {
+    return Column(
+      children: [
+        Center(
+          child: Image.asset(
+            'assets/searchicon.png',
+            width: 80,
+            height: 80,
           ),
-          SizedBox(height: 16),
-          Center(
-            child: Text(
-              'No recent files',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return GridView.builder(
-        shrinkWrap: true,
-        physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
-        itemCount: _recentFiles.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10.0,
-          mainAxisSpacing: 10.0,
         ),
-        itemBuilder: (BuildContext context, int index) {
-          return Image.file(
+        SizedBox(height: 16),
+        Center(
+          child: Text(
+            'No recent files',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  } else {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
+      itemCount: _recentFiles.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () {
+            // Show the image in a dialog
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    child: Image.file(
+                      _recentFiles[index],
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Image.file(
             _recentFiles[index],
             fit: BoxFit.cover,
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
+}
+
+
 }

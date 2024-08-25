@@ -110,31 +110,25 @@ class SaveScreen extends StatelessWidget {
   }
 
   Widget _buildBottomBarOption({required String iconPath, required String label}) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(66, 69, 73, 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      width: double.infinity,
-      height: 60,
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Center(
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
             iconPath,
-            width: 28,
-            height: 28,
+            width: 24,
+            height: 24,
           ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 18),
-            ),
+          SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(color: Colors.white),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }
