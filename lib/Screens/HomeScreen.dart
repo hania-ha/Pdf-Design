@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'Screen2.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
+import 'package:pdf_editor/utils/enums.dart';
+import 'package:provider/provider.dart';
+import 'PdfEditorScreen.dart';
 import 'PremiumScreen.dart';
 
 class Screen1 extends StatefulWidget {
@@ -14,40 +17,6 @@ class _Screen1State extends State<Screen1> {
   List<File> _recentFiles = [];
   bool _isPickingImage = false; // Flag to track image picker activity
 
-  void _onFabClicked() {
-    _pickImage();
-  }
-
-  Future<void> _pickImage() async {
-    if (_isPickingImage) return; // Prevent multiple invocations
-
-    setState(() {
-      _isPickingImage = true; // Set flag to true when picking starts
-    });
-
-    try {
-      final ImagePicker picker = ImagePicker();
-      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-      if (image != null) {
-        setState(() {
-          _recentFiles.add(File(image.path));
-        });
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => Screen2(imageFile: File(image.path)),
-          ),
-        );
-      }
-    } catch (e) {
-      print("Image picker error: $e");
-    } finally {
-      setState(() {
-        _isPickingImage = false; // Reset flag when picking ends
-      });
-    }
-  }
-
   void _navigateToPremiumScreen() {
     Navigator.push(
       context,
@@ -59,6 +28,9 @@ class _Screen1State extends State<Screen1> {
 
   @override
   Widget build(BuildContext context) {
+    HomeScreenController homeScreenController =
+        Provider.of<HomeScreenController>(context, listen: false);
+
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
@@ -66,7 +38,7 @@ class _Screen1State extends State<Screen1> {
         elevation: 0,
         centerTitle: false,
         title: Padding(
-          padding: const EdgeInsets.only(top: 18.0), 
+          padding: const EdgeInsets.only(top: 18.0),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -151,6 +123,10 @@ class _Screen1State extends State<Screen1> {
                           context,
                           'assets/signicon.png', // Custom asset icon
                           'Add signature',
+                          onPressed: () {
+                            homeScreenController.pickImage(
+                                context, PdfTool.AddSignature);
+                          },
                         ),
                       ),
                       SizedBox(width: 16),
@@ -159,6 +135,10 @@ class _Screen1State extends State<Screen1> {
                           context,
                           'assets/stampicon.png', // Custom asset icon
                           'Add stamp',
+                          onPressed: () {
+                            homeScreenController.pickImage(
+                                context, PdfTool.AddStamp);
+                          },
                         ),
                       ),
                       SizedBox(width: 16),
@@ -167,11 +147,15 @@ class _Screen1State extends State<Screen1> {
                           context,
                           'assets/pdficon.png', // Custom asset icon
                           'Image to PDF',
+                          onPressed: () {
+                            homeScreenController.pickImage(
+                                context, PdfTool.ImageToPDF);
+                          },
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: 24),
+                  const SizedBox(height: 24),
                   Expanded(
                     child: SizedBox(
                       width: double.infinity,
@@ -214,7 +198,7 @@ class _Screen1State extends State<Screen1> {
         unselectedItemColor: Colors.grey.shade400,
         currentIndex: _selectedIndex,
         type: BottomNavigationBarType.fixed,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
             label: 'Home',
@@ -235,25 +219,28 @@ class _Screen1State extends State<Screen1> {
         },
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _onFabClicked,
-        backgroundColor: Color.fromRGBO(238, 76, 76, 1),
-        child: Icon(Icons.add, color: Colors.white),
+        onPressed: () {
+          homeScreenController.pickImage(context, PdfTool.General);
+        },
+        backgroundColor: const Color.fromRGBO(238, 76, 76, 1),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
-  Widget _buildToolBox(BuildContext context, String assetPath, String label) {
+  Widget _buildToolBox(BuildContext context, String assetPath, String label,
+      {required Function() onPressed}) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         GestureDetector(
-          onTap: () {},
+          onTap: onPressed,
           child: Container(
             width: 100,
             height: 100,
             decoration: BoxDecoration(
-              color: Color.fromRGBO(33, 35, 38, 1),
+              color: const Color.fromRGBO(33, 35, 38, 1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
@@ -266,10 +253,10 @@ class _Screen1State extends State<Screen1> {
             ),
           ),
         ),
-        SizedBox(height: 8),
+        const SizedBox(height: 8),
         Text(
           label,
-          style: TextStyle(
+          style: const TextStyle(
             color: Colors.white,
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -279,31 +266,30 @@ class _Screen1State extends State<Screen1> {
     );
   }
 
- Widget _buildRecentFilesSection() {
-  if (_recentFiles.isEmpty) {
-    return Column(
-      children: [
-        Center(
-          child: Image.asset(
-            'assets/searchicon.png', 
-             
-            width: 80,
-            height: 80,
-          ),
-        ),
-        SizedBox(height: 16),
-        Center(
-          child: Text(
-            'No recent files',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
+  Widget _buildRecentFilesSection() {
+    if (_recentFiles.isEmpty) {
+      return Column(
+        children: [
+          Center(
+            child: Image.asset(
+              'assets/searchicon.png',
+              width: 80,
+              height: 80,
             ),
           ),
-        ),
-      ],
-    );
-  } else {
+          SizedBox(height: 16),
+          Center(
+            child: Text(
+              'No recent files',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
+          ),
+        ],
+      );
+    } else {
       return GridView.builder(
         shrinkWrap: true,
         itemCount: _recentFiles.length,

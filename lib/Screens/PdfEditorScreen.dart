@@ -1,48 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/utils/enums.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'SignatureScreen.dart';
 
-class Screen2 extends StatefulWidget {
+class PdfEditorScreen extends StatefulWidget {
   final File imageFile;
+  PdfTool pdfTool = PdfTool.General;
 
-  Screen2({required this.imageFile});
+  PdfEditorScreen({required this.imageFile, required this.pdfTool});
 
   @override
-  _Screen2State createState() => _Screen2State();
+  _PdfEditorScreenState createState() => _PdfEditorScreenState();
 }
 
-class _Screen2State extends State<Screen2> {
-  bool _isPaintingMode = false;
-  Color _selectedColor = Colors.black;
-  double _brushSize = 5.0;
-  List<Offset?> _points = []; // List to store drawing points
-
-  void _togglePaintingMode() {
-    setState(() {
-      _isPaintingMode = !_isPaintingMode;
-    });
-  }
-
-   
-
-  void _startDrawing(Offset point) {
-    setState(() {
-      _points.add(point);
-    });
-  }
-
-  void _updateDrawing(Offset point) {
-    setState(() {
-      _points.add(point);
-    });
-  }
-
-  void _endDrawing() {
-    setState(() {
-      _points.add(null); // Add a null point to signify the end of a stroke
-    });
-  }
-
+class _PdfEditorScreenState extends State<PdfEditorScreen> {
   void _navigateToSignatureScreen() {
     Navigator.push(
       context,
@@ -54,17 +27,19 @@ class _Screen2State extends State<Screen2> {
 
   @override
   Widget build(BuildContext context) {
+    Pdfeditorcontroller pdfeditorcontroller =
+        Provider.of<Pdfeditorcontroller>(context);
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(43, 46, 50, 1),
         elevation: 0,
-        title: _isPaintingMode
-            ? Text(
-                "Pencil Tool",
-                style: TextStyle(color: Colors.white),
-              )
-            : null,
+        // title: _isPaintingMode
+        //     ? Text(
+        //         "Pencil Tool",
+        //         style: TextStyle(color: Colors.white),
+        //       )
+        //     : null,
         centerTitle: true,
         iconTheme: IconThemeData(color: Colors.white),
       ),
@@ -79,35 +54,23 @@ class _Screen2State extends State<Screen2> {
                     fit: BoxFit.contain,
                   ),
                 ),
-                if (_isPaintingMode)
-                  GestureDetector(
-                    onPanStart: (details) {
-                      _startDrawing(details.localPosition);
-                    },
-                    onPanUpdate: (details) {
-                      _updateDrawing(details.localPosition);
-                    },
-                    onPanEnd: (details) {
-                      _endDrawing();
-                    },
-                    child: CustomPaint(
-                      painter: _DrawingPainter(_points, _selectedColor, _brushSize),
-                      child: Container(),
-                    ),
-                  ),
               ],
             ),
           ),
-          if (_isPaintingMode) _buildColorPalette(),
-          if (_isPaintingMode) _buildBrushSizeSlider(),
-          if (!_isPaintingMode)
+          if (pdfeditorcontroller.isPaintingMode)
+            _buildColorPalette(pdfeditorcontroller),
+          if (pdfeditorcontroller.isPaintingMode)
+            _buildBrushSizeSlider(pdfeditorcontroller),
+          if (!pdfeditorcontroller.isPaintingMode)
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildIconButton(Icons.draw, "Paint", _togglePaintingMode),
-                  _buildIconButton(Icons.edit, "Sign", _navigateToSignatureScreen),
+                  _buildIconButton(Icons.draw, "Paint",
+                      pdfeditorcontroller.togglePaintingMode),
+                  _buildIconButton(
+                      Icons.edit, "Sign", _navigateToSignatureScreen),
                   _buildIconButton(Icons.format_paint, "Stamp", () {
                     // Handle Stamp action
                   }),
@@ -141,7 +104,7 @@ class _Screen2State extends State<Screen2> {
     );
   }
 
-  Widget _buildColorPalette() {
+  Widget _buildColorPalette(Pdfeditorcontroller controller) {
     List<Color> colors = [
       Colors.red,
       Colors.green,
@@ -160,9 +123,7 @@ class _Screen2State extends State<Screen2> {
         children: colors.map((color) {
           return GestureDetector(
             onTap: () {
-              setState(() {
-                _selectedColor = color;
-              });
+              controller.toggleColor(color);
             },
             child: Container(
               width: 39,
@@ -170,7 +131,7 @@ class _Screen2State extends State<Screen2> {
               decoration: BoxDecoration(
                 color: color,
                 borderRadius: BorderRadius.circular(8),
-                border: _selectedColor == color
+                border: controller.selectedColor == color
                     ? Border.all(color: Colors.white, width: 2)
                     : null,
               ),
@@ -181,27 +142,25 @@ class _Screen2State extends State<Screen2> {
     );
   }
 
-  Widget _buildBrushSizeSlider() {
+  Widget _buildBrushSizeSlider(Pdfeditorcontroller controller) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
       child: SliderTheme(
         data: SliderTheme.of(context).copyWith(
           trackHeight: 4.0,
-          thumbShape: RoundSliderThumbShape(enabledThumbRadius: 10.0),
-          overlayShape: RoundSliderOverlayShape(overlayRadius: 20.0),
-          activeTrackColor: _selectedColor,
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
+          overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
+          activeTrackColor: controller.selectedColor,
           inactiveTrackColor: Colors.grey[800],
-          thumbColor: _selectedColor,
-          overlayColor: _selectedColor.withOpacity(0.2),
+          thumbColor: controller.selectedColor,
+          overlayColor: controller.selectedColor.withOpacity(0.2),
         ),
         child: Slider(
-          value: _brushSize,
+          value: controller.brushSize,
           min: 1.0,
           max: 20.0,
           onChanged: (value) {
-            setState(() {
-              _brushSize = value;
-            });
+            controller.onColorPallateSliderChanged(value);
           },
         ),
       ),

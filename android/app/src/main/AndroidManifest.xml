@@ -7,7 +7,7 @@
 
     
     <application
-        android:label="figmadesign_1"
+        android:label="PDF Design"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

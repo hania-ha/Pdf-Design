@@ -1,4 +1,4 @@
-import Cocoa
+eimport Cocoa
 import FlutterMacOS
 
 class MainFlutterWindow: NSWindow {

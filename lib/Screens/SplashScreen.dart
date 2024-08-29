@@ -1,15 +1,16 @@
-//Another 
+//Another New Commit
 
 import 'package:flutter/material.dart';
 import 'dart:async';
-import 'Screen1.dart';
+import 'HomeScreen.dart';
 
 class SplashScreen extends StatefulWidget {
   @override
   _SplashScreenState createState() => _SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderStateMixin {
+class _SplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   AnimationController? _animationController;
   Animation<double>? _fadeAnimation;
 
@@ -22,15 +23,17 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
       vsync: this,
     );
 
-    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(_animationController!)
-      ..addListener(() {
-        setState(() {});
-      });
+    _fadeAnimation =
+        Tween<double>(begin: 0.0, end: 1.0).animate(_animationController!)
+          ..addListener(() {
+            setState(() {});
+          });
 
     _animationController!.forward();
 
     Timer(Duration(seconds: 5), () {
-      Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (_) => Screen1()));
+      Navigator.of(context)
+          .pushReplacement(MaterialPageRoute(builder: (_) => Screen1()));
     });
   }
 
@@ -60,7 +63,7 @@ class _SplashScreenState extends State<SplashScreen> with SingleTickerProviderSt
                 );
               },
               child: Image.asset(
-                'assets/App icon.png',
+                'assets/AppIcon.png',
                 width: 150,
                 height: 150,
               ),
