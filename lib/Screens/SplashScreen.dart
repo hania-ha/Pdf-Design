@@ -1,5 +1,3 @@
-//Another New Commit
-
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'HomeScreen.dart';
@@ -50,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen>
         fit: StackFit.expand,
         children: [
           Image.asset(
-            'assets/Background image.png',
+            'assets/Background_image.png',
             fit: BoxFit.cover,
           ),
           Center(

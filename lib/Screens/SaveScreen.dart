@@ -47,7 +47,7 @@ class SaveScreen extends StatelessWidget {
         actions: [
           TextButton(
             onPressed: () {
-              // Navigate to the Home screen
+              
             },
             child: Text(
               "Home",
@@ -69,7 +69,7 @@ class SaveScreen extends StatelessWidget {
               fit: BoxFit.contain,
             ),
           ),
-          // Display the signature if available
+          
           if (editedSignature != null)
             Positioned(
               left: signaturePosition.dx,
@@ -78,7 +78,7 @@ class SaveScreen extends StatelessWidget {
                 width: signatureSize.width,
                 height: signatureSize.height,
                 child: Image.asset(
-                  editedSignature!, // Path to the signature asset
+                  editedSignature!, 
                   fit: BoxFit.contain,
                 ),
               ),
@@ -89,18 +89,18 @@ class SaveScreen extends StatelessWidget {
         color: Color.fromRGBO(43, 46, 50, 1),
         padding: EdgeInsets.symmetric(vertical: 16.0),
         child: Column(
-          mainAxisSize: MainAxisSize.min,  // Ensures it takes only the necessary height
+          mainAxisSize: MainAxisSize.min,  
           children: [
             _buildBottomBarOption(
-              iconPath: 'assets/pdf_icon.png', // Replace with your asset path
+              iconPath: 'assets/pdficon.png', 
               label: "Save as PDF",
             ),
             _buildBottomBarOption(
-              iconPath: 'assets/png_icon.png', // Replace with your asset path
+              iconPath: 'assets/save.png', 
               label: "Save as PNG",
             ),
             _buildBottomBarOption(
-              iconPath: 'assets/share_icon.png', // Replace with your asset path
+              iconPath: 'assets/shareicon.png', 
               label: "Share file",
             ),
           ],
@@ -110,31 +110,25 @@ class SaveScreen extends StatelessWidget {
   }
 
   Widget _buildBottomBarOption({required String iconPath, required String label}) {
-    return Container(
-      margin: EdgeInsets.symmetric(vertical: 8),
-      padding: EdgeInsets.symmetric(horizontal: 16),
-      decoration: BoxDecoration(
-        color: Color.fromRGBO(66, 69, 73, 1),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      width: double.infinity,
-      height: 60,
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 8.0),
+    child: Center(
       child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
           Image.asset(
             iconPath,
-            width: 28,
-            height: 28,
+            width: 24,
+            height: 24,
           ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Text(
-              label,
-              style: TextStyle(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 18),
-            ),
+          SizedBox(width: 8),
+          Text(
+            label,
+            style: TextStyle(color: Colors.white),
           ),
         ],
       ),
-    );
-  }
+    ),
+  );
+}
 }

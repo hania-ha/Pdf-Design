@@ -41,3 +41,33 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# System-specific files and folders
+Application Data/
+Cookies/
+Local Settings/
+My Documents/
+NetHood/
+PrintHood/
+Recent/
+SendTo/
+Start Menu/
+Templates/
+3D Objects/
+AppData/
+Contacts/
+Desktop/
+Documents/
+Downloads/
+Favorites/
+Links/
+Microsoft/
+Music/
+OneDrive/
+Pictures/
+Saved Games/
+Searches/
+Videos/
+NTUSER.DAT*
+ntuser.dat.LOG*
+ntuser.ini

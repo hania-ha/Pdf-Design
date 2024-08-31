@@ -67,6 +67,43 @@ class _Screen1State extends State<Screen1> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             return Padding(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
+        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+        appBar: AppBar(
+          backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+          elevation: 0,
+          centerTitle: false,
+          title: Padding(
+            padding: const EdgeInsets.only(top: 18.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  'PDF Stamp & Sign',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(width: 10),
+                GestureDetector(
+                  onTap: _navigateToPremiumScreen,
+                  child: Image.asset(
+                    'assets/crown.png',
+                    height: 40,
+                    width: 40,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        body: SingleChildScrollView(
+          child: SafeArea(
+            child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -155,7 +192,7 @@ class _Screen1State extends State<Screen1> {
                       ),
                     ],
                   ),
-                  const SizedBox(height: 24),
+                  SizedBox(height: 24),
                   Expanded(
                     child: SizedBox(
                       width: double.infinity,
@@ -188,6 +225,42 @@ class _Screen1State extends State<Screen1> {
                   ),
                 ],
               ),
+            ),
+          ),
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+          selectedItemColor: Colors.white,
+          unselectedItemColor: Colors.grey.shade400,
+          currentIndex: _selectedIndex,
+          type: BottomNavigationBarType.fixed,
+          items: [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.history),
+              label: 'History',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.settings),
+              label: 'Settings',
+            ),
+          ],
+          onTap: (index) {
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: _onFabClicked,
+          backgroundColor: Color.fromRGBO(238, 76, 76, 1),
+          child: Icon(Icons.add, color: Colors.white),
+        ),
+        floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
+      ),
             );
           },
         ),
@@ -253,7 +326,7 @@ class _Screen1State extends State<Screen1> {
             ),
           ),
         ),
-        const SizedBox(height: 8),
+        SizedBox(height: 8),
         Text(
           label,
           style: const TextStyle(
@@ -265,46 +338,67 @@ class _Screen1State extends State<Screen1> {
       ],
     );
   }
-
-  Widget _buildRecentFilesSection() {
-    if (_recentFiles.isEmpty) {
-      return Column(
-        children: [
-          Center(
-            child: Image.asset(
-              'assets/searchicon.png',
-              width: 80,
-              height: 80,
-            ),
+Widget _buildRecentFilesSection() {
+  if (_recentFiles.isEmpty) {
+    return Column(
+      children: [
+        Center(
+          child: Image.asset(
+            'assets/searchicon.png',
+            width: 80,
+            height: 80,
           ),
-          SizedBox(height: 16),
-          Center(
-            child: Text(
-              'No recent files',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
-            ),
-          ),
-        ],
-      );
-    } else {
-      return GridView.builder(
-        shrinkWrap: true,
-        itemCount: _recentFiles.length,
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: 3,
-          crossAxisSpacing: 10.0,
-          mainAxisSpacing: 10.0,
         ),
-        itemBuilder: (BuildContext context, int index) {
-          return Image.file(
+        SizedBox(height: 16),
+        Center(
+          child: Text(
+            'No recent files',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 14,
+            ),
+          ),
+        ),
+      ],
+    );
+  } else {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
+      itemCount: _recentFiles.length,
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 10.0,
+        mainAxisSpacing: 10.0,
+      ),
+      itemBuilder: (BuildContext context, int index) {
+        return GestureDetector(
+          onTap: () {
+            // Show the image in a dialog
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return Dialog(
+                  backgroundColor: Colors.transparent,
+                  child: Container(
+                    child: Image.file(
+                      _recentFiles[index],
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                );
+              },
+            );
+          },
+          child: Image.file(
             _recentFiles[index],
             fit: BoxFit.cover,
-          );
-        },
-      );
-    }
+          ),
+        );
+      },
+    );
   }
+}
+
+
 }
