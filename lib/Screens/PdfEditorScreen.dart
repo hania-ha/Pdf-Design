@@ -1,13 +1,18 @@
+import 'dart:math';
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
+import 'package:screenshot/screenshot.dart';
 import 'dart:io';
 import 'SignatureScreen.dart';
 
 class PdfEditorScreen extends StatefulWidget {
   final File imageFile;
-  PdfTool pdfTool = PdfTool.General;
+  final PdfTool pdfTool;
 
   PdfEditorScreen({required this.imageFile, required this.pdfTool});
 
@@ -15,196 +20,20 @@ class PdfEditorScreen extends StatefulWidget {
   _PdfEditorScreenState createState() => _PdfEditorScreenState();
 }
 
-
-
-
-
-
-class _DrawingPainter extends CustomPainter {
-  final List<Offset?> points;
-  final Color color;
-  final double brushSize;
-
-  _DrawingPainter(this.points, this.color, this.brushSize);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = brushSize;
-
-    for (int i = 0; i < points.length - 1; i++) {
-      if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i]!, points[i + 1]!, paint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
-  }
-}
-
-class StampSelectionScreen extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-      appBar: AppBar(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-        title: Text(
-          "Pencil Tool",
-          style: TextStyle(color: Colors.white),
-        ),
-        centerTitle: true,
-         iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context); // Close the screen
-            },
-            child: Text(
-              "Done",
-              style: TextStyle(
-                color: Color.fromRGBO(47, 168, 255, 1),
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: GridView.count(
-              crossAxisCount: 3,
-              crossAxisSpacing: 20, // Increased spacing between columns
-              mainAxisSpacing: 20, // Increased spacing between rows
-              padding: EdgeInsets.all(16.0),
-              children: List.generate(12, (index) {
-                return _buildStamp(
-                  "Stamp $index",
-                  Colors.primaries[index % Colors.primaries.length],
-                  index,
-                );
-              }),
-            ),
-          ),
-          Container(
-            color: Color.fromRGBO(43, 46, 50, 1),
-            padding: EdgeInsets.all(16.0),
-            child: Center(
-              child: SizedBox(
-                width: 230,
-                height: 50,
-                child: ElevatedButton(
-                  onPressed: () {
-
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(66, 69, 73, 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(25),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 12.0),
-                  ),
-                  child: Text(
-                    "Apply",
-                    style: TextStyle(color: Colors.white, fontSize: 20),
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStamp(String label, Color color, int index) {
-    return GestureDetector(
-      onTap: () {
-        // Handle stamp selection
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: TextStyle(color: Colors.white),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
-
-class _Screen2State extends State<Screen2> {
-  bool _isPaintingMode = false;
-  bool _isStampMode = false;
-  bool _isSignMode = false;
-  bool _isBottomBarVisible = true;
+class _PdfEditorScreenState extends State<PdfEditorScreen> {
   Color _selectedColor = Colors.black;
   double _brushSize = 5.0;
   List<Offset?> _points = [];
+
   String _selectedSignature = '';
 
-
-  List<String> fontFamilies = [
-    'Roboto',
-    'Arial',
-    'Courier New',
-    'Georgia',
-    'Times New Roman',
-    'Verdana',
-    'Tahoma',
-    'Trebuchet MS',
-    'Comic Sans MS',
-    'Helvetica'
-  ];
-
-  void _togglePaintingMode() {
-    setState(() {
-      _isPaintingMode = !_isPaintingMode;
-      _isStampMode = false;
-      _isSignMode = false;
-    });
-  }
-
-class _PdfEditorScreenState extends State<PdfEditorScreen> {
-  void _navigateToSignatureScreen() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => SignatureScreen(imageFile: widget.imageFile),
-  void _toggleStampMode() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => StampSelectionScreen(),
-      ),
-    );
-    setState(() {
-      _isStampMode = false;
-      _isSignMode = false;
-    });
-  }
-
-  void _toggleSignMode() {
-    setState(() {
-      _isSignMode = !_isSignMode;
-      _isPaintingMode = false;
-      _isStampMode = false;
-    });
-  }
+  // void _toggleSignMode() {
+  //   setState(() {
+  //     _isSignMode = !_isSignMode;
+  //     // _isPaintingMode = false;
+  //     _isStampMode = false;
+  //   });
+  // }
 
   void _startDrawing(Offset point) {
     setState(() {
@@ -224,72 +53,525 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     });
   }
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    // Pdfeditorcontroller().loadAsset();
+  }
 
-  Widget _buildSignOptions() {
-    return Container(
-      color: Color.fromRGBO(43, 46, 50, 1),
-      padding: EdgeInsets.all(16.0),
-      child: Row(
-        children: [
-          Container(
-            margin: EdgeInsets.only(right: 8.0),
-            padding: EdgeInsets.all(8.0),
-            decoration: BoxDecoration(
-              border: Border.all(color: Colors.red, width: 2),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Center(
-              child: Icon(
-                Icons.add,
-                color: Colors.red,
-                size: 24,
-              ),
-            ),
-          ),
-          Expanded(
-            child: Container(
-              height: 60,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: fontFamilies.length,
-                itemBuilder: (context, index) {
-                  return GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        // Update the selected signature
-                        _selectedSignature = fontFamilies[index];
-                      });
-                    },
-                    child: Container(
-                      width: 80,
-                      margin: EdgeInsets.symmetric(horizontal: 8.0),
-                      padding: EdgeInsets.all(8.0),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Sign",
-                          style: TextStyle(
-                            color: Colors.black,
-                            fontFamily: fontFamilies[index],
-                            fontSize: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
+    print("DISPOSE");
+
+    Pdfeditorcontroller().resetValues();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    Pdfeditorcontroller pdfeditorcontroller =
+        Provider.of<Pdfeditorcontroller>(context);
+    return Scaffold(
+      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+      appBar: AppBar(
+        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+        elevation: 0,
+        title: Text(
+          pdfeditorcontroller.isPaintingMode
+              ? "Pencil Tool"
+              : pdfeditorcontroller.isStampMode
+                  ? "Stamp Tool"
+                  : "Sign Tool",
+          style: TextStyle(color: Colors.white),
+        ),
+        centerTitle: true,
+        iconTheme: IconThemeData(color: Colors.white),
+        actions: [
+          // if (_isPaintingMode || _isStampMode || _isSignMode)
+          TextButton(
+            onPressed: () {
+              if (pdfeditorcontroller.currentEditingTool != EditingTool.NONE) {
+                pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
+              } else {
+                pdfeditorcontroller.exportImage();
+              }
+              // pdfeditorcontroller.resetValues();
+            },
+            child: Text(
+              pdfeditorcontroller.currentEditingTool != EditingTool.NONE
+                  ? "Done"
+                  : "Export",
+              style: const TextStyle(
+                color: Color.fromRGBO(47, 168, 255, 1),
+                fontSize: 16,
               ),
             ),
           ),
         ],
       ),
+      body: Column(
+        children: [
+          Expanded(
+            child: Screenshot(
+              controller: pdfeditorcontroller.screenshotController,
+              child: Stack(
+                children: [
+                  Center(
+                    child: Image.file(
+                      widget.imageFile,
+                      fit: BoxFit.contain,
+                    ),
+                  ),
+                  GestureDetector(
+                    onPanStart: pdfeditorcontroller.currentEditingTool ==
+                            EditingTool.PAINT
+                        ? (details) => _startDrawing(details.localPosition)
+                        : null,
+                    onPanUpdate: pdfeditorcontroller.currentEditingTool ==
+                            EditingTool.PAINT
+                        ? (details) => _updateDrawing(details.localPosition)
+                        : null,
+                    onPanEnd: pdfeditorcontroller.currentEditingTool ==
+                            EditingTool.PAINT
+                        ? (details) => _endDrawing()
+                        : null,
+                    child: CustomPaint(
+                      painter:
+                          _DrawingPainter(_points, _selectedColor, _brushSize),
+                      size: Size.infinite,
+                    ),
+                  ),
+                  Stack(
+                    children: [
+                      for (int i = 0;
+                          i < pdfeditorcontroller.pdfEditorItems.length;
+                          i++)
+                        if (pdfeditorcontroller.pdfEditorItems[i].signatureModel
+                                ?.signatureText !=
+                            null)
+                          Positioned(
+                            left: pdfeditorcontroller.pdfEditorItems[i]
+                                .signatureModel?.signaturePosition.dx,
+                            top: pdfeditorcontroller.pdfEditorItems[i]
+                                .signatureModel?.signaturePosition.dy,
+                            child: GestureDetector(
+                              onPanUpdate: (details) {
+                                pdfeditorcontroller.onSignaturePositionChange(
+                                    i, details.delta.dx, details.delta.dy);
+                              },
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    width: pdfeditorcontroller.pdfEditorItems[i]
+                                        .signatureModel?.signatureWith,
+                                    height: pdfeditorcontroller
+                                        .pdfEditorItems[i]
+                                        .signatureModel
+                                        ?.signatureHeight,
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Color.fromRGBO(47, 168, 255, 1),
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: Center(
+                                      child: Text(
+                                        "Sign",
+                                        style: TextStyle(
+                                          fontFamily: pdfeditorcontroller
+                                              .selectedSignature,
+                                          color: Colors.black,
+                                          fontSize: 24,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  // Resize handles
+                                  Positioned(
+                                    right: -10,
+                                    bottom: -10,
+                                    child: GestureDetector(
+                                      // onPanUpdate: (details) {
+                                      //   setState(() {
+                                      //     signatureSize = Size(
+                                      //       (signatureSize.width +
+                                      //               details.delta.dx)
+                                      //           .clamp(50.0, double.infinity),
+                                      //       (signatureSize.height +
+                                      //               details.delta.dy)
+                                      //           .clamp(50.0, double.infinity),
+                                      //     );
+                                      //   });
+                                      // },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(47, 168, 255, 1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: -10,
+                                    top: -10,
+                                    child: GestureDetector(
+                                      onPanUpdate: (details) {
+                                        // setState(() {
+                                        //   signatureSize = Size(
+                                        //     (signatureSize.width -
+                                        //             details.delta.dx)
+                                        //         .clamp(50.0, double.infinity),
+                                        //     (signatureSize.height -
+                                        //             details.delta.dy)
+                                        //         .clamp(50.0, double.infinity),
+                                        //   );
+                                        //   signaturePosition = Offset(
+                                        //     signaturePosition.dx +
+                                        //         details.delta.dx,
+                                        //     signaturePosition.dy +
+                                        //         details.delta.dy,
+                                        //   );
+                                        // });
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(47, 168, 255, 1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    right: -10,
+                                    top: -10,
+                                    child: GestureDetector(
+                                      onPanUpdate: (details) {
+                                        // setState(() {
+                                        //   signatureSize = Size(
+                                        //     (signatureSize.width +
+                                        //             details.delta.dx)
+                                        //         .clamp(50.0, double.infinity),
+                                        //     (signatureSize.height -
+                                        //             details.delta.dy)
+                                        //         .clamp(50.0, double.infinity),
+                                        //   );
+                                        //   signaturePosition = Offset(
+                                        //     signaturePosition.dx,
+                                        //     signaturePosition.dy +
+                                        //         details.delta.dy,
+                                        //   );
+                                        // });
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(47, 168, 255, 1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  Positioned(
+                                    left: -10,
+                                    bottom: -10,
+                                    child: GestureDetector(
+                                      onPanUpdate: (details) {
+                                        // setState(() {
+                                        //   signatureSize = Size(
+                                        //     (signatureSize.width -
+                                        //             details.delta.dx)
+                                        //         .clamp(50.0, double.infinity),
+                                        //     (signatureSize.height +
+                                        //             details.delta.dy)
+                                        //         .clamp(50.0, double.infinity),
+                                        //   );
+                                        //   signaturePosition = Offset(
+                                        //     signaturePosition.dx +
+                                        //         details.delta.dx,
+                                        //     signaturePosition.dy,
+                                        //   );
+                                        // });
+                                      },
+                                      child: Container(
+                                        width: 20,
+                                        height: 20,
+                                        decoration: BoxDecoration(
+                                          color:
+                                              Color.fromRGBO(47, 168, 255, 1),
+                                          shape: BoxShape.circle,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          pdfeditorcontroller.currentEditingTool == EditingTool.NONE
+              ? _buildBottomBar(pdfeditorcontroller)
+              : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
+                  ? _buildColorPalette()
+                  : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
+                      ? _buildColorPalette()
+                      : pdfeditorcontroller.currentEditingTool ==
+                              EditingTool.SIGN
+                          ? _buildSignSelection(pdfeditorcontroller)
+                          : Container(),
+          // if (pdfeditorcontroller.isBottomBarVisible)
+          //   _buildBottomBar(pdfeditorcontroller),
+          // if (pdfeditorcontroller.isPaintingMode) _buildColorPalette(),
+          if (pdfeditorcontroller.currentEditingTool == EditingTool.PAINT)
+            _buildBrushSizeSlider(),
+          // if (pdfeditorcontroller.isSignMode)
+          //   _buildSignSelection(pdfeditorcontroller),
+        ],
+      ),
     );
   }
 
-  void _openDateModalSheet() {
+  Widget _buildIconButton(IconData icon, String label,
+      {required VoidCallback onTap}) {
+    return Column(
+      children: [
+        IconButton(
+          icon: Icon(icon),
+          color: Colors.white,
+          onPressed: onTap,
+        ),
+        Text(
+          label,
+          style: TextStyle(color: Colors.white, fontSize: 12),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildColorPalette() {
+    List<Color> colors = [
+      Colors.red,
+      Colors.green,
+      Colors.blue,
+      Colors.yellow,
+      Colors.orange,
+      Colors.purple,
+      Colors.brown,
+      Colors.black,
+    ];
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: colors.map((color) {
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedColor = color;
+              });
+            },
+            child: Container(
+              width: 39,
+              height: 39,
+              decoration: BoxDecoration(
+                color: color,
+                borderRadius: BorderRadius.circular(8),
+                border: _selectedColor == color
+                    ? Border.all(color: Colors.white, width: 2)
+                    : null,
+              ),
+            ),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildBrushSizeSlider() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
+      child: SliderTheme(
+        data: SliderTheme.of(context).copyWith(
+          trackHeight: 4.0,
+          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
+          overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
+          activeTrackColor: _selectedColor,
+          inactiveTrackColor: Colors.grey[800],
+          thumbColor: _selectedColor,
+          overlayColor: _selectedColor.withOpacity(0.2),
+        ),
+        child: Slider(
+          value: _brushSize,
+          min: 1.0,
+          max: 20.0,
+          onChanged: (value) {
+            setState(() {
+              _brushSize = value;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSignSelection(Pdfeditorcontroller controller) {
+    List<String> fontFamilies = [
+      'Roboto',
+      'Arial',
+      'Courier',
+      'Georgia',
+      'Times New Roman',
+      'Verdana',
+      'Helvetica',
+      'Comic Sans MS',
+      'Trebuchet MS',
+      'Tahoma',
+    ];
+    return Container(
+      color: Color.fromRGBO(43, 46, 50, 1),
+      height: 60,
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: fontFamilies.length + 1,
+        itemBuilder: (context, index) {
+          if (index == 0) {
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: Colors.red, width: 2),
+              ),
+              child: Center(
+                child: Icon(Icons.add, color: Colors.red, size: 24),
+              ),
+            );
+          }
+
+          String fontFamily = fontFamilies[index - 1];
+          return GestureDetector(
+            onTap: () => controller.handleSignatureSelection(fontFamily),
+            child: Container(
+              margin: EdgeInsets.symmetric(horizontal: 8.0),
+              width: 70,
+              height: 30,
+              padding: EdgeInsets.all(4.0),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                border: Border.all(
+                  color: Colors.black,
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(8.0),
+              ),
+              child: Center(
+                child: Text(
+                  "Sign",
+                  style: TextStyle(
+                    fontFamily: fontFamily,
+                    color: Colors.black,
+                    fontSize: 14,
+                  ),
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildBottomBar(Pdfeditorcontroller pdfeditorcontroller) {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          _buildIconButton(Icons.draw, "Paint",
+              onTap: () =>
+                  pdfeditorcontroller.toggleEditingTool(EditingTool.PAINT)),
+          _buildIconButton(Icons.edit, "Sign",
+              onTap: () =>
+                  pdfeditorcontroller.toggleEditingTool(EditingTool.SIGN)),
+          _buildIconButton(Icons.format_paint, "Stamp", onTap: () {
+            // pdfeditorcontroller.toggleEditingTool(EditingTool.STAMP);
+            _openStampModalSheet(context);
+          }),
+          _buildIconButton(Icons.text_fields, "Text", onTap: () {
+            pdfeditorcontroller.toggleEditingTool(EditingTool.TEXT);
+          }),
+          _buildIconButton(Icons.calendar_month, "Date", onTap: () {
+            _openDateModalSheet(context);
+          }),
+        ],
+      ),
+    );
+  }
+
+  List<Color> generateRandomColors(int count) {
+    final random = Random();
+    List<Color> colors = [];
+
+    for (int i = 0; i < count; i++) {
+      // Generate random color components
+      int r = random.nextInt(256);
+      int g = random.nextInt(256);
+      int b = random.nextInt(256);
+
+      // Increase brightness to ensure good contrast against black
+      // This can be done by ensuring the color is sufficiently bright
+      if ((r * 0.299 + g * 0.587 + b * 0.114) < 186) {
+        r = (r + 128).clamp(0, 255).toInt();
+        g = (g + 128).clamp(0, 255).toInt();
+        b = (b + 128).clamp(0, 255).toInt();
+      }
+
+      colors.add(Color.fromRGBO(r, g, b, 1.0));
+    }
+    return colors;
+  }
+
+  void _openDateModalSheet(BuildContext context) {
+    final now = DateTime.now();
+
+    // Define date formats
+    final dateFormats = [
+      DateFormat('yyyy-MM-dd').format(now),
+      DateFormat('dd/MM/yyyy').format(now),
+      DateFormat('MM-dd-yyyy').format(now),
+      DateFormat('yyyy/MM/dd').format(now),
+      DateFormat('EEEE, MMMM d, yyyy').format(now),
+      DateFormat('MMM d, yyyy').format(now),
+      DateFormat('d MMM yyyy').format(now),
+      DateFormat('dd MMMM yyyy').format(now),
+      DateFormat('yyyy.MM.dd').format(now),
+      DateFormat('yy-MM-dd').format(now),
+      DateFormat('MMMM d, yyyy').format(now),
+      DateFormat('d-MMM-yyyy').format(now),
+      DateFormat('d MMM yyyy').format(now),
+      DateFormat('MM/yyyy').format(now),
+      DateFormat('yyyy/MMM/dd').format(now),
+      DateFormat('dd.MM.yyyy').format(now),
+    ];
+    final colors = generateRandomColors(dateFormats.length);
+    Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
       context: context,
       backgroundColor: Color.fromRGBO(43, 46, 50, 1),
@@ -320,35 +602,55 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: EdgeInsets.only(bottom: 16.0),
-                      padding: EdgeInsets.all(12.0),
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.blue, width: 2),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Center(
-                        child: Text(
-                          "Edit Date",
-                          style: TextStyle(color: Colors.blue, fontSize: 16),
-                        ),
-                      ),
-                    ),
-                    _buildDateOption("01 Jan 2024", Colors.red),
-                    _buildDateOption("14 Feb 2024", Colors.green),
-                    _buildDateOption("25 Mar 2024", Colors.blue),
-                    _buildDateOption("01 Apr 2024", Colors.orange),
-                  ],
-                ),
-              ),
+              Container(
+                height: size.height * .40,
+                child: GridView.builder(
+                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    shrinkWrap: true,
+                    itemCount: dateFormats.length,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        childAspectRatio: 2 / 0.7,
+                        mainAxisSpacing: 10,
+                        crossAxisSpacing: 10),
+                    itemBuilder: (context, index) {
+                      return _buildDateOption(
+                          dateFormats[index], colors[index]);
+                    }),
+              )
+              // Padding(
+              //   padding: const EdgeInsets.all(16.0),
+              //   child: Column(
+              //     crossAxisAlignment: CrossAxisAlignment.start,
+              //     children: [
+              //
+              //       _buildDateOption("01 Jan 2024", Colors.red),
+              //       _buildDateOption("14 Feb 2024", Colors.green),
+              //       _buildDateOption("25 Mar 2024", Colors.blue),
+              //       _buildDateOption("01 Apr 2024", Colors.orange),
+              //     ],
+              //   ),
+              // ),
             ],
           ),
         );
+      },
+    );
+  }
+
+  void _openStampModalSheet(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+      barrierColor: Colors.black.withOpacity(0.9),
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16.0)),
+      ),
+      builder: (BuildContext context) {
+        return Container(
+            height: size.height * .90, child: StampsWidget(context));
       },
     );
   }
@@ -364,174 +666,79 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
       child: Center(
         child: Text(
           date,
-          style: TextStyle(
-            color: color,
-            fontSize: 16,
-          ),
+          style: TextStyle(color: color, fontSize: 16),
         ),
       ),
     );
+  }
+}
+
+class _DrawingPainter extends CustomPainter {
+  final List<Offset?> points;
+  final Color color;
+  final double brushSize;
+
+  _DrawingPainter(this.points, this.color, this.brushSize);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    Paint paint = Paint()
+      ..color = color
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = brushSize;
+
+    for (int i = 0; i < points.length - 1; i++) {
+      if (points[i] != null && points[i + 1] != null) {
+        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+      } else if (points[i] != null && points[i + 1] == null) {
+        canvas.drawPoints(PointMode.points, [points[i]!], paint);
+      }
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
-    Pdfeditorcontroller pdfeditorcontroller =
-        Provider.of<Pdfeditorcontroller>(context);
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-      appBar: AppBar(
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
+  }
+}
+
+Widget StampsWidget(BuildContext context) {
+  Size size = MediaQuery.of(context).size;
+  return Column(
+    children: [
+      AppBar(
         backgroundColor: Color.fromRGBO(43, 46, 50, 1),
         elevation: 0,
-        title: _isPaintingMode || _isStampMode || _isSignMode
-            ? Text(
-                _isPaintingMode ? "Pencil Tool" : _isStampMode ? "Stamp Tool" : "Sign Tool",
-                style: TextStyle(color: Colors.white),
-              )
-            : null,
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          if (_isPaintingMode || _isStampMode || _isSignMode)
-            TextButton(
-              onPressed: () {
-                setState(() {
-                  _isPaintingMode = false;
-                  _isStampMode = false;
-                  _isSignMode = false;
-                  _isBottomBarVisible = true;
-                });
-              },
-              child: Text(
-                "Done",
-                style: TextStyle(
-                  color: Color.fromRGBO(47, 168, 255, 1),
-                  fontSize: 16,
-                ),
-              ),
-            ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Stack(
-              children: [
-                Center(
-                  child: Image.file(
-                    widget.imageFile,
-                    fit: BoxFit.contain,
-                  ),
-                ),
-              ],
-            ),
+        title: Center(
+          child: Text(
+            "Add Stamp",
+            style: TextStyle(color: Colors.white),
           ),
-          if (pdfeditorcontroller.isPaintingMode)
-            _buildColorPalette(pdfeditorcontroller),
-          if (pdfeditorcontroller.isPaintingMode)
-            _buildBrushSizeSlider(pdfeditorcontroller),
-          if (!pdfeditorcontroller.isPaintingMode)
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  _buildIconButton(Icons.draw, "Paint",
-                      pdfeditorcontroller.togglePaintingMode),
-                  _buildIconButton(
-                      Icons.edit, "Sign", _navigateToSignatureScreen),
-                  _buildIconButton(Icons.format_paint, "Stamp", () {
-                    // Handle Stamp action
-                  }),
-                  _buildIconButton(Icons.text_fields, "Text", () {
-                    // Handle Text action
-                  }),
-                  _buildIconButton(Icons.calendar_month, "Date", () {
-                    // Handle Date action
-                  }),
-                ],
-              ),
-            ),
+        ),
+        automaticallyImplyLeading: false,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+          ),
         ],
       ),
-    );
-  }
-
-  Widget _buildIconButton(IconData icon, String label, VoidCallback onTap) {
-    return Column(
-      children: [
-        IconButton(
-          icon: Icon(icon),
-          color: Colors.white,
-          onPressed: onTap,
-        ),
-        Text(
-          label,
-          style: TextStyle(color: Colors.white, fontSize: 12),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildColorPalette(Pdfeditorcontroller controller) {
-    List<Color> colors = [
-      Colors.red,
-      Colors.green,
-      Colors.blue,
-      Colors.yellow,
-      Colors.orange,
-      Colors.purple,
-      Colors.brown,
-      Colors.black,
-    ];
-
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: colors.map((color) {
-          return GestureDetector(
-            onTap: () {
-              controller.toggleColor(color);
-            },
-            child: Container(
-              width: 39,
-              height: 39,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(8),
-                border: controller.selectedColor == color
-                    ? Border.all(color: Colors.white, width: 2)
-                    : null,
-              ),
+      Expanded(
+        child: GridView.builder(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            itemCount: 24,
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              childAspectRatio: 2 / 0.7,
+              mainAxisSpacing: 10,
+              crossAxisSpacing: 10,
             ),
-          );
-        }).toList(),
-      ),
-    );
-  }
-
-  Widget _buildBrushSizeSlider(Pdfeditorcontroller controller) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 24.0),
-      child: SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          trackHeight: 4.0,
-          thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
-          overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
-          activeTrackColor: controller.selectedColor,
-          inactiveTrackColor: Colors.grey[800],
-          thumbColor: controller.selectedColor,
-          overlayColor: controller.selectedColor.withOpacity(0.2),
-        ),
-        child: Slider(
-          value: controller.brushSize,
-          min: 1.0,
-          max: 20.0,
-          onChanged: (value) {
-            controller.onColorPallateSliderChanged(value);
-          },
-        ),
-      ),
-    );
-  }
+            itemBuilder: (context, index) {
+              return Image.asset('assets/Stamps/${index + 1}.png');
+            }),
+      )
+    ],
+  );
 }

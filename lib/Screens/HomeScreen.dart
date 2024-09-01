@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
+import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
 import 'PdfEditorScreen.dart';
@@ -31,42 +32,6 @@ class _Screen1State extends State<Screen1> {
     HomeScreenController homeScreenController =
         Provider.of<HomeScreenController>(context, listen: false);
 
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-      appBar: AppBar(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-        elevation: 0,
-        centerTitle: false,
-        title: Padding(
-          padding: const EdgeInsets.only(top: 18.0),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                'PDF Stamp & Sign',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              SizedBox(width: 10),
-              GestureDetector(
-                onTap: _navigateToPremiumScreen,
-                child: Image.asset(
-                  'assets/crown.png',
-                  height: 40,
-                  width: 40,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return Padding(
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
@@ -82,11 +47,7 @@ class _Screen1State extends State<Screen1> {
               children: [
                 Text(
                   'PDF Stamp & Sign',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: CustomTextStyles.primaryText20,
                 ),
                 SizedBox(width: 10),
                 GestureDetector(
@@ -193,32 +154,30 @@ class _Screen1State extends State<Screen1> {
                     ],
                   ),
                   SizedBox(height: 24),
-                  Expanded(
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: Card(
-                        color: Color.fromRGBO(33, 35, 38, 1),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        elevation: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Recent Files',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                ),
+                  SizedBox(
+                    width: double.infinity,
+                    child: Card(
+                      color: Color.fromRGBO(33, 35, 38, 1),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      elevation: 5,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Recent Files',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
                               ),
-                              SizedBox(height: 16),
-                              _buildRecentFilesSection(),
-                            ],
-                          ),
+                            ),
+                            SizedBox(height: 16),
+                            _buildRecentFilesSection(),
+                          ],
                         ),
                       ),
                     ),
@@ -234,7 +193,7 @@ class _Screen1State extends State<Screen1> {
           unselectedItemColor: Colors.grey.shade400,
           currentIndex: _selectedIndex,
           type: BottomNavigationBarType.fixed,
-          items: [
+          items: const [
             BottomNavigationBarItem(
               icon: Icon(Icons.home),
               label: 'Home',
@@ -255,50 +214,14 @@ class _Screen1State extends State<Screen1> {
           },
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: _onFabClicked,
-          backgroundColor: Color.fromRGBO(238, 76, 76, 1),
-          child: Icon(Icons.add, color: Colors.white),
+          onPressed: () {
+            homeScreenController.pickImage(context, PdfTool.General);
+          },
+          backgroundColor: const Color.fromRGBO(238, 76, 76, 1),
+          child: const Icon(Icons.add, color: Colors.white),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       ),
-            );
-          },
-        ),
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-        selectedItemColor: Colors.white,
-        unselectedItemColor: Colors.grey.shade400,
-        currentIndex: _selectedIndex,
-        type: BottomNavigationBarType.fixed,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.history),
-            label: 'History',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.settings),
-            label: 'Settings',
-          ),
-        ],
-        onTap: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          homeScreenController.pickImage(context, PdfTool.General);
-        },
-        backgroundColor: const Color.fromRGBO(238, 76, 76, 1),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
     );
   }
 
@@ -338,67 +261,67 @@ class _Screen1State extends State<Screen1> {
       ],
     );
   }
-Widget _buildRecentFilesSection() {
-  if (_recentFiles.isEmpty) {
-    return Column(
-      children: [
-        Center(
-          child: Image.asset(
-            'assets/searchicon.png',
-            width: 80,
-            height: 80,
-          ),
-        ),
-        SizedBox(height: 16),
-        Center(
-          child: Text(
-            'No recent files',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 14,
+
+  Widget _buildRecentFilesSection() {
+    if (_recentFiles.isEmpty) {
+      return Column(
+        children: [
+          Center(
+            child: Image.asset(
+              'assets/searchicon.png',
+              width: 80,
+              height: 80,
             ),
           ),
-        ),
-      ],
-    );
-  } else {
-    return GridView.builder(
-      shrinkWrap: true,
-      physics: NeverScrollableScrollPhysics(), // Prevent scrolling inside GridView
-      itemCount: _recentFiles.length,
-      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 3,
-        crossAxisSpacing: 10.0,
-        mainAxisSpacing: 10.0,
-      ),
-      itemBuilder: (BuildContext context, int index) {
-        return GestureDetector(
-          onTap: () {
-            // Show the image in a dialog
-            showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return Dialog(
-                  backgroundColor: Colors.transparent,
-                  child: Container(
-                    child: Image.file(
-                      _recentFiles[index],
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                );
-              },
-            );
-          },
-          child: Image.file(
-            _recentFiles[index],
-            fit: BoxFit.cover,
+          SizedBox(height: 16),
+          Center(
+            child: Text(
+              'No recent files',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+            ),
           ),
-        );
-      },
-    );
+        ],
+      );
+    } else {
+      return GridView.builder(
+        shrinkWrap: true,
+        physics: NeverScrollableScrollPhysics(),
+        // Prevent scrolling inside GridView
+        itemCount: _recentFiles.length,
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          crossAxisSpacing: 10.0,
+          mainAxisSpacing: 10.0,
+        ),
+        itemBuilder: (BuildContext context, int index) {
+          return GestureDetector(
+            onTap: () {
+              // Show the image in a dialog
+              showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return Dialog(
+                    backgroundColor: Colors.transparent,
+                    child: Container(
+                      child: Image.file(
+                        _recentFiles[index],
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  );
+                },
+              );
+            },
+            child: Image.file(
+              _recentFiles[index],
+              fit: BoxFit.cover,
+            ),
+          );
+        },
+      );
+    }
   }
-}
-
-
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
 import 'package:pdf_editor/Screens/SplashScreen.dart';
+import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
@@ -20,6 +21,9 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+            fontFamily: Fonts.intern,
+            textTheme: TextTheme()),
         home: SplashScreen(),
       ),
     );
