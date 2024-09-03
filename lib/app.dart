@@ -6,7 +6,7 @@ import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:provider/provider.dart';
 
 class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+  const  MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {

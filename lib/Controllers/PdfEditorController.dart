@@ -9,9 +9,11 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf_editor/Models/EditorModel.dart';
+import 'package:pdf_editor/Models/SignatureModel.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'dart:ui';
 
 enum EditingTool {
   PAINT,
@@ -57,9 +59,15 @@ class Pdfeditorcontroller with ChangeNotifier {
     // signaturePosition = ;
 
     pdfEditorItems[index].signatureModel?.signaturePosition = Offset(
-      signaturePosition.dx + xPosition,
-      signaturePosition.dy + yPosition,
+      (pdfEditorItems[index].signatureModel?.signaturePosition.dx ?? 0) +
+          xPosition,
+      (pdfEditorItems[index].signatureModel?.signaturePosition.dy ?? 0) +
+          yPosition,
     );
+
+    print(pdfEditorItems[index].signatureModel?.signaturePosition);
+
+    notifyListeners();
   }
 
   void toggleEditingTool(EditingTool editingTool) {
@@ -111,7 +119,17 @@ class Pdfeditorcontroller with ChangeNotifier {
   }
 
   void handleSignatureSelection(String signature) {
-    selectedSignature = signature;
+    // selectedSignature = signature;
+    pdfEditorItems.add(PdfEditorModel(
+      signatureModel: SignatureModel(
+          signatureText: signature.toString(),
+          signaturePosition: Offset(20, 20),
+          signatureWith: 70,
+          signatureHeight: 30),
+    ));
+
+    print(pdfEditorItems);
+
     notifyListeners();
   }
 
@@ -120,6 +138,7 @@ class Pdfeditorcontroller with ChangeNotifier {
     isSignMode = false;
     isPaintingMode = false;
     isBottomBarVisible = true;
+    pdfEditorItems.clear();
     notifyListeners();
   }
 
@@ -174,4 +193,11 @@ class Pdfeditorcontroller with ChangeNotifier {
 
     return await pdf.save();
   }
+
+  List<String> signatureFontFamilies = [
+    'DancingMedium',
+    'GreatVibesRegular',
+    'RougeScriptRegular',
+    'BilboRegular'
+  ];
 }

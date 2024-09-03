@@ -3,7 +3,10 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/utils/AppColors.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -25,15 +28,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
   double _brushSize = 5.0;
   List<Offset?> _points = [];
 
-  String _selectedSignature = '';
-
-  // void _toggleSignMode() {
-  //   setState(() {
-  //     _isSignMode = !_isSignMode;
-  //     // _isPaintingMode = false;
-  //     _isStampMode = false;
-  //   });
-  // }
+  String selectedSignature = '';
+  String? userSignature;
 
   void _startDrawing(Offset point) {
     setState(() {
@@ -65,283 +61,358 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     // TODO: implement dispose
     super.dispose();
     print("DISPOSE");
-
-    Pdfeditorcontroller().resetValues();
   }
+
+  Offset signaturePosition = Offset(20, 20);
+  Size signatureSize = Size(100, 40);
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     Pdfeditorcontroller pdfeditorcontroller =
         Provider.of<Pdfeditorcontroller>(context);
-    return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-      appBar: AppBar(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-        elevation: 0,
-        title: Text(
-          pdfeditorcontroller.isPaintingMode
-              ? "Pencil Tool"
-              : pdfeditorcontroller.isStampMode
-                  ? "Stamp Tool"
-                  : "Sign Tool",
-          style: TextStyle(color: Colors.white),
+    return PopScope(
+      onPopInvoked: (value) {
+        Provider.of<Pdfeditorcontroller>(context, listen: false).resetValues();
+      },
+      child: Scaffold(
+        backgroundColor: AppColors.primarybgColor,
+        appBar: AppBar(
+          backgroundColor: AppColors.secondaryBgColor,
+          elevation: 0,
+          title: Text(
+            pdfeditorcontroller.isPaintingMode
+                ? "Pencil Tool"
+                : pdfeditorcontroller.isStampMode
+                    ? "Stamp Tool"
+                    : "Sign Tool",
+            style: TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
+          iconTheme: IconThemeData(color: Colors.white),
+          actions: [
+            // if (_isPaintingMode || _isStampMode || _isSignMode)
+            TextButton(
+              onPressed: () {
+                if (pdfeditorcontroller.currentEditingTool !=
+                    EditingTool.NONE) {
+                  pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
+                } else {
+                  pdfeditorcontroller.exportImage();
+                }
+                // pdfeditorcontroller.resetValues();
+              },
+              child: Text(
+                pdfeditorcontroller.currentEditingTool != EditingTool.NONE
+                    ? "Done"
+                    : "Export",
+                style: const TextStyle(
+                  color: Color.fromRGBO(47, 168, 255, 1),
+                  fontSize: 16,
+                ),
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
-        iconTheme: IconThemeData(color: Colors.white),
-        actions: [
-          // if (_isPaintingMode || _isStampMode || _isSignMode)
-          TextButton(
-            onPressed: () {
-              if (pdfeditorcontroller.currentEditingTool != EditingTool.NONE) {
-                pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
-              } else {
-                pdfeditorcontroller.exportImage();
-              }
-              // pdfeditorcontroller.resetValues();
-            },
-            child: Text(
-              pdfeditorcontroller.currentEditingTool != EditingTool.NONE
-                  ? "Done"
-                  : "Export",
-              style: const TextStyle(
-                color: Color.fromRGBO(47, 168, 255, 1),
-                fontSize: 16,
-              ),
-            ),
-          ),
-        ],
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Screenshot(
-              controller: pdfeditorcontroller.screenshotController,
-              child: Stack(
-                children: [
-                  Center(
-                    child: Image.file(
-                      widget.imageFile,
-                      fit: BoxFit.contain,
+        body: Column(
+          children: [
+            Expanded(
+              child: Screenshot(
+                controller: pdfeditorcontroller.screenshotController,
+                child: Stack(
+                  children: [
+                    Center(
+                      child: Image.file(
+                        widget.imageFile,
+                        fit: BoxFit.contain,
+                      ),
                     ),
-                  ),
-                  GestureDetector(
-                    onPanStart: pdfeditorcontroller.currentEditingTool ==
-                            EditingTool.PAINT
-                        ? (details) => _startDrawing(details.localPosition)
-                        : null,
-                    onPanUpdate: pdfeditorcontroller.currentEditingTool ==
-                            EditingTool.PAINT
-                        ? (details) => _updateDrawing(details.localPosition)
-                        : null,
-                    onPanEnd: pdfeditorcontroller.currentEditingTool ==
-                            EditingTool.PAINT
-                        ? (details) => _endDrawing()
-                        : null,
-                    child: CustomPaint(
-                      painter:
-                          _DrawingPainter(_points, _selectedColor, _brushSize),
-                      size: Size.infinite,
+                    GestureDetector(
+                      onPanStart: pdfeditorcontroller.currentEditingTool ==
+                              EditingTool.PAINT
+                          ? (details) => _startDrawing(details.localPosition)
+                          : null,
+                      onPanUpdate: pdfeditorcontroller.currentEditingTool ==
+                              EditingTool.PAINT
+                          ? (details) => _updateDrawing(details.localPosition)
+                          : null,
+                      onPanEnd: pdfeditorcontroller.currentEditingTool ==
+                              EditingTool.PAINT
+                          ? (details) => _endDrawing()
+                          : null,
+                      child: CustomPaint(
+                        painter: _DrawingPainter(
+                            _points, _selectedColor, _brushSize),
+                        size: Size.infinite,
+                      ),
                     ),
-                  ),
-                  Stack(
-                    children: [
-                      for (int i = 0;
-                          i < pdfeditorcontroller.pdfEditorItems.length;
-                          i++)
-                        if (pdfeditorcontroller.pdfEditorItems[i].signatureModel
-                                ?.signatureText !=
-                            null)
-                          Positioned(
-                            left: pdfeditorcontroller.pdfEditorItems[i]
-                                .signatureModel?.signaturePosition.dx,
-                            top: pdfeditorcontroller.pdfEditorItems[i]
-                                .signatureModel?.signaturePosition.dy,
-                            child: GestureDetector(
-                              onPanUpdate: (details) {
-                                pdfeditorcontroller.onSignaturePositionChange(
-                                    i, details.delta.dx, details.delta.dy);
-                              },
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    width: pdfeditorcontroller.pdfEditorItems[i]
-                                        .signatureModel?.signatureWith,
-                                    height: pdfeditorcontroller
-                                        .pdfEditorItems[i]
-                                        .signatureModel
-                                        ?.signatureHeight,
-                                    decoration: BoxDecoration(
-                                      border: Border.all(
-                                        color: Color.fromRGBO(47, 168, 255, 1),
-                                        width: 2,
-                                      ),
-                                    ),
-                                    child: Center(
-                                      child: Text(
-                                        "Sign",
-                                        style: TextStyle(
-                                          fontFamily: pdfeditorcontroller
-                                              .selectedSignature,
-                                          color: Colors.black,
-                                          fontSize: 24,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  // Resize handles
-                                  Positioned(
-                                    right: -10,
-                                    bottom: -10,
-                                    child: GestureDetector(
-                                      // onPanUpdate: (details) {
-                                      //   setState(() {
-                                      //     signatureSize = Size(
-                                      //       (signatureSize.width +
-                                      //               details.delta.dx)
-                                      //           .clamp(50.0, double.infinity),
-                                      //       (signatureSize.height +
-                                      //               details.delta.dy)
-                                      //           .clamp(50.0, double.infinity),
-                                      //     );
-                                      //   });
-                                      // },
-                                      child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
+
+                    pdfeditorcontroller.pdfEditorItems.isEmpty
+                        ? Container()
+                        : Stack(
+                            children: [
+                              for (int i = 0;
+                                  i < pdfeditorcontroller.pdfEditorItems.length;
+                                  i++)
+                                // Text("asdasda"),
+                                Positioned(
+                                  // left: signaturePosition.dx,
+                                  // top: signaturePosition.dy,
+                                  left: pdfeditorcontroller.pdfEditorItems[i]
+                                      .signatureModel?.signaturePosition.dx,
+                                  top: pdfeditorcontroller.pdfEditorItems[i]
+                                      .signatureModel?.signaturePosition.dy,
+                                  child: GestureDetector(
+                                    onPanUpdate: (details) {
+                                      // pdfeditorcontroller.onSignaturePositionChange(
+                                      //     0, details.delta.dx, details.delta.dy);
+
+                                      // setState(() {
+                                      // signaturePosition = Offset(
+                                      //   signaturePosition.dx + details.delta.dx,
+                                      //   signaturePosition.dy + details.delta.dy,
+                                      // );
+
+                                      pdfeditorcontroller
+                                          .onSignaturePositionChange(
+                                              i,
+                                              details.delta.dx,
+                                              details.delta.dy);
+                                      // pdfeditorcontroller.pdfEditorItems[0]
+                                      //         .signatureModel?.signaturePosition =
+                                      //     Offset(
+                                      //         pdfeditorcontroller
+                                      //                 .pdfEditorItems[0]
+                                      //                 .signatureModel
+                                      //                 ?.signaturePosition
+                                      //                 .dx ??
+                                      //             0 + details.delta.dx,
+                                      //         pdfeditorcontroller
+                                      //                 .pdfEditorItems[0]
+                                      //                 .signatureModel
+                                      //                 ?.signaturePosition
+                                      //                 .dy ??
+                                      //             0 + details.delta.dy);
+                                      // });
+                                    },
+                                    child: Container(
+                                      // width: signatureSize.width,
+                                      height: signatureSize.height,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
                                           color:
                                               Color.fromRGBO(47, 168, 255, 1),
-                                          shape: BoxShape.circle,
+                                          width: 2,
+                                        ),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          pdfeditorcontroller.pdfEditorItems[i]
+                                                  .signatureModel?.signatureText
+                                                  .toString() ??
+                                              "",
+                                          style: TextStyle(
+                                            fontFamily: "DancingMedium",
+                                            color: Colors.white,
+                                            fontSize: 24,
+                                          ),
                                         ),
                                       ),
                                     ),
                                   ),
-                                  Positioned(
-                                    left: -10,
-                                    top: -10,
-                                    child: GestureDetector(
-                                      onPanUpdate: (details) {
-                                        // setState(() {
-                                        //   signatureSize = Size(
-                                        //     (signatureSize.width -
-                                        //             details.delta.dx)
-                                        //         .clamp(50.0, double.infinity),
-                                        //     (signatureSize.height -
-                                        //             details.delta.dy)
-                                        //         .clamp(50.0, double.infinity),
-                                        //   );
-                                        //   signaturePosition = Offset(
-                                        //     signaturePosition.dx +
-                                        //         details.delta.dx,
-                                        //     signaturePosition.dy +
-                                        //         details.delta.dy,
-                                        //   );
-                                        // });
-                                      },
-                                      child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(47, 168, 255, 1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    right: -10,
-                                    top: -10,
-                                    child: GestureDetector(
-                                      onPanUpdate: (details) {
-                                        // setState(() {
-                                        //   signatureSize = Size(
-                                        //     (signatureSize.width +
-                                        //             details.delta.dx)
-                                        //         .clamp(50.0, double.infinity),
-                                        //     (signatureSize.height -
-                                        //             details.delta.dy)
-                                        //         .clamp(50.0, double.infinity),
-                                        //   );
-                                        //   signaturePosition = Offset(
-                                        //     signaturePosition.dx,
-                                        //     signaturePosition.dy +
-                                        //         details.delta.dy,
-                                        //   );
-                                        // });
-                                      },
-                                      child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(47, 168, 255, 1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                  Positioned(
-                                    left: -10,
-                                    bottom: -10,
-                                    child: GestureDetector(
-                                      onPanUpdate: (details) {
-                                        // setState(() {
-                                        //   signatureSize = Size(
-                                        //     (signatureSize.width -
-                                        //             details.delta.dx)
-                                        //         .clamp(50.0, double.infinity),
-                                        //     (signatureSize.height +
-                                        //             details.delta.dy)
-                                        //         .clamp(50.0, double.infinity),
-                                        //   );
-                                        //   signaturePosition = Offset(
-                                        //     signaturePosition.dx +
-                                        //         details.delta.dx,
-                                        //     signaturePosition.dy,
-                                        //   );
-                                        // });
-                                      },
-                                      child: Container(
-                                        width: 20,
-                                        height: 20,
-                                        decoration: BoxDecoration(
-                                          color:
-                                              Color.fromRGBO(47, 168, 255, 1),
-                                          shape: BoxShape.circle,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
+                                ),
+                            ],
                           ),
-                    ],
-                  ),
-                ],
+
+                    //   Positioned(
+                    //     left: pdfeditorcontroller.pdfEditorItems[i].signatureModel
+                    //         ?.signaturePosition.dx,
+                    //     top: pdfeditorcontroller.pdfEditorItems[i].signatureModel
+                    //         ?.signaturePosition.dy,
+                    //     child: GestureDetector(
+                    //       onPanUpdate: (details) {
+                    //         print(details.delta);
+                    //         pdfeditorcontroller.onSignaturePositionChange(
+                    //           i,
+                    //           details.delta.dx,
+                    //           details.delta.dy,
+                    //         );
+                    //       },
+                    //       child: Stack(
+                    //         children: [
+                    //           Container(
+                    //             width: pdfeditorcontroller.pdfEditorItems[i]
+                    //                 .signatureModel?.signatureWith,
+                    //             height: pdfeditorcontroller.pdfEditorItems[i]
+                    //                 .signatureModel?.signatureHeight,
+                    //             decoration: BoxDecoration(
+                    //               border: Border.all(
+                    //                 color: Color.fromRGBO(47, 168, 255, 1),
+                    //                 width: 2,
+                    //               ),
+                    //             ),
+                    //             child: Center(
+                    //               child: Text(
+                    //                 "Sign",
+                    //                 style: TextStyle(
+                    //                   fontFamily:
+                    //                       pdfeditorcontroller.selectedSignature,
+                    //                   color: Colors.black,
+                    //                   fontSize: 24,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           // Resize handles
+                    //           Positioned(
+                    //             right: -10,
+                    //             bottom: -10,
+                    //             child: GestureDetector(
+                    //               // onPanUpdate: (details) {
+                    //               //   setState(() {
+                    //               //     signatureSize = Size(
+                    //               //       (signatureSize.width +
+                    //               //               details.delta.dx)
+                    //               //           .clamp(50.0, double.infinity),
+                    //               //       (signatureSize.height +
+                    //               //               details.delta.dy)
+                    //               //           .clamp(50.0, double.infinity),
+                    //               //     );
+                    //               //   });
+                    //               // },
+                    //               child: Container(
+                    //                 width: 20,
+                    //                 height: 20,
+                    //                 decoration: BoxDecoration(
+                    //                   color: Color.fromRGBO(47, 168, 255, 1),
+                    //                   shape: BoxShape.circle,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           Positioned(
+                    //             left: -10,
+                    //             top: -10,
+                    //             child: GestureDetector(
+                    //               onPanUpdate: (details) {
+                    //                 // setState(() {
+                    //                 //   signatureSize = Size(
+                    //                 //     (signatureSize.width -
+                    //                 //             details.delta.dx)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //     (signatureSize.height -
+                    //                 //             details.delta.dy)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //   );
+                    //                 //   signaturePosition = Offset(
+                    //                 //     signaturePosition.dx +
+                    //                 //         details.delta.dx,
+                    //                 //     signaturePosition.dy +
+                    //                 //         details.delta.dy,
+                    //                 //   );
+                    //                 // });
+                    //               },
+                    //               child: Container(
+                    //                 width: 20,
+                    //                 height: 20,
+                    //                 decoration: BoxDecoration(
+                    //                   color: Color.fromRGBO(47, 168, 255, 1),
+                    //                   shape: BoxShape.circle,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           Positioned(
+                    //             right: -10,
+                    //             top: -10,
+                    //             child: GestureDetector(
+                    //               onPanUpdate: (details) {
+                    //                 // setState(() {
+                    //                 //   signatureSize = Size(
+                    //                 //     (signatureSize.width +
+                    //                 //             details.delta.dx)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //     (signatureSize.height -
+                    //                 //             details.delta.dy)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //   );
+                    //                 //   signaturePosition = Offset(
+                    //                 //     signaturePosition.dx,
+                    //                 //     signaturePosition.dy +
+                    //                 //         details.delta.dy,
+                    //                 //   );
+                    //                 // });
+                    //               },
+                    //               child: Container(
+                    //                 width: 20,
+                    //                 height: 20,
+                    //                 decoration: BoxDecoration(
+                    //                   color: Color.fromRGBO(47, 168, 255, 1),
+                    //                   shape: BoxShape.circle,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //           Positioned(
+                    //             left: -10,
+                    //             bottom: -10,
+                    //             child: GestureDetector(
+                    //               onPanUpdate: (details) {
+                    //                 // setState(() {
+                    //                 //   signatureSize = Size(
+                    //                 //     (signatureSize.width -
+                    //                 //             details.delta.dx)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //     (signatureSize.height +
+                    //                 //             details.delta.dy)
+                    //                 //         .clamp(50.0, double.infinity),
+                    //                 //   );
+                    //                 //   signaturePosition = Offset(
+                    //                 //     signaturePosition.dx +
+                    //                 //         details.delta.dx,
+                    //                 //     signaturePosition.dy,
+                    //                 //   );
+                    //                 // });
+                    //               },
+                    //               child: Container(
+                    //                 width: 20,
+                    //                 height: 20,
+                    //                 decoration: BoxDecoration(
+                    //                   color: Color.fromRGBO(47, 168, 255, 1),
+                    //                   shape: BoxShape.circle,
+                    //                 ),
+                    //               ),
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //     ),
+                    //   ),
+                  ],
+                ),
               ),
             ),
-          ),
-          pdfeditorcontroller.currentEditingTool == EditingTool.NONE
-              ? _buildBottomBar(pdfeditorcontroller)
-              : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
-                  ? _buildColorPalette()
-                  : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
-                      ? _buildColorPalette()
-                      : pdfeditorcontroller.currentEditingTool ==
-                              EditingTool.SIGN
-                          ? _buildSignSelection(pdfeditorcontroller)
-                          : Container(),
-          // if (pdfeditorcontroller.isBottomBarVisible)
-          //   _buildBottomBar(pdfeditorcontroller),
-          // if (pdfeditorcontroller.isPaintingMode) _buildColorPalette(),
-          if (pdfeditorcontroller.currentEditingTool == EditingTool.PAINT)
-            _buildBrushSizeSlider(),
-          // if (pdfeditorcontroller.isSignMode)
-          //   _buildSignSelection(pdfeditorcontroller),
-        ],
+            pdfeditorcontroller.currentEditingTool == EditingTool.NONE
+                ? _buildBottomBar(pdfeditorcontroller)
+                : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
+                    ? _buildColorPalette()
+                    : pdfeditorcontroller.currentEditingTool ==
+                            EditingTool.PAINT
+                        ? _buildColorPalette()
+                        : pdfeditorcontroller.currentEditingTool ==
+                                EditingTool.SIGN
+                            // ? _buildSignSelection(pdfeditorcontroller)
+                            ? _buildAddSignature(pdfeditorcontroller)
+                            : Container(),
+            // if (pdfeditorcontroller.isBottomBarVisible)
+            //   _buildBottomBar(pdfeditorcontroller),
+            // if (pdfeditorcontroller.isPaintingMode) _buildColorPalette(),
+            if (pdfeditorcontroller.currentEditingTool == EditingTool.PAINT)
+              _buildBrushSizeSlider(),
+            // if (pdfeditorcontroller.isSignMode)
+            //   _buildSignSelection(pdfeditorcontroller),
+          ],
+        ),
       ),
     );
   }
@@ -431,71 +502,171 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
   }
 
   Widget _buildSignSelection(Pdfeditorcontroller controller) {
-    List<String> fontFamilies = [
-      'Roboto',
-      'Arial',
-      'Courier',
-      'Georgia',
-      'Times New Roman',
-      'Verdana',
-      'Helvetica',
-      'Comic Sans MS',
-      'Trebuchet MS',
-      'Tahoma',
-    ];
+    // List<String> fontFamilies = [
+    //   'Roboto',
+    //   'Arial',
+    //   'Courier',
+    //   'Georgia',
+    //   'Times New Roman',
+    //   'Verdana',
+    //   'Helvetica',
+    //   'Comic Sans MS',
+    //   'Trebuchet MS',
+    //   'Tahoma',
+    // ];
     return Container(
       color: Color.fromRGBO(43, 46, 50, 1),
       height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: fontFamilies.length + 1,
-        itemBuilder: (context, index) {
-          if (index == 0) {
-            return Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.0),
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: Colors.red, width: 2),
-              ),
-              child: Center(
-                child: Icon(Icons.add, color: Colors.red, size: 24),
-              ),
-            );
-          }
+      child: Row(
+        children: [
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 8.0),
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              border: Border.all(color: Colors.red, width: 2),
+            ),
+            child: const Center(
+              child: Icon(Icons.add, color: Colors.red, size: 24),
+            ),
+          ),
+          Expanded(
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: controller.signatureFontFamilies.length,
+              itemBuilder: (context, index) {
+                String fontFamily = controller.signatureFontFamilies[index];
+                return GestureDetector(
+                  onTap: () {
+                    controller.handleSignatureSelection("Hello World");
+                  },
+                  child: Container(
+                    margin: EdgeInsets.symmetric(horizontal: 8.0),
+                    width: 70,
+                    height: 30,
+                    padding: EdgeInsets.all(4.0),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      border: Border.all(
+                        color: Colors.black,
+                        width: 1,
+                      ),
+                      borderRadius: BorderRadius.circular(8.0),
+                    ),
+                    child: Center(
+                      child: Text(
+                        "Signature",
+                        style: TextStyle(
+                          fontFamily: fontFamily,
+                          color: Colors.black,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 
-          String fontFamily = fontFamilies[index - 1];
-          return GestureDetector(
-            onTap: () => controller.handleSignatureSelection(fontFamily),
-            child: Container(
-              margin: EdgeInsets.symmetric(horizontal: 8.0),
-              width: 70,
-              height: 30,
-              padding: EdgeInsets.all(4.0),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
-                ),
-                borderRadius: BorderRadius.circular(8.0),
-              ),
-              child: Center(
-                child: Text(
-                  "Sign",
-                  style: TextStyle(
-                    fontFamily: fontFamily,
-                    color: Colors.black,
-                    fontSize: 14,
+  Widget _buildAddSignature(Pdfeditorcontroller controller) {
+    return GestureDetector(
+      onTap: () async {
+        String? userSignature = await showSignatureAddDialog();
+        if (userSignature != null) {
+          print(userSignature);
+          controller.handleSignatureSelection(userSignature);
+        } else {
+          print("User Didn't Write Something");
+        }
+      },
+      child: Container(
+          color: AppColors.secondaryBgColor,
+          // color: Colors.red,
+          height: 80,
+          child: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  margin: EdgeInsets.symmetric(horizontal: 8.0),
+                  width: 32,
+                  height: 32,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.red, width: 2),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.add, color: Colors.red, size: 24),
                   ),
                 ),
+                Text(
+                  "Add Signature",
+                  style: TextStyle(fontSize: 20, color: Colors.white),
+                ),
+              ],
+            ),
+          )),
+    );
+  }
+
+  Future<dynamic> showSignatureAddDialog() {
+    String? UserSignature;
+    return showDialog(
+        context: context,
+        builder: (context) {
+          return Theme(
+            data: ThemeData(useMaterial3: true),
+            child: AlertDialog(
+              insetPadding: EdgeInsets.symmetric(vertical: 50),
+              backgroundColor: AppColors.primarybgColor,
+              title: const Text(
+                "Write Your Signature",
+                style: TextStyle(fontSize: 16, color: Colors.white),
+              ),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextFormField(
+                    style: TextStyle(color: Colors.white),
+                    onChanged: (value) {
+                      UserSignature = value;
+                    },
+                    cursorColor: Colors.white,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      errorBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                      focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.white)),
+                    ),
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(horizontal: 20),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).pop(UserSignature);
+                      },
+                      child: const Text(
+                        "Add Signature",
+                        style: TextStyle(fontSize: 14),
+                      ))
+                ],
               ),
             ),
           );
-        },
-      ),
-    );
+        });
   }
 
   Widget _buildBottomBar(Pdfeditorcontroller pdfeditorcontroller) {
