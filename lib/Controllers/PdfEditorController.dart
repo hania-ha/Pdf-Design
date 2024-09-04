@@ -38,6 +38,7 @@ class Pdfeditorcontroller with ChangeNotifier {
   double brushSize = 5.0;
   int? selectedStickerIndex;
   String? selectedSignature = "Roboto";
+  int selectedItemIndex = -1;
 
   // String? selectedSignature;
   List<PdfEditorModel> _pdfEditorItems = [];
@@ -53,6 +54,20 @@ class Pdfeditorcontroller with ChangeNotifier {
   Size signatureSize = Size(100, 40);
 
   List<Offset?> points = []; // List to store drawing points\
+
+  void toggleItemSelection(int index, {EditingTool? editingTool}) {
+    selectedItemIndex = index;
+    notifyListeners();
+  }
+
+  bool checkIfSignatureExist() {
+    for (int i = 0; i < pdfEditorItems.length; i++) {
+      if (pdfEditorItems[i].editingTool == EditingTool.SIGN) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   void onSignaturePositionChange(
       int index, double xPosition, double yPosition) {
@@ -126,6 +141,7 @@ class Pdfeditorcontroller with ChangeNotifier {
           signaturePosition: Offset(20, 20),
           signatureWith: 70,
           signatureHeight: 30),
+      editingTool: EditingTool.SIGN,
     ));
 
     print(pdfEditorItems);
