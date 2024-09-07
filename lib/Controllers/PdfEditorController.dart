@@ -10,6 +10,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf_editor/Models/EditorModel.dart';
 import 'package:pdf_editor/Models/SignatureModel.dart';
+import 'package:pdf_editor/Models/StampModel.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -39,6 +40,8 @@ class Pdfeditorcontroller with ChangeNotifier {
   int? selectedStickerIndex;
   String? selectedSignature = "Roboto";
   int selectedItemIndex = -1;
+  int currentlySelectedFontFamilyIndex = 0;
+  GlobalKey imageWidgetKey = GlobalKey();
 
   // String? selectedSignature;
   List<PdfEditorModel> _pdfEditorItems = [];
@@ -54,10 +57,54 @@ class Pdfeditorcontroller with ChangeNotifier {
   Size signatureSize = Size(100, 40);
 
   List<Offset?> points = []; // List to store drawing points\
+  void calculateWidgetSize() {
+    print("calculateWidgetSize");
+    RenderBox? renderBox =
+        imageWidgetKey.currentContext?.findRenderObject() as RenderBox;
+
+    var offset = renderBox.localToGlobal(Offset.zero);
+    var size = renderBox.size;
+    print("Widget Size:: ${size}");
+  }
 
   void toggleItemSelection(int index, {EditingTool? editingTool}) {
     selectedItemIndex = index;
     notifyListeners();
+  }
+
+  String? getCurrentlySelectedSign() {
+    String? sign;
+    if (currentEditingTool == EditingTool.SIGN) {
+      sign = pdfEditorItems[selectedItemIndex].signatureModel?.signatureText;
+    }
+
+    return sign;
+  }
+
+  void toggleSignatureFontFamily(String fontFamily, int index) {
+    print(selectedItemIndex);
+    print(fontFamily);
+
+    pdfEditorItems[selectedItemIndex].signatureModel?.signatureFontFamilty =
+        fontFamily;
+    currentlySelectedFontFamilyIndex = index;
+    notifyListeners();
+  }
+
+  String getFontFamily(int i) {
+    return pdfEditorItems[i].signatureModel!.signatureFontFamilty;
+  }
+
+  Color getSignatureColor(int i) {
+    return pdfEditorItems[i].signatureModel!.signatureColor;
+  }
+
+  double getFontSize(int i) {
+    return pdfEditorItems[i].signatureModel!.signatureFontSize;
+  }
+
+  EditingTool getItemEditingType(int i) {
+    return pdfEditorItems[i].editingTool;
   }
 
   bool checkIfSignatureExist() {
@@ -69,18 +116,27 @@ class Pdfeditorcontroller with ChangeNotifier {
     return false;
   }
 
-  void onSignaturePositionChange(
-      int index, double xPosition, double yPosition) {
+  void onPositionChange(int index, double xPosition, double yPosition, int i) {
     // signaturePosition = ;
 
-    pdfEditorItems[index].signatureModel?.signaturePosition = Offset(
-      (pdfEditorItems[index].signatureModel?.signaturePosition.dx ?? 0) +
-          xPosition,
-      (pdfEditorItems[index].signatureModel?.signaturePosition.dy ?? 0) +
-          yPosition,
-    );
+    if (currentEditingTool == EditingTool.SIGN) {
+      try {
+        pdfEditorItems[index].signatureModel?.signaturePosition = Offset(
+          (pdfEditorItems[index].signatureModel?.signaturePosition.dx ?? 0) +
+              xPosition,
+          (pdfEditorItems[index].signatureModel?.signaturePosition.dy ?? 0) +
+              yPosition,
+        );
+      } catch (e) {}
 
-    print(pdfEditorItems[index].signatureModel?.signaturePosition);
+      print(pdfEditorItems[index].signatureModel?.signaturePosition);
+    }
+    if (currentEditingTool == EditingTool.STAMP) {
+      pdfEditorItems[index].stampModel?.stampPosition = Offset(
+        (pdfEditorItems[index].stampModel?.stampPosition.dx ?? 0) + xPosition,
+        (pdfEditorItems[index].stampModel?.stampPosition.dy ?? 0) + yPosition,
+      );
+    }
 
     notifyListeners();
   }
@@ -137,14 +193,34 @@ class Pdfeditorcontroller with ChangeNotifier {
     // selectedSignature = signature;
     pdfEditorItems.add(PdfEditorModel(
       signatureModel: SignatureModel(
-          signatureText: signature.toString(),
-          signaturePosition: Offset(20, 20),
-          signatureWith: 70,
-          signatureHeight: 30),
+        signatureText: signature.toString(),
+        signaturePosition: Offset(0, 0),
+        signatureWith: 70,
+        signatureHeight: 30,
+        signatureFontFamilty: signatureFontFamilies[0],
+        signatureColor: Colors.black,
+        signatureFontSize: 18,
+      ),
       editingTool: EditingTool.SIGN,
     ));
 
     print(pdfEditorItems);
+
+    notifyListeners();
+  }
+
+  void addStamp(String stampSrc) {
+    try {
+      pdfEditorItems.add(PdfEditorModel(
+          editingTool: EditingTool.STAMP,
+          stampModel: StampModel(
+            stampHeight: 70,
+            stampWidth: 50,
+            stampPosition: Offset(0, 0),
+            stampPath: stampSrc,
+          )));
+    } catch (e) {
+    } finally {}
 
     notifyListeners();
   }
@@ -155,6 +231,7 @@ class Pdfeditorcontroller with ChangeNotifier {
     isPaintingMode = false;
     isBottomBarVisible = true;
     pdfEditorItems.clear();
+    currentEditingTool == EditingTool.NONE;
     notifyListeners();
   }
 
@@ -193,13 +270,13 @@ class Pdfeditorcontroller with ChangeNotifier {
         pageFormat:
             PdfPageFormat.a4.applyMargin(left: 0, top: 0, right: 0, bottom: 0),
         orientation: pw.PageOrientation.portrait,
-        clip: true,
-        margin: pw.EdgeInsets.only(top: 10, bottom: 10, left: 0, right: 0),
+        clip: false,
+        margin: pw.EdgeInsets.only(top: 0, bottom: 0, left: 0, right: 0),
         build: (pw.Context context) {
           return pw.Center(
             child: pw.Image(
               image,
-              fit: pw.BoxFit.fill, // Fill the entire page with the image
+              fit: pw.BoxFit.cover, // Fill the entire page with the image
               alignment: pw.Alignment.center, // Align the image to center
             ),
           );
