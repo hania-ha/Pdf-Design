@@ -132,7 +132,12 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                   pdfeditorcontroller.checkIfSignatureExist() ==
                                       true
                               ? _buildSignSelection(pdfeditorcontroller)
-                              : _buildAddSignature(pdfeditorcontroller),
+                              : pdfeditorcontroller.currentEditingTool ==
+                                      EditingTool.TEXT
+                                  ? _buildAddSignature(pdfeditorcontroller,
+                                      toAddSimpleText: true)
+                                  : _buildAddSignature(pdfeditorcontroller,
+                                      toAddSimpleText: false),
             ),
           ],
         ),
@@ -163,7 +168,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                     EditingTool.NONE) {
                   pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
                 } else {
-                  pdfeditorcontroller.exportImage();
+                  pdfeditorcontroller.exportImage(context);
                 }
                 // pdfeditorcontroller.resetValues();
               },
@@ -298,7 +303,9 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                   style: TextStyle(
                                                     fontFamily:
                                                         pdfeditorcontroller
-                                                            .getFontFamily(i),
+                                                            .getFontFamily(i,
+                                                                isSimpleText:
+                                                                    false),
                                                     color: pdfeditorcontroller
                                                         .getSignatureColor(i),
                                                     fontSize:
@@ -311,185 +318,22 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                             if (pdfeditorcontroller
                                                     .selectedItemIndex ==
                                                 i)
-                                              Positioned(
-                                                right: -5,
-                                                bottom: -5,
-                                                child: GestureDetector(
-                                                  onPanUpdate: (details) {
-                                                    print(details);
-                                                    setState(() {
-                                                      signatureSize = Size(
-                                                        (signatureSize.width +
-                                                                details
-                                                                    .delta.dx)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                        (signatureSize.height +
-                                                                details
-                                                                    .delta.dy)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                      );
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration: BoxDecoration(
-                                                      color: Color.fromRGBO(
-                                                          47, 168, 255, 1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                  ),
-                                                ),
-                                              ),
+                                              PinchRightBottom(),
                                             if (pdfeditorcontroller
                                                     .selectedItemIndex ==
                                                 i)
-                                              Positioned(
-                                                left: -5,
-                                                top: -5,
-                                                child: GestureDetector(
-                                                  onPanUpdate: (details) {
-                                                    setState(() {
-                                                      signatureSize = Size(
-                                                        (signatureSize.width -
-                                                                details
-                                                                    .delta.dx)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                        (signatureSize.height -
-                                                                details
-                                                                    .delta.dy)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                      );
-
-                                                      pdfeditorcontroller
-                                                          .onPositionChange(
-                                                              i,
-                                                              details.delta.dx,
-                                                              details.delta.dy,
-                                                              i);
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Color.fromRGBO(
-                                                          47, 168, 255, 1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                  ),
-                                                ),
-                                              ),
+                                              PinchLeftTop(
+                                                  pdfeditorcontroller, i),
                                             if (pdfeditorcontroller
                                                     .selectedItemIndex ==
                                                 i)
-                                              Positioned(
-                                                left: -5,
-                                                bottom: -5,
-                                                child: GestureDetector(
-                                                  onPanUpdate: (details) {
-                                                    print(details);
-                                                    // setState(() {
-                                                    signatureSize = Size(
-                                                      (signatureSize.width -
-                                                              details.delta.dx)
-                                                          .clamp(50.0,
-                                                              double.infinity),
-                                                      (signatureSize.height +
-                                                              details.delta.dy)
-                                                          .clamp(50.0,
-                                                              double.infinity),
-                                                    );
-
-                                                    pdfeditorcontroller
-                                                        .onPositionChange(
-                                                            i,
-                                                            details.delta.dx,
-                                                            0,
-                                                            i);
-                                                  },
-                                                  child: Container(
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration:
-                                                        const BoxDecoration(
-                                                      color: Color.fromRGBO(
-                                                          47, 168, 255, 1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                  ),
-                                                ),
-                                              ),
+                                              PinchLeftBottom(
+                                                  pdfeditorcontroller, i),
                                             if (pdfeditorcontroller
                                                     .selectedItemIndex ==
                                                 i)
-                                              Positioned(
-                                                right: -5,
-                                                top: -5,
-                                                child: GestureDetector(
-                                                  onPanUpdate: (details) {
-                                                    print(details);
-                                                    setState(() {
-                                                      signatureSize = Size(
-                                                        (signatureSize.width +
-                                                                details
-                                                                    .delta.dx)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                        (signatureSize.height -
-                                                                details
-                                                                    .delta.dy)
-                                                            .clamp(
-                                                                50.0,
-                                                                double
-                                                                    .infinity),
-                                                      );
-                                                      pdfeditorcontroller
-                                                          .onPositionChange(
-                                                              i,
-                                                              0,
-                                                              details.delta.dy,
-                                                              i);
-                                                    });
-                                                  },
-                                                  child: Container(
-                                                    width: 20,
-                                                    height: 20,
-                                                    decoration: BoxDecoration(
-                                                      color: Color.fromRGBO(
-                                                          47, 168, 255, 1),
-                                                      shape: BoxShape.circle,
-                                                    ),
-                                                    padding: EdgeInsets.zero,
-                                                    constraints:
-                                                        BoxConstraints(),
-                                                  ),
-                                                ),
-                                              ),
+                                              PinchRightTop(
+                                                  pdfeditorcontroller, i),
                                           ],
                                         ),
                                       ),
@@ -507,10 +351,118 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                             .stampModel
                                             ?.stampPosition
                                             .dy,
-                                        child: Container(
-                                          width: 100,
-                                          height: 100,
-                                          color: Colors.red,
+                                        child: SizedBox(
+                                          // width: pdfeditorcontroller
+                                          //     .getStampWidth(i),
+                                          // height: pdfeditorcontroller
+                                          //     .getStampHeight(i),
+                                          child: Image.asset(
+                                            pdfeditorcontroller
+                                                .getStampImage(i),
+                                            width: 200,
+                                          ),
+                                        ),
+                                      ),
+                                    if (pdfeditorcontroller
+                                            .getItemEditingType(i) ==
+                                        EditingTool.DATE)
+                                      Positioned(
+                                        left: pdfeditorcontroller
+                                            .pdfEditorItems[i]
+                                            .dateModel
+                                            ?.dateWidgetPosition
+                                            .dx,
+                                        top: pdfeditorcontroller
+                                            .pdfEditorItems[i]
+                                            .dateModel
+                                            ?.dateWidgetPosition
+                                            .dy,
+                                        child: SizedBox(
+                                          child: pdfeditorcontroller
+                                              .pdfEditorItems[i]
+                                              .dateModel
+                                              ?.dateWidget,
+                                        ),
+                                      ),
+                                    if (pdfeditorcontroller
+                                            .getItemEditingType(i) ==
+                                        EditingTool.TEXT)
+                                      Positioned(
+                                        left: pdfeditorcontroller
+                                            .pdfEditorItems[i]
+                                            .textModel
+                                            ?.textPosition
+                                            .dx,
+                                        top: pdfeditorcontroller
+                                            .pdfEditorItems[i]
+                                            .textModel
+                                            ?.textPosition
+                                            .dy,
+                                        child: Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            Container(
+                                              width: signatureSize.width,
+                                              height: signatureSize.height,
+                                              decoration: pdfeditorcontroller
+                                                          .selectedItemIndex ==
+                                                      i
+                                                  ? BoxDecoration(
+                                                      border: Border.all(
+                                                        color: Colors.black,
+                                                        width: 2,
+                                                      ),
+                                                    )
+                                                  : BoxDecoration(
+                                                      border: Border.all(
+                                                        color:
+                                                            Colors.transparent,
+                                                        width: 2,
+                                                      ),
+                                                    ),
+                                              child: FittedBox(
+                                                child: Text(
+                                                  pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .textModel
+                                                          ?.text
+                                                          .toString() ??
+                                                      "",
+                                                  style: TextStyle(
+                                                    fontFamily:
+                                                        pdfeditorcontroller
+                                                            .getFontFamily(i,
+                                                                isSimpleText:
+                                                                    true),
+                                                    color: pdfeditorcontroller
+                                                        .getTextColor(i),
+                                                    // fontSize:
+                                                    //     pdfeditorcontroller
+                                                    //         .getFontSize(i),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            if (pdfeditorcontroller
+                                                    .selectedItemIndex ==
+                                                i)
+                                              PinchRightBottom(),
+                                            if (pdfeditorcontroller
+                                                    .selectedItemIndex ==
+                                                i)
+                                              PinchLeftTop(
+                                                  pdfeditorcontroller, i),
+                                            if (pdfeditorcontroller
+                                                    .selectedItemIndex ==
+                                                i)
+                                              PinchLeftBottom(
+                                                  pdfeditorcontroller, i),
+                                            if (pdfeditorcontroller
+                                                    .selectedItemIndex ==
+                                                i)
+                                              PinchRightTop(
+                                                  pdfeditorcontroller, i),
+                                          ],
                                         ),
                                       ),
                                   ],
@@ -523,6 +475,130 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
               ),
             ),
           ),
+        ),
+      ),
+    );
+  }
+
+  Positioned PinchRightTop(Pdfeditorcontroller pdfeditorcontroller, int i) {
+    return Positioned(
+      right: -5,
+      top: -5,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          print(details);
+          setState(() {
+            signatureSize = Size(
+              (signatureSize.width + details.delta.dx)
+                  .clamp(50.0, double.infinity),
+              (signatureSize.height - details.delta.dy)
+                  .clamp(50.0, double.infinity),
+            );
+            pdfeditorcontroller.onPositionChange(i, 0, details.delta.dy, i);
+          });
+        },
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(47, 168, 255, 1),
+            shape: BoxShape.circle,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+        ),
+      ),
+    );
+  }
+
+  Positioned PinchLeftBottom(Pdfeditorcontroller pdfeditorcontroller, int i) {
+    return Positioned(
+      left: -5,
+      bottom: -5,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          print(details);
+          // setState(() {
+          signatureSize = Size(
+            (signatureSize.width - details.delta.dx)
+                .clamp(50.0, double.infinity),
+            (signatureSize.height + details.delta.dy)
+                .clamp(50.0, double.infinity),
+          );
+
+          pdfeditorcontroller.onPositionChange(i, details.delta.dx, 0, i);
+        },
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color.fromRGBO(47, 168, 255, 1),
+            shape: BoxShape.circle,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+        ),
+      ),
+    );
+  }
+
+  Positioned PinchLeftTop(Pdfeditorcontroller pdfeditorcontroller, int i) {
+    return Positioned(
+      left: -5,
+      top: -5,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          setState(() {
+            signatureSize = Size(
+              (signatureSize.width - details.delta.dx)
+                  .clamp(50.0, double.infinity),
+              (signatureSize.height - details.delta.dy)
+                  .clamp(50.0, double.infinity),
+            );
+
+            pdfeditorcontroller.onPositionChange(
+                i, details.delta.dx, details.delta.dy, i);
+          });
+        },
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: const BoxDecoration(
+            color: Color.fromRGBO(47, 168, 255, 1),
+            shape: BoxShape.circle,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
+        ),
+      ),
+    );
+  }
+
+  Positioned PinchRightBottom() {
+    return Positioned(
+      right: -5,
+      bottom: -5,
+      child: GestureDetector(
+        onPanUpdate: (details) {
+          print(details);
+          setState(() {
+            signatureSize = Size(
+              (signatureSize.width + details.delta.dx)
+                  .clamp(50.0, double.infinity),
+              (signatureSize.height + details.delta.dy)
+                  .clamp(50.0, double.infinity),
+            );
+          });
+        },
+        child: Container(
+          width: 20,
+          height: 20,
+          decoration: BoxDecoration(
+            color: Color.fromRGBO(47, 168, 255, 1),
+            shape: BoxShape.circle,
+          ),
+          padding: EdgeInsets.zero,
+          constraints: BoxConstraints(),
         ),
       ),
     );
@@ -711,13 +787,18 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     );
   }
 
-  Widget _buildAddSignature(Pdfeditorcontroller controller) {
+  Widget _buildAddSignature(Pdfeditorcontroller controller,
+      {required bool toAddSimpleText}) {
     return GestureDetector(
       onTap: () async {
-        String? userSignature = await showSignatureAddDialog();
+        String? userSignature =
+            await showSignatureAddDialog(toAddSimpleText: toAddSimpleText);
         if (userSignature != null) {
-          print(userSignature);
-          controller.handleSignatureSelection(userSignature);
+          if (toAddSimpleText) {
+            controller.addText(userSignature);
+          } else {
+            controller.handleSignatureSelection(userSignature);
+          }
         } else {
           print("User Didn't Write Something");
         }
@@ -743,7 +824,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                   ),
                 ),
                 Text(
-                  "Add Signature",
+                  toAddSimpleText ? "Add Text" : "Add Signature",
                   style: TextStyle(fontSize: 20, color: Colors.white),
                 ),
               ],
@@ -752,7 +833,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     );
   }
 
-  Future<dynamic> showSignatureAddDialog() {
+  Future<dynamic> showSignatureAddDialog({bool? toAddSimpleText}) {
     String? UserSignature;
     return showDialog(
         context: context,
@@ -762,8 +843,10 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             child: AlertDialog(
               insetPadding: EdgeInsets.symmetric(vertical: 50),
               backgroundColor: AppColors.primarybgColor,
-              title: const Text(
-                "Write Your Signature",
+              title: Text(
+                toAddSimpleText != null && toAddSimpleText
+                    ? "Write Your Text"
+                    : "Write Your Signature",
                 style: TextStyle(fontSize: 16, color: Colors.white),
               ),
               content: Column(
@@ -826,7 +909,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             pdfeditorcontroller.toggleEditingTool(EditingTool.TEXT);
           }),
           _buildIconButton(Icons.calendar_month, "Date", onTap: () {
-            _openDateModalSheet(context);
+            _openDateModalSheet(context, pdfeditorcontroller);
           }),
         ],
       ),
@@ -856,7 +939,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     return colors;
   }
 
-  void _openDateModalSheet(BuildContext context) {
+  void _openDateModalSheet(
+      BuildContext context, Pdfeditorcontroller controller) {
     final now = DateTime.now();
 
     // Define date formats
@@ -922,23 +1006,15 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                         mainAxisSpacing: 10,
                         crossAxisSpacing: 10),
                     itemBuilder: (context, index) {
-                      return _buildDateOption(
-                          dateFormats[index], colors[index]);
+                      return _buildDateOption(dateFormats[index], colors[index],
+                          onTapped: () {
+                        controller.addDate(_buildDateOption(
+                            dateFormats[index], colors[index],
+                            onTapped: () {}));
+                        Navigator.of(context).pop();
+                      });
                     }),
               )
-              // Padding(
-              //   padding: const EdgeInsets.all(16.0),
-              //   child: Column(
-              //     crossAxisAlignment: CrossAxisAlignment.start,
-              //     children: [
-              //
-              //       _buildDateOption("01 Jan 2024", Colors.red),
-              //       _buildDateOption("14 Feb 2024", Colors.green),
-              //       _buildDateOption("25 Mar 2024", Colors.blue),
-              //       _buildDateOption("01 Apr 2024", Colors.orange),
-              //     ],
-              //   ),
-              // ),
             ],
           ),
         );
@@ -965,18 +1041,22 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     );
   }
 
-  Widget _buildDateOption(String date, Color color) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 8.0),
-      decoration: BoxDecoration(
-        border: Border.all(color: color, width: 2),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: EdgeInsets.all(12.0),
-      child: Center(
-        child: Text(
-          date,
-          style: TextStyle(color: color, fontSize: 16),
+  Widget _buildDateOption(String date, Color color,
+      {required Function() onTapped}) {
+    return GestureDetector(
+      onTap: onTapped,
+      child: Container(
+        margin: EdgeInsets.only(bottom: 8.0),
+        decoration: BoxDecoration(
+          border: Border.all(color: color, width: 2),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        padding: EdgeInsets.all(12.0),
+        child: Center(
+          child: Text(
+            date,
+            style: TextStyle(color: color, fontSize: 16),
+          ),
         ),
       ),
     );

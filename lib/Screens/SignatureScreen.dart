@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
 import 'dart:io';
 import 'SaveScreen.dart';
 
@@ -51,17 +53,7 @@ class _SignatureScreenState extends State<SignatureScreen> {
         actions: [
           TextButton(
             onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => SaveScreen(
-                    imageFile: widget.imageFile,
-                    editedSignature: selectedSignature,
-                    signaturePosition: signaturePosition,
-                    signatureSize: signatureSize,
-                  ),
-                ),
-              );
+              context.push(SaveScreen());
             },
             child: Text(
               "Done",
@@ -82,156 +74,154 @@ class _SignatureScreenState extends State<SignatureScreen> {
             ),
           ),
           if (selectedSignature != null)
-              Positioned(
-                left: signaturePosition.dx,
-                top: signaturePosition.dy,
-                child: GestureDetector(
-                  onPanUpdate: (details) {
-                    print(details);
-                    setState(() {
-                      signaturePosition = Offset(
-                        signaturePosition.dx + details.delta.dx,
-                        signaturePosition.dy + details.delta.dy,
-                      );
-                    });
-                  },
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: signatureSize.width,
-                        height: signatureSize.height,
-                        decoration: BoxDecoration(
-                          border: Border.all(
+            Positioned(
+              left: signaturePosition.dx,
+              top: signaturePosition.dy,
+              child: GestureDetector(
+                onPanUpdate: (details) {
+                  print(details);
+                  setState(() {
+                    signaturePosition = Offset(
+                      signaturePosition.dx + details.delta.dx,
+                      signaturePosition.dy + details.delta.dy,
+                    );
+                  });
+                },
+                child: Stack(
+                  children: [
+                    Container(
+                      width: signatureSize.width,
+                      height: signatureSize.height,
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Color.fromRGBO(47, 168, 255, 1),
+                          width: 2,
+                        ),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "Sign",
+                          style: TextStyle(
+                            fontFamily: selectedSignature,
+                            color: Colors.black,
+                            fontSize: 24,
+                          ),
+                        ),
+                      ),
+                    ),
+                    // Resize handles
+                    Positioned(
+                      right: -10,
+                      bottom: -10,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          setState(() {
+                            signatureSize = Size(
+                              (signatureSize.width + details.delta.dx)
+                                  .clamp(50.0, double.infinity),
+                              (signatureSize.height + details.delta.dy)
+                                  .clamp(50.0, double.infinity),
+                            );
+                          });
+                        },
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
                             color: Color.fromRGBO(47, 168, 255, 1),
-                            width: 2,
-                          ),
-                        ),
-                        child: Center(
-                          child: Text(
-                            "Sign",
-                            style: TextStyle(
-                              fontFamily: selectedSignature,
-                              color: Colors.black,
-                              fontSize: 24,
-                            ),
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
-                      // Resize handles
-                      Positioned(
-                        right: -10,
-                        bottom: -10,
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            setState(() {
-                              signatureSize = Size(
-                                (signatureSize.width + details.delta.dx)
-                                    .clamp(50.0, double.infinity),
-                                (signatureSize.height + details.delta.dy)
-                                    .clamp(50.0, double.infinity),
-                              );
-                            });
-                          },
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(47, 168, 255, 1),
-                              shape: BoxShape.circle,
-                            ),
+                    ),
+                    Positioned(
+                      left: -10,
+                      top: -10,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          setState(() {
+                            signatureSize = Size(
+                              (signatureSize.width - details.delta.dx)
+                                  .clamp(50.0, double.infinity),
+                              (signatureSize.height - details.delta.dy)
+                                  .clamp(50.0, double.infinity),
+                            );
+                            signaturePosition = Offset(
+                              signaturePosition.dx + details.delta.dx,
+                              signaturePosition.dy + details.delta.dy,
+                            );
+                          });
+                        },
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(47, 168, 255, 1),
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: -10,
-                        top: -10,
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            setState(() {
-                              signatureSize = Size(
-                                (signatureSize.width - details.delta.dx)
-                                    .clamp(50.0, double.infinity),
-                                (signatureSize.height - details.delta.dy)
-                                    .clamp(50.0, double.infinity),
-                              );
-                              signaturePosition = Offset(
-                                signaturePosition.dx + details.delta.dx,
-                                signaturePosition.dy + details.delta.dy,
-                              );
-                            });
-                          },
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(47, 168, 255, 1),
-                              shape: BoxShape.circle,
-                            ),
+                    ),
+                    Positioned(
+                      right: -10,
+                      top: -10,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          setState(() {
+                            signatureSize = Size(
+                              (signatureSize.width + details.delta.dx)
+                                  .clamp(50.0, double.infinity),
+                              (signatureSize.height - details.delta.dy)
+                                  .clamp(50.0, double.infinity),
+                            );
+                            signaturePosition = Offset(
+                              signaturePosition.dx,
+                              signaturePosition.dy + details.delta.dy,
+                            );
+                          });
+                        },
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(47, 168, 255, 1),
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
-                      Positioned(
-                        right: -10,
-                        top: -10,
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            setState(() {
-                              signatureSize = Size(
-                                (signatureSize.width + details.delta.dx)
-                                    .clamp(50.0, double.infinity),
-                                (signatureSize.height - details.delta.dy)
-                                    .clamp(50.0, double.infinity),
-                              );
-                              signaturePosition = Offset(
-                                signaturePosition.dx,
-                                signaturePosition.dy + details.delta.dy,
-                              );
-                            });
-                          },
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(47, 168, 255, 1),
-                              shape: BoxShape.circle,
-                            ),
+                    ),
+                    Positioned(
+                      left: -10,
+                      bottom: -10,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          setState(() {
+                            signatureSize = Size(
+                              (signatureSize.width - details.delta.dx)
+                                  .clamp(50.0, double.infinity),
+                              (signatureSize.height + details.delta.dy)
+                                  .clamp(50.0, double.infinity),
+                            );
+                            signaturePosition = Offset(
+                              signaturePosition.dx + details.delta.dx,
+                              signaturePosition.dy,
+                            );
+                          });
+                        },
+                        child: Container(
+                          width: 20,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Color.fromRGBO(47, 168, 255, 1),
+                            shape: BoxShape.circle,
                           ),
                         ),
                       ),
-                      Positioned(
-                        left: -10,
-                        bottom: -10,
-                        child: GestureDetector(
-                          onPanUpdate: (details) {
-                            setState(() {
-                              signatureSize = Size(
-                                (signatureSize.width - details.delta.dx)
-                                    .clamp(50.0, double.infinity),
-                                (signatureSize.height + details.delta.dy)
-                                    .clamp(50.0, double.infinity),
-                              );
-                              signaturePosition = Offset(
-                                signaturePosition.dx + details.delta.dx,
-                                signaturePosition.dy,
-                              );
-                            });
-                          },
-                          child: Container(
-                            width: 20,
-                            height: 20,
-                            decoration: BoxDecoration(
-                              color: Color.fromRGBO(47, 168, 255, 1),
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
-        
-       
+            ),
         ],
       ),
       bottomNavigationBar: Container(

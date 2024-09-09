@@ -8,9 +8,14 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Models/EditorModel.dart';
 import 'package:pdf_editor/Models/SignatureModel.dart';
 import 'package:pdf_editor/Models/StampModel.dart';
+import 'package:pdf_editor/Models/TextModel.dart';
+import 'package:pdf_editor/Models/dateModel.dart';
+import 'package:pdf_editor/Screens/SaveScreen.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -91,20 +96,42 @@ class Pdfeditorcontroller with ChangeNotifier {
     notifyListeners();
   }
 
-  String getFontFamily(int i) {
-    return pdfEditorItems[i].signatureModel!.signatureFontFamilty;
+  String getFontFamily(int i, {required bool isSimpleText}) {
+    return isSimpleText
+        ? pdfEditorItems[i].textModel!.textFontFamily
+        : pdfEditorItems[i].signatureModel!.signatureFontFamilty;
   }
 
   Color getSignatureColor(int i) {
     return pdfEditorItems[i].signatureModel!.signatureColor;
   }
 
+  Color getTextColor(int i) {
+    return pdfEditorItems[i].textModel!.textColor;
+  }
+
   double getFontSize(int i) {
     return pdfEditorItems[i].signatureModel!.signatureFontSize;
   }
 
+  String getSimpleTextFontSize(int i) {
+    return pdfEditorItems[i].textModel!.textFontFamily;
+  }
+
   EditingTool getItemEditingType(int i) {
     return pdfEditorItems[i].editingTool;
+  }
+
+  double getStampWidth(int i) {
+    return pdfEditorItems[i].stampModel!.stampWidth;
+  }
+
+  double getStampHeight(int i) {
+    return pdfEditorItems[i].stampModel!.stampHeight;
+  }
+
+  String getStampImage(int i) {
+    return pdfEditorItems[i].stampModel!.stampPath;
   }
 
   bool checkIfSignatureExist() {
@@ -137,12 +164,27 @@ class Pdfeditorcontroller with ChangeNotifier {
         (pdfEditorItems[index].stampModel?.stampPosition.dy ?? 0) + yPosition,
       );
     }
+    if (currentEditingTool == EditingTool.DATE) {
+      pdfEditorItems[index].dateModel?.dateWidgetPosition = Offset(
+        (pdfEditorItems[index].dateModel?.dateWidgetPosition.dx ?? 0) +
+            xPosition,
+        (pdfEditorItems[index].dateModel?.dateWidgetPosition.dy ?? 0) +
+            yPosition,
+      );
+    }
+    if (currentEditingTool == EditingTool.TEXT) {
+      pdfEditorItems[index].textModel?.textPosition = Offset(
+        (pdfEditorItems[index].textModel?.textPosition.dx ?? 0) + xPosition,
+        (pdfEditorItems[index].textModel?.textPosition.dy ?? 0) + yPosition,
+      );
+    }
 
     notifyListeners();
   }
 
   void toggleEditingTool(EditingTool editingTool) {
     currentEditingTool = editingTool;
+
     notifyListeners();
   }
 
@@ -189,6 +231,22 @@ class Pdfeditorcontroller with ChangeNotifier {
     isSignMode = !isSignMode;
   }
 
+  void addText(String text) {
+    pdfEditorItems.add(PdfEditorModel(
+      textModel: TextModel(
+        textWidth: 100,
+        textHeight: 60,
+        textPosition: Offset(0, 0),
+        text: text,
+        textFontFamily: 'times',
+        fontSize: 14,
+        textColor: Colors.black,
+      ),
+      editingTool: EditingTool.TEXT,
+    ));
+    notifyListeners();
+  }
+
   void handleSignatureSelection(String signature) {
     // selectedSignature = signature;
     pdfEditorItems.add(PdfEditorModel(
@@ -225,6 +283,18 @@ class Pdfeditorcontroller with ChangeNotifier {
     notifyListeners();
   }
 
+  void addDate(Widget dateWidget) {
+    pdfEditorItems.add(PdfEditorModel(
+        editingTool: EditingTool.DATE,
+        dateModel: DateModel(
+            dateWidget: dateWidget,
+            dateWidgetHeight: 100,
+            dateWidgetPosition: Offset(0, 0),
+            dateWidgetWidth: 200)));
+
+    notifyListeners();
+  }
+
   void resetValues() {
     isStampMode = false;
     isSignMode = false;
@@ -239,7 +309,10 @@ class Pdfeditorcontroller with ChangeNotifier {
   //   return await rootBundle.loadString('assets/stampsImages.json');
   // }
 
-  void exportImage() async {
+  void exportImage(BuildContext context) async {
+    context.push(SaveScreen());
+    return;
+
     final pdf = pw.Document();
     Uint8List? exportedImageBytes = await screenshotController.capture();
     if (exportedImageBytes != null) {
