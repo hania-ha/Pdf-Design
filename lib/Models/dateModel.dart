@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 
 class DateModel {
   Widget dateWidget;
-  double dateWidgetWidth;
-  double dateWidgetHeight;
+  Size dataSize;
   Offset dateWidgetPosition;
 
   DateModel({
     required this.dateWidget,
-    required this.dateWidgetHeight,
     required this.dateWidgetPosition,
-    required this.dateWidgetWidth,
+    required this.dataSize,
   });
 }

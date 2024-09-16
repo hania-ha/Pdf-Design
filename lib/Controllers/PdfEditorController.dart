@@ -122,14 +122,6 @@ class Pdfeditorcontroller with ChangeNotifier {
     return pdfEditorItems[i].editingTool;
   }
 
-  double getStampWidth(int i) {
-    return pdfEditorItems[i].stampModel!.stampWidth;
-  }
-
-  double getStampHeight(int i) {
-    return pdfEditorItems[i].stampModel!.stampHeight;
-  }
-
   String getStampImage(int i) {
     return pdfEditorItems[i].stampModel!.stampPath;
   }
@@ -180,6 +172,42 @@ class Pdfeditorcontroller with ChangeNotifier {
     }
 
     notifyListeners();
+  }
+
+  void onPinchRightTop(int i, double dx, double dy) {
+    pdfEditorItems[i].signatureModel?.signatureSize = Size(
+      (pdfEditorItems[i].signatureModel!.signatureSize.width + dx)
+          .clamp(20.0, double.infinity),
+      (pdfEditorItems[i].signatureModel!.signatureSize.height - dy)
+          .clamp(20.0, double.infinity),
+    );
+  }
+
+  void onPinchLeftBottom(int i, double dx, double dy) {
+    pdfEditorItems[i].signatureModel?.signatureSize = Size(
+      (pdfEditorItems[i].signatureModel!.signatureSize.width - dx)
+          .clamp(20.0, double.infinity),
+      (pdfEditorItems[i].signatureModel!.signatureSize.height + dy)
+          .clamp(20.0, double.infinity),
+    );
+  }
+
+  void onPinchPinchLeftTop(int i, double dx, double dy) {
+    pdfEditorItems[i].signatureModel?.signatureSize = Size(
+      (pdfEditorItems[i].signatureModel!.signatureSize.width - dx)
+          .clamp(20.0, double.infinity),
+      (pdfEditorItems[i].signatureModel!.signatureSize.height - dy)
+          .clamp(20.0, double.infinity),
+    );
+  }
+
+  void onPinchRightBottom(int i, double dx, double dy) {
+    pdfEditorItems[i].signatureModel?.signatureSize = Size(
+      (pdfEditorItems[i].signatureModel!.signatureSize.width + dx)
+          .clamp(20.0, double.infinity),
+      (pdfEditorItems[i].signatureModel!.signatureSize.height + dy)
+          .clamp(20.0, double.infinity),
+    );
   }
 
   void toggleEditingTool(EditingTool editingTool) {
@@ -234,8 +262,7 @@ class Pdfeditorcontroller with ChangeNotifier {
   void addText(String text) {
     pdfEditorItems.add(PdfEditorModel(
       textModel: TextModel(
-        textWidth: 100,
-        textHeight: 60,
+        textSize: Size(100, 60),
         textPosition: Offset(0, 0),
         text: text,
         textFontFamily: 'times',
@@ -253,11 +280,10 @@ class Pdfeditorcontroller with ChangeNotifier {
       signatureModel: SignatureModel(
         signatureText: signature.toString(),
         signaturePosition: Offset(0, 0),
-        signatureWith: 70,
-        signatureHeight: 30,
         signatureFontFamilty: signatureFontFamilies[0],
         signatureColor: Colors.black,
         signatureFontSize: 18,
+        signatureSize: Size(120, 50),
       ),
       editingTool: EditingTool.SIGN,
     ));
@@ -272,8 +298,7 @@ class Pdfeditorcontroller with ChangeNotifier {
       pdfEditorItems.add(PdfEditorModel(
           editingTool: EditingTool.STAMP,
           stampModel: StampModel(
-            stampHeight: 70,
-            stampWidth: 50,
+            stampSize: Size(120, 70),
             stampPosition: Offset(0, 0),
             stampPath: stampSrc,
           )));
@@ -284,13 +309,16 @@ class Pdfeditorcontroller with ChangeNotifier {
   }
 
   void addDate(Widget dateWidget) {
-    pdfEditorItems.add(PdfEditorModel(
+    pdfEditorItems.add(
+      PdfEditorModel(
         editingTool: EditingTool.DATE,
         dateModel: DateModel(
-            dateWidget: dateWidget,
-            dateWidgetHeight: 100,
-            dateWidgetPosition: Offset(0, 0),
-            dateWidgetWidth: 200)));
+          dateWidget: dateWidget,
+          dataSize: Size(150, 180),
+          dateWidgetPosition: Offset(0, 0),
+        ),
+      ),
+    );
 
     notifyListeners();
   }
@@ -310,13 +338,17 @@ class Pdfeditorcontroller with ChangeNotifier {
   // }
 
   void exportImage(BuildContext context) async {
-    context.push(SaveScreen());
-    return;
-
     final pdf = pw.Document();
     Uint8List? exportedImageBytes = await screenshotController.capture();
     if (exportedImageBytes != null) {
       Uint8List? pdfImage = await generatePdf(exportedImageBytes);
+      if (context.mounted) {
+        context.push(SaveScreen(
+          imageBytes: pdfImage,
+        ));
+      }
+
+      return;
       if (pdfImage != null) {
         Directory tempDir = await getTemporaryDirectory();
         String filePath =

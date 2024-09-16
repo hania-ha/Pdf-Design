@@ -1,12 +1,15 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'dart:io';
 
 class SaveScreen extends StatelessWidget {
-  const SaveScreen({super.key});
+  SaveScreen({super.key, required this.imageBytes});
+  Uint8List imageBytes;
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
+    final screenSize = MediaQuery.of(context).size.height;
 
     return Scaffold(
       backgroundColor: Color.fromRGBO(33, 35, 38, 1),
@@ -48,32 +51,61 @@ class SaveScreen extends StatelessWidget {
           ),
         ],
       ),
-      body: Stack(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Display the image
+          Expanded(
+              flex: 4,
+              child: Container(
+                color: Colors.red,
+                child: AspectRatio(
+                    aspectRatio: 1 / 2,
+                    child: Container(
+                      color: Colors.amber,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            width: screenSize * .22,
+                            height: (screenSize * .60) / 2,
+                            color: Colors.red,
+
+                            // margin: EdgeInsets.all(100),
+                          ),
+                          Text("Assignment.pdf"),
+                          Text("File size: 238KB"),
+                        ],
+                      ),
+                    )),
+              )),
+          Expanded(
+              flex: 3,
+              child: Container(
+                color: Colors.green,
+              ))
         ],
       ),
-      bottomNavigationBar: Container(
-        color: Color.fromRGBO(43, 46, 50, 1),
-        padding: EdgeInsets.symmetric(vertical: 16.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildBottomBarOption(
-              iconPath: 'assets/pdficon.png',
-              label: "Save as PDF",
-            ),
-            _buildBottomBarOption(
-              iconPath: 'assets/save.png',
-              label: "Save as PNG",
-            ),
-            _buildBottomBarOption(
-              iconPath: 'assets/shareicon.png',
-              label: "Share file",
-            ),
-          ],
-        ),
-      ),
+      // bottomNavigationBar: Container(
+      //   color: Color.fromRGBO(43, 46, 50, 1),
+      //   padding: EdgeInsets.symmetric(vertical: 16.0),
+      //   child: Column(
+      //     mainAxisSize: MainAxisSize.min,
+      //     children: [
+      //       _buildBottomBarOption(
+      //         iconPath: 'assets/pdficon.png',
+      //         label: "Save as PDF",
+      //       ),
+      //       _buildBottomBarOption(
+      //         iconPath: 'assets/save.png',
+      //         label: "Save as PNG",
+      //       ),
+      //       _buildBottomBarOption(
+      //         iconPath: 'assets/shareicon.png',
+      //         label: "Share file",
+      //       ),
+      //     ],
+      //   ),
+      // ),
     );
   }
 

@@ -45,6 +45,7 @@ dependencies:
   pdf: ^3.11.1
   intl: ^0.19.0
   purchases_flutter: ^8.1.0
+  # shimmer: ^3.0.0
   
 
 dev_dependencies:

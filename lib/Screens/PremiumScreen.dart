@@ -1,31 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
+import 'package:pdf_editor/CustomWidgets/shimmer_animation.dart';
+import 'package:provider/provider.dart';
 
 class PremiumScreen extends StatefulWidget {
   @override
   _PremiumScreenState createState() => _PremiumScreenState();
 }
 
-class _PremiumScreenState extends State<PremiumScreen> {
+class _PremiumScreenState extends State<PremiumScreen>
+    with SingleTickerProviderStateMixin {
   bool isMonthlyPlanSelected = false;
   bool isYearlyPlanSelected = false;
 
   @override
   Widget build(BuildContext context) {
+    ProScreenController proScreenController =
+        Provider.of<ProScreenController>(context);
+    Size size = MediaQuery.of(context).size;
     return Scaffold(
       backgroundColor: Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
         backgroundColor: Color.fromRGBO(43, 46, 50, 1),
         centerTitle: true,
         leading: IconButton(
-    icon: Icon(
-      Icons.arrow_back,
-      color: Colors.white, 
-    ),
-    onPressed: () {
-      
-      Navigator.of(context).pop();
-    },
-  ),
+          icon: Icon(
+            Icons.arrow_back,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
         title: RichText(
           text: TextSpan(
             style: TextStyle(
@@ -83,7 +89,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
               SizedBox(height: 30),
 
-           Padding(
+              const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -106,7 +112,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ],
                     ),
                     SizedBox(height: 9),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -125,7 +130,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ],
                     ),
                     SizedBox(height: 9),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -144,7 +148,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ],
                     ),
                     SizedBox(height: 9),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -163,7 +166,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       ],
                     ),
                     SizedBox(height: 9),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -185,169 +187,187 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
 
-
-
               SizedBox(height: 5),
 
-             Padding(
-  padding: EdgeInsets.all(20.0),
-  child: Card(
-    color: Color.fromRGBO(33, 35, 38, 1),
-    shape: RoundedRectangleBorder(
-      borderRadius: BorderRadius.circular(10),
-    ),
-    elevation: 4,
-    child: Padding(
-      padding: EdgeInsets.all(24.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            'Choose Plan',
-            style: TextStyle(
-              fontFamily: 'Inter',
-              fontSize: 20,
-              color: Colors.white,
-              fontWeight: FontWeight.bold,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          SizedBox(height: 20),
-          Column(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isMonthlyPlanSelected = true;
-                    isYearlyPlanSelected = false;
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  constraints: BoxConstraints(
-                    maxWidth: 500, // Prevent overflow
-                  ),
-                  padding: EdgeInsets.all(25),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(66, 69, 73, 1),
+              Padding(
+                padding: EdgeInsets.all(20.0),
+                child: Card(
+                  color: Color.fromRGBO(33, 35, 38, 1),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          _buildCheckbox(isMonthlyPlanSelected),
-                          SizedBox(width: 10),
-                          Text(
-                            'Monthly plan',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 20), // Adjust space to prevent overflow
-                      Flexible(
-                        child: Text(
-                          '\$8.99/mo',
+                  elevation: 4,
+                  child: Padding(
+                    padding: EdgeInsets.all(24.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Choose Plan',
                           style: TextStyle(
                             fontFamily: 'Inter',
-                            fontSize: 16,
+                            fontSize: 20,
                             color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
-                          overflow: TextOverflow.ellipsis, // Prevent text overflow
+                          textAlign: TextAlign.center,
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 20),
+                        Column(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isMonthlyPlanSelected = true;
+                                  isYearlyPlanSelected = false;
+                                });
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                constraints: BoxConstraints(
+                                  maxWidth: 500, // Prevent overflow
+                                ),
+                                padding: EdgeInsets.all(25),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(66, 69, 73, 1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        _buildCheckbox(isMonthlyPlanSelected),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Monthly plan',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                        width:
+                                            20), // Adjust space to prevent overflow
+                                    Flexible(
+                                      child: Text(
+                                        '\$8.99/mo',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Prevent text overflow
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(height: 15),
+                            GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  isMonthlyPlanSelected = false;
+                                  isYearlyPlanSelected = true;
+                                });
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                constraints: BoxConstraints(
+                                  maxWidth: 500, // Prevent overflow
+                                ),
+                                padding: EdgeInsets.all(25),
+                                decoration: BoxDecoration(
+                                  color: Color.fromRGBO(66, 69, 73, 1),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        _buildCheckbox(isYearlyPlanSelected),
+                                        SizedBox(width: 10),
+                                        Text(
+                                          'Yearly plan',
+                                          style: TextStyle(
+                                            fontFamily: 'Inter',
+                                            fontSize: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(
+                                        width:
+                                            20), // Adjust space to prevent overflow
+                                    Flexible(
+                                      child: Text(
+                                        '\$26.99/yr',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: 16,
+                                          color: Colors.white,
+                                        ),
+                                        overflow: TextOverflow
+                                            .ellipsis, // Prevent text overflow
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-              SizedBox(height: 15),
-              GestureDetector(
-                onTap: () {
-                  setState(() {
-                    isMonthlyPlanSelected = false;
-                    isYearlyPlanSelected = true;
-                  });
-                },
-                child: Container(
-                  width: double.infinity,
-                  constraints: BoxConstraints(
-                    maxWidth: 500, // Prevent overflow
-                  ),
-                  padding: EdgeInsets.all(25),
-                  decoration: BoxDecoration(
-                    color: Color.fromRGBO(66, 69, 73, 1),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        children: [
-                          _buildCheckbox(isYearlyPlanSelected),
-                          SizedBox(width: 10),
-                          Text(
-                            'Yearly plan',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: 16,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ],
-                      ),
-                      SizedBox(width: 20), // Adjust space to prevent overflow
-                      Flexible(
-                        child: Text(
-                          '\$26.99/yr',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                          overflow: TextOverflow.ellipsis, // Prevent text overflow
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    ),
-  ),
-),
-
-
 
               SizedBox(height: 10),
 
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: ElevatedButton(
-                  onPressed: () {
-                    // Implement the continue button action here
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromRGBO(238, 76, 76, 1),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    padding: EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: Center(
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 18,
-                        color: Colors.white,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(15),
+                  child: Shimmer(
+                    duration: const Duration(milliseconds: 3500),
+                    interval: const Duration(milliseconds: 100),
+                    color: Colors.white,
+                    colorOpacity: 0.8,
+                    enabled: true,
+                    direction: const ShimmerDirection.fromLTRB(),
+                    child: SizedBox(
+                      width: size.width * .50,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          proScreenController.buyProduct(context);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Color.fromRGBO(238, 76, 76, 1),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: EdgeInsets.symmetric(vertical: 16),
+                        ),
+                        child: Center(
+                          child: Text(
+                            'Continue',
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontSize: 18,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
@@ -374,7 +394,6 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Column(
                   children: [
-                    
                     SizedBox(height: 10),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,

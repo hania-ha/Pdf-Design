@@ -3,8 +3,7 @@ import 'package:flutter/material.dart';
 class SignatureModel {
   String signatureText;
   Offset signaturePosition;
-  double signatureWith;
-  double signatureHeight;
+  Size signatureSize;
   String signatureFontFamilty;
   Color signatureColor;
   double signatureFontSize;
@@ -12,8 +11,7 @@ class SignatureModel {
   SignatureModel({
     required this.signatureText,
     required this.signaturePosition,
-    required this.signatureWith,
-    required this.signatureHeight,
+    required this.signatureSize,
     required this.signatureFontFamilty,
     required this.signatureColor,
     required this.signatureFontSize,

@@ -1,14 +1,12 @@
 import 'package:flutter/material.dart';
 
 class StampModel {
-  double stampWidth;
-  double stampHeight;
+  Size stampSize;
   Offset stampPosition;
   String stampPath;
 
   StampModel(
-      {required this.stampHeight,
-      required this.stampWidth,
+      {required this.stampSize,
       required this.stampPosition,
       required this.stampPath});
 }

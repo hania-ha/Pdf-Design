@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
+import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
@@ -13,7 +15,7 @@ class Screen1 extends StatefulWidget {
   _Screen1State createState() => _Screen1State();
 }
 
-class _Screen1State extends State<Screen1> {
+class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
   int _selectedIndex = 0;
   List<File> _recentFiles = [];
   bool _isPickingImage = false; // Flag to track image picker activity
@@ -27,17 +29,43 @@ class _Screen1State extends State<Screen1> {
     );
   }
 
+  late AnimationController _controller;
+  late Animation<double> _animation;
+  @override
+  void initState() {
+    super.initState();
+
+    _controller = AnimationController(
+      vsync: this,
+      duration: Duration(seconds: 1),
+    );
+
+    _animation = Tween<double>(begin: 0.7, end: 1.1).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _controller.repeat(reverse: true); // Zoom in and out continuously
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     HomeScreenController homeScreenController =
         Provider.of<HomeScreenController>(context, listen: false);
+    ProScreenController proScreenController =
+        Provider.of<ProScreenController>(context);
 
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+        backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
         appBar: AppBar(
-          backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+          backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
           elevation: 0,
           centerTitle: false,
           title: Padding(
@@ -45,19 +73,24 @@ class _Screen1State extends State<Screen1> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text(
+                const Text(
                   'PDF Stamp & Sign',
                   style: CustomTextStyles.primaryText20,
                 ),
-                SizedBox(width: 10),
-                GestureDetector(
-                  onTap: _navigateToPremiumScreen,
-                  child: Image.asset(
-                    'assets/crown.png',
-                    height: 40,
-                    width: 40,
-                  ),
-                ),
+                const SizedBox(width: 10),
+                proScreenController.isUserPro
+                    ? Container()
+                    : GestureDetector(
+                        onTap: _navigateToPremiumScreen,
+                        child: ScaleTransition(
+                          scale: _animation,
+                          child: Image.asset(
+                            'assets/crown.png',
+                            height: 40,
+                            width: 40,
+                          ),
+                        ),
+                      ),
               ],
             ),
           ),
@@ -69,43 +102,75 @@ class _Screen1State extends State<Screen1> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
-                  Container(
-                    padding: EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.red.shade800, Colors.red.shade400],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    width: double.infinity,
-                    height: 120,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Upgrade to Premium',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
+                  const SizedBox(height: 10),
+                  proScreenController.isUserPro
+                      ? Container()
+                      : Container(
+                          padding: const EdgeInsets.all(16.0),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [
+                                Colors.red.shade800,
+                                Colors.red.shade400
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          width: double.infinity,
+                          height: 120,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(top: 10),
+                                    child: SvgPicture.asset(
+                                      'assets/proBannerStars.svg',
+                                      width: 25,
+                                      height: 25,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Upgrade to Premium',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Text(
+                                    'Unlimited access to all the premium\nfeatures',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w400,
+                                      fontFamily: 'intern',
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.white.withOpacity(.22),
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                ),
+                              )
+                            ],
                           ),
                         ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Unlimited access to all features',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 14,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 24),
-                  Text(
+                  const SizedBox(height: 24),
+                  const Text(
                     'Tools',
                     style: TextStyle(
                       color: Colors.white,
@@ -113,7 +178,7 @@ class _Screen1State extends State<Screen1> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(
@@ -127,28 +192,64 @@ class _Screen1State extends State<Screen1> {
                           },
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
-                        child: _buildToolBox(
-                          context,
-                          'assets/stampicon.png', // Custom asset icon
-                          'Add stamp',
-                          onPressed: () {
-                            homeScreenController.pickImage(
-                                context, PdfTool.AddStamp);
-                          },
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            _buildToolBox(
+                              context,
+                              'assets/stampicon.png', // Custom asset icon
+                              'Add stamp',
+                              onPressed: () {
+                                homeScreenController.pickImage(
+                                    context, PdfTool.AddStamp);
+                              },
+                            ),
+                            proScreenController.isUserPro
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: _navigateToPremiumScreen,
+                                    child: Container(
+                                      margin: EdgeInsets.all(5),
+                                      child: Image.asset(
+                                        'assets/crown.png',
+                                        height: 25,
+                                        width: 25,
+                                      ),
+                                    ),
+                                  ),
+                          ],
                         ),
                       ),
-                      SizedBox(width: 16),
+                      const SizedBox(width: 16),
                       Expanded(
-                        child: _buildToolBox(
-                          context,
-                          'assets/pdficon.png', // Custom asset icon
-                          'Image to PDF',
-                          onPressed: () {
-                            homeScreenController.pickImage(
-                                context, PdfTool.ImageToPDF);
-                          },
+                        child: Stack(
+                          alignment: Alignment.topRight,
+                          children: [
+                            _buildToolBox(
+                              context,
+                              'assets/pdficon.png', // Custom asset icon
+                              'Image to PDF',
+                              onPressed: () {
+                                homeScreenController.pickImage(
+                                    context, PdfTool.ImageToPDF);
+                              },  
+                            ),
+                            proScreenController.isUserPro
+                                ? Container()
+                                : GestureDetector(
+                                    onTap: _navigateToPremiumScreen,
+                                    child: Container(
+                                      margin: EdgeInsets.all(5),
+                                      child: Image.asset(
+                                        'assets/crown.png',
+                                        height: 25,
+                                        width: 25,
+                                      ),
+                                    ),
+                                  ),
+                          ],
                         ),
                       ),
                     ],
@@ -167,7 +268,7 @@ class _Screen1State extends State<Screen1> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(
+                            const Text(
                               'Recent Files',
                               style: TextStyle(
                                 color: Colors.white,
@@ -175,7 +276,7 @@ class _Screen1State extends State<Screen1> {
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
-                            SizedBox(height: 16),
+                            const SizedBox(height: 16),
                             _buildRecentFilesSection(),
                           ],
                         ),
