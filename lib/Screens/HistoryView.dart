@@ -67,8 +67,8 @@ class _HistoryViewState extends State<HistoryView> {
                   itemBuilder: (context, index) {
                     final file = snapshot.data![index] as FileSystemEntity;
                     final stat = FileStat.statSync(file.path);
-                    DateTime creationDate = stat.
-                    print(stat);
+                    // DateTime creationDate = stat.
+                    
                     return Container(
                       margin: const EdgeInsets.symmetric(vertical: 10),
                       width: double.infinity,
