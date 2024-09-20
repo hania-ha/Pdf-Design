@@ -4,19 +4,21 @@ import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
+import 'package:pdf_editor/Screens/HistoryView.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
 import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
 import 'PdfEditorScreen.dart';
 import 'PremiumScreen.dart';
 
-class Screen1 extends StatefulWidget {
+class HomeScreen extends StatefulWidget {
   @override
-  _Screen1State createState() => _Screen1State();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
-  int _selectedIndex = 0;
+class _HomeScreenState extends State<HomeScreen>
+    with SingleTickerProviderStateMixin {
   List<File> _recentFiles = [];
   bool _isPickingImage = false; // Flag to track image picker activity
 
@@ -105,68 +107,72 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                   const SizedBox(height: 10),
                   proScreenController.isUserPro
                       ? Container()
-                      : Container(
-                          padding: const EdgeInsets.all(16.0),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [
-                                Colors.red.shade800,
-                                Colors.red.shade400
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                      : GestureDetector(
+                          onTap: _navigateToPremiumScreen,
+                          child: Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.red.shade800,
+                                  Colors.red.shade400
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(10),
                             ),
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          width: double.infinity,
-                          height: 120,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                children: [
-                                  Container(
-                                    margin: EdgeInsets.only(top: 10),
-                                    child: SvgPicture.asset(
-                                      'assets/proBannerStars.svg',
-                                      width: 25,
-                                      height: 25,
+                            width: double.infinity,
+                            height: 120,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Column(
+                                  children: [
+                                    Container(
+                                      margin: EdgeInsets.only(top: 10),
+                                      child: SvgPicture.asset(
+                                        'assets/proBannerStars.svg',
+                                        width: 25,
+                                        height: 25,
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
-                              const Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Upgrade to Premium',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 24,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Text(
-                                    'Unlimited access to all the premium\nfeatures',
-                                    style: TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w400,
-                                      fontFamily: 'intern',
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              CircleAvatar(
-                                radius: 20,
-                                backgroundColor: Colors.white.withOpacity(.22),
-                                child: Icon(
-                                  Icons.arrow_forward,
-                                  color: Colors.white,
+                                  ],
                                 ),
-                              )
-                            ],
+                                const Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Upgrade to Premium',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    SizedBox(height: 8),
+                                    Text(
+                                      'Unlimited access to all the premium\nfeatures',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.w400,
+                                        fontFamily: 'intern',
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                CircleAvatar(
+                                  radius: 20,
+                                  backgroundColor:
+                                      Colors.white.withOpacity(.22),
+                                  child: Icon(
+                                    Icons.arrow_forward,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                   const SizedBox(height: 24),
@@ -234,7 +240,7 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
                               onPressed: () {
                                 homeScreenController.pickImage(
                                     context, PdfTool.ImageToPDF);
-                              },  
+                              },
                             ),
                             proScreenController.isUserPro
                                 ? Container()
@@ -287,32 +293,6 @@ class _Screen1State extends State<Screen1> with SingleTickerProviderStateMixin {
               ),
             ),
           ),
-        ),
-        bottomNavigationBar: BottomNavigationBar(
-          backgroundColor: Color.fromRGBO(43, 46, 50, 1),
-          selectedItemColor: Colors.white,
-          unselectedItemColor: Colors.grey.shade400,
-          currentIndex: _selectedIndex,
-          type: BottomNavigationBarType.fixed,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.home),
-              label: 'Home',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.history),
-              label: 'History',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
-          onTap: (index) {
-            setState(() {
-              _selectedIndex = index;
-            });
-          },
         ),
         floatingActionButton: FloatingActionButton(
           onPressed: () {

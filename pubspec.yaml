@@ -45,6 +45,11 @@ dependencies:
   pdf: ^3.11.1
   intl: ^0.19.0
   purchases_flutter: ^8.1.0
+  document_file_save_plus:
+    path: document_file_save_plus
+  share_plus: ^10.0.2
+  flutter_file_dialog: ^3.0.2
+  lottie: ^3.1.2
   # shimmer: ^3.0.0
   
 

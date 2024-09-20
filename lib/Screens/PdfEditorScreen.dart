@@ -6,8 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/Screens/PremiumScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/services/InAppService.dart';
 import 'package:pdf_editor/utils/AppColors.dart';
+import 'package:pdf_editor/utils/AppConsts.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
@@ -164,13 +167,30 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
           iconTheme: IconThemeData(color: Colors.white),
           actions: [
             // if (_isPaintingMode || _isStampMode || _isSignMode)
+
+            IconButton(
+                onPressed: () {
+                  pdfeditorcontroller.deleteItem();
+                },
+                icon: Icon(
+                  Icons.delete,
+                  color: Colors.red,
+                )),
             TextButton(
               onPressed: () {
                 if (pdfeditorcontroller.currentEditingTool !=
                     EditingTool.NONE) {
                   pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
                 } else {
-                  pdfeditorcontroller.exportImage(context);
+                  if (Inappservice().isUserPro()) {
+                    pdfeditorcontroller.exportImage(context);
+                  } else {
+                    if (pdfeditorcontroller.isBasicAvailable()) {
+                      pdfeditorcontroller.exportImage(context);
+                    } else {
+                      context.push(PremiumScreen());
+                    }
+                  }
                 }
                 // pdfeditorcontroller.resetValues();
               },
@@ -194,6 +214,12 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             },
             child: Column(
               children: [
+                if (kDebugMode)
+                  ElevatedButton(
+                      onPressed: () {
+                        pdfeditorcontroller.resetCounterInTesting();
+                      },
+                      child: Text("Reset Counter")),
                 Container(
                   height: 20,
                 ),
@@ -205,12 +231,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                       Container(
                         width: size.width * .9,
                         height: size.height * .60,
-                        decoration: BoxDecoration(
-                          borderRadius:
-                              const BorderRadius.all(Radius.circular(15)),
+                        decoration: const BoxDecoration(
+                          borderRadius: BorderRadius.all(Radius.circular(15)),
                           image: DecorationImage(
                             image: AssetImage(
-                              'assets/transparent_image.webp',
+                              AppConsts.bgCanvas,
                             ),
                             fit: BoxFit.cover,
                           ),
@@ -224,34 +249,33 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                   key: globalKey,
                                   child: Image.file(
                                     widget.imageFile,
-                                    // width: imageSize?.width,
-                                    // height: imageSize?.height,
-                                    // height: size.height * .5,
                                   ),
                                 ),
                               ),
-                              GestureDetector(
-                                onPanStart:
-                                    pdfeditorcontroller.currentEditingTool ==
-                                            EditingTool.PAINT
-                                        ? (details) =>
-                                            _startDrawing(details.localPosition)
-                                        : null,
-                                onPanUpdate: pdfeditorcontroller
-                                            .currentEditingTool ==
-                                        EditingTool.PAINT
-                                    ? (details) =>
-                                        _updateDrawing(details.localPosition)
-                                    : null,
-                                onPanEnd:
-                                    pdfeditorcontroller.currentEditingTool ==
-                                            EditingTool.PAINT
-                                        ? (details) => _endDrawing()
-                                        : null,
-                                child: CustomPaint(
-                                  painter: _DrawingPainter(
-                                      _points, _selectedColor, _brushSize),
-                                  size: Size.infinite,
+                              Container(
+                                child: GestureDetector(
+                                  onPanStart: pdfeditorcontroller
+                                              .currentEditingTool ==
+                                          EditingTool.PAINT
+                                      ? (details) =>
+                                          _startDrawing(details.localPosition)
+                                      : null,
+                                  onPanUpdate: pdfeditorcontroller
+                                              .currentEditingTool ==
+                                          EditingTool.PAINT
+                                      ? (details) =>
+                                          _updateDrawing(details.localPosition)
+                                      : null,
+                                  onPanEnd:
+                                      pdfeditorcontroller.currentEditingTool ==
+                                              EditingTool.PAINT
+                                          ? (details) => _endDrawing()
+                                          : null,
+                                  child: CustomPaint(
+                                    painter: _DrawingPainter(
+                                        _points, _selectedColor, _brushSize),
+                                    size: Size.infinite,
+                                  ),
                                 ),
                               ),
                               pdfeditorcontroller.pdfEditorItems.isEmpty
@@ -1380,13 +1404,37 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                         mainAxisSpacing: 10,
                         crossAxisSpacing: 10),
                     itemBuilder: (context, index) {
-                      return _buildDateOption(dateFormats[index], colors[index],
-                          onTapped: () {
-                        controller.addDate(_buildDateOption(
-                            dateFormats[index], colors[index],
-                            onTapped: () {}));
-                        Navigator.of(context).pop();
-                      });
+                      return Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          _buildDateOption(dateFormats[index], colors[index],
+                              onTapped: () {
+                            context.pop();
+                            if (Inappservice().isUserPro()) {
+                              controller.addDate(_buildDateOption(
+                                  dateFormats[index], colors[index],
+                                  onTapped: () {}));
+                            } else {
+                              context.push(PremiumScreen());
+                            }
+                          }),
+                          GestureDetector(
+                              onTap: () {
+                                try {
+                                  context.pop();
+                                  context.push(PremiumScreen());
+                                } catch (e) {}
+                              },
+                              child: Container(
+                                margin: EdgeInsets.all(5),
+                                child: Image.asset(
+                                  AppConsts.proCrown,
+                                  width: 25,
+                                  height: 25,
+                                ),
+                              )),
+                        ],
+                      );
                     }),
               )
             ],
@@ -1452,12 +1500,25 @@ class _DrawingPainter extends CustomPainter {
       ..strokeWidth = brushSize;
 
     for (int i = 0; i < points.length - 1; i++) {
+      // Check if the point is inside the container size before drawing
       if (points[i] != null && points[i + 1] != null) {
-        canvas.drawLine(points[i]!, points[i + 1]!, paint);
+        if (_isInBounds(points[i]!, size) &&
+            _isInBounds(points[i + 1]!, size)) {
+          canvas.drawLine(points[i]!, points[i + 1]!, paint);
+        }
       } else if (points[i] != null && points[i + 1] == null) {
-        canvas.drawPoints(PointMode.points, [points[i]!], paint);
+        if (_isInBounds(points[i]!, size)) {
+          canvas.drawPoints(PointMode.points, [points[i]!], paint);
+        }
       }
     }
+  }
+
+  bool _isInBounds(Offset point, Size size) {
+    return point.dx >= 0 &&
+        point.dx <= size.width &&
+        point.dy >= 0 &&
+        point.dy <= size.height;
   }
 
   @override
@@ -1501,14 +1562,35 @@ Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller) {
             ),
             itemBuilder: (context, index) {
               String stamp = 'assets/Stamps/${index + 1}.png';
-              return GestureDetector(
-                  onTap: () {
-                    try {
-                      controller.addStamp(stamp);
-                      context.pop();
-                    } catch (e) {}
-                  },
-                  child: Image.asset(stamp));
+              return Stack(
+                alignment: Alignment.topRight,
+                children: [
+                  GestureDetector(
+                      onTap: () {
+                        try {
+                          context.pop();
+                          if (Inappservice().isUserPro()) {
+                            controller.addStamp(stamp);
+                          } else {
+                            context.push(PremiumScreen());
+                          }
+                        } catch (e) {}
+                      },
+                      child: Image.asset(stamp)),
+                  GestureDetector(
+                      onTap: () {
+                        try {
+                          context.pop();
+                          context.push(PremiumScreen());
+                        } catch (e) {}
+                      },
+                      child: Image.asset(
+                        AppConsts.proCrown,
+                        width: 30,
+                        height: 30,
+                      )),
+                ],
+              );
             }),
       )
     ],

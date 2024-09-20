@@ -16,6 +16,8 @@ import 'package:pdf_editor/Models/TextModel.dart';
 import 'package:pdf_editor/Models/dateModel.dart';
 import 'package:pdf_editor/Screens/SaveScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/services/sharedPreferenceManager.dart';
+import 'package:pdf_editor/utils/AppConsts.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:screenshot/screenshot.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -323,6 +325,15 @@ class Pdfeditorcontroller with ChangeNotifier {
     notifyListeners();
   }
 
+  void deleteItem() {
+    try {
+      pdfEditorItems.removeAt(selectedItemIndex);
+      currentEditingTool = EditingTool.NONE;
+      selectedItemIndex = -1;
+      notifyListeners();
+    } catch (e) {}
+  }
+
   void resetValues() {
     isStampMode = false;
     isSignMode = false;
@@ -342,29 +353,44 @@ class Pdfeditorcontroller with ChangeNotifier {
     Uint8List? exportedImageBytes = await screenshotController.capture();
     if (exportedImageBytes != null) {
       Uint8List? pdfImage = await generatePdf(exportedImageBytes);
+      print(pdfImage.lengthInBytes / 1000);
+
       if (context.mounted) {
+        countQueries();
         context.push(SaveScreen(
-          imageBytes: pdfImage,
+          imageBytes: exportedImageBytes,
+          fileName: DateTime.now().millisecondsSinceEpoch.toString(),
+          fileSize: (pdfImage.lengthInBytes / 1000).toStringAsFixed(2),
         ));
       }
-
-      return;
-      if (pdfImage != null) {
-        Directory tempDir = await getTemporaryDirectory();
-        String filePath =
-            "${tempDir.path}/${DateTime.now().microsecondsSinceEpoch.toString()}.pdf";
-        File(filePath).createSync();
-
-        File(filePath).writeAsBytes(pdfImage.buffer.asUint8List());
-        print(filePath);
-        print(Directory(filePath));
-        if (kDebugMode) {
-          // final result = await ImageGallerySaver.saveImage(
-          //     exportedImageBytes.buffer.asUint8List());
-          OpenFile.open(filePath);
-        }
-      }
     }
+  }
+
+  void resetCounterInTesting() {
+    SharedPreferencesHelper.setInt(AppConsts.remainingEditingQueriesKey, 0);
+  }
+
+  bool isBasicAvailable() {
+    bool isQueryAvailable = false;
+    int availableQueries =
+        SharedPreferencesHelper.getInt(AppConsts.remainingEditingQueriesKey);
+    print("availableQueries:: ${availableQueries}");
+    print("Total Queries:: ${AppConsts.TotalQueries}");
+
+    if (availableQueries >= AppConsts.TotalQueries) {
+      isQueryAvailable = false;
+    } else {
+      isQueryAvailable = true;
+    }
+    return isQueryAvailable;
+  }
+
+  void countQueries() {
+    int availableQueries =
+        SharedPreferencesHelper.getInt(AppConsts.remainingEditingQueriesKey);
+    availableQueries = availableQueries + 1;
+    SharedPreferencesHelper.setInt(
+        AppConsts.remainingEditingQueriesKey, availableQueries);
   }
 
   Future<Uint8List> generatePdf(Uint8List exportedImageBytes) async {

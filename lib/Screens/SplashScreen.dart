@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Screens/BottomScreen.dart';
 import 'dart:async';
 import 'HomeScreen.dart';
 
@@ -30,8 +31,8 @@ class _SplashScreenState extends State<SplashScreen>
     _animationController!.forward();
 
     Timer(Duration(seconds: 5), () {
-      Navigator.of(context)
-          .pushReplacement(MaterialPageRoute(builder: (_) => Screen1()));
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (_) => const BottomScreen()));
     });
   }
 
