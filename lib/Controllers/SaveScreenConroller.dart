@@ -139,7 +139,7 @@ class SaveScreenController {
         borderRadius: BorderRadius.circular(10.0),
       ),
       content: Text(
-        'All the changes will be discarded.',
+        'File Has Been Saved To Downloads',
         style: TextStyle(color: Colors.white, fontSize: 16),
       ),
       actions: [

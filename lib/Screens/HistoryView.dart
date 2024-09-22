@@ -135,7 +135,7 @@ class _HistoryViewState extends State<HistoryView> {
                       //   child: Text(file.toString()),
                       // ),
                     );
-                   
+
                     // return ListTile(
                     //   title:
                     //       Text(file.path.split('/').last), // Display file name

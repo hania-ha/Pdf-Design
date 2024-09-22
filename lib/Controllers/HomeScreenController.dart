@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf_editor/Screens/PdfEditorScreen.dart';
 import 'package:pdf_editor/Screens/SaveScreen.dart';
@@ -11,7 +12,6 @@ import 'package:pdf_editor/utils/enums.dart';
 import 'package:pdf/widgets.dart' as pw;
 
 class HomeScreenController with ChangeNotifier {
-
   File? _file;
 
   File? get file => _file;
@@ -88,5 +88,15 @@ class HomeScreenController with ChangeNotifier {
     return await pdf.save();
   }
 
- 
+  late Future<List<FileSystemEntity>> files;
+
+  void getFilesInDirectory() async {
+    Directory appDir = await getApplicationDocumentsDirectory();
+
+    Directory pdfDir = Directory("${appDir.path}/PDFFiles");
+
+    files = pdfDir.listSync() as Future<
+        List<
+            FileSystemEntity>>; // Returns a list of FileSystemEntity (files & directories)
+  }
 }

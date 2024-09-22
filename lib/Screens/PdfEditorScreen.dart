@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/Screens/HomeScreen.dart';
 import 'package:pdf_editor/Screens/PremiumScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
 import 'package:pdf_editor/services/InAppService.dart';
@@ -209,508 +210,536 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             ),
           ],
         ),
-        body: SingleChildScrollView(
-          child: GestureDetector(
-            onTap: () {
-              pdfeditorcontroller.toggleItemSelection(-1);
-              pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
-            },
-            child: Column(
-              children: [
-                if (kDebugMode)
-                  ElevatedButton(
-                      onPressed: () {
-                        pdfeditorcontroller.resetCounterInTesting();
-                      },
-                      child: Text("Reset Counter")),
-                Container(
-                  height: 20,
-                ),
-                Container(
-                  constraints: BoxConstraints(maxHeight: size.height * 0.6),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: size.width * .9,
-                        height: size.height * .60,
-                        decoration: const BoxDecoration(
-                          borderRadius: BorderRadius.all(Radius.circular(15)),
-                          image: DecorationImage(
-                            image: AssetImage(
-                              AppConsts.bgCanvas,
+        body: PopScope(
+          canPop: false,
+          // ignore: deprecated_member_use
+          onPopInvoked: (value) {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return DiscardChangesDialog();
+              },
+            );
+          },
+          child: SingleChildScrollView(
+            child: GestureDetector(
+              onTap: () {
+                pdfeditorcontroller.toggleItemSelection(-1);
+                pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
+              },
+              child: Column(
+                children: [
+                  if (kDebugMode)
+                    ElevatedButton(
+                        onPressed: () {
+                          pdfeditorcontroller.resetCounterInTesting();
+                        },
+                        child: Text("Reset Counter")),
+                  Container(
+                    height: 20,
+                  ),
+                  Container(
+                    constraints: BoxConstraints(maxHeight: size.height * 0.6),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Container(
+                          width: size.width * .9,
+                          height: size.height * .60,
+                          decoration: const BoxDecoration(
+                            borderRadius: BorderRadius.all(Radius.circular(15)),
+                            image: DecorationImage(
+                              image: AssetImage(
+                                AppConsts.bgCanvas,
+                              ),
+                              fit: BoxFit.cover,
                             ),
-                            fit: BoxFit.cover,
                           ),
-                        ),
-                        child: Screenshot(
-                          controller: pdfeditorcontroller.screenshotController,
-                          child: Stack(
-                            children: [
-                              Align(
-                                child: Container(
-                                  key: globalKey,
-                                  child: Image.file(
-                                    widget.imageFile,
+                          child: Screenshot(
+                            controller:
+                                pdfeditorcontroller.screenshotController,
+                            child: Stack(
+                              children: [
+                                Align(
+                                  child: Container(
+                                    key: globalKey,
+                                    child: Image.file(
+                                      widget.imageFile,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              Container(
-                                child: GestureDetector(
-                                  onPanStart: pdfeditorcontroller
-                                              .currentEditingTool ==
-                                          EditingTool.PAINT
-                                      ? (details) =>
-                                          _startDrawing(details.localPosition)
-                                      : null,
-                                  onPanUpdate: pdfeditorcontroller
-                                              .currentEditingTool ==
-                                          EditingTool.PAINT
-                                      ? (details) =>
-                                          _updateDrawing(details.localPosition)
-                                      : null,
-                                  onPanEnd:
-                                      pdfeditorcontroller.currentEditingTool ==
-                                              EditingTool.PAINT
-                                          ? (details) => _endDrawing()
-                                          : null,
-                                  child: CustomPaint(
-                                    painter: _DrawingPainter(
-                                        _points, _selectedColor, _brushSize),
-                                    size: Size.infinite,
+                                Container(
+                                  child: GestureDetector(
+                                    onPanStart: pdfeditorcontroller
+                                                .currentEditingTool ==
+                                            EditingTool.PAINT
+                                        ? (details) =>
+                                            _startDrawing(details.localPosition)
+                                        : null,
+                                    onPanUpdate: pdfeditorcontroller
+                                                .currentEditingTool ==
+                                            EditingTool.PAINT
+                                        ? (details) => _updateDrawing(
+                                            details.localPosition)
+                                        : null,
+                                    onPanEnd: pdfeditorcontroller
+                                                .currentEditingTool ==
+                                            EditingTool.PAINT
+                                        ? (details) => _endDrawing()
+                                        : null,
+                                    child: CustomPaint(
+                                      painter: _DrawingPainter(
+                                          _points, _selectedColor, _brushSize),
+                                      size: Size.infinite,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              pdfeditorcontroller.pdfEditorItems.isEmpty
-                                  ? Container()
-                                  : Stack(
-                                      children: [
-                                        for (int i = 0;
-                                            i <
+                                pdfeditorcontroller.pdfEditorItems.isEmpty
+                                    ? Container()
+                                    : Stack(
+                                        children: [
+                                          for (int i = 0;
+                                              i <
+                                                  pdfeditorcontroller
+                                                      .pdfEditorItems.length;
+                                              i++) ...[
+                                            GestureDetector(
+                                              onPanUpdate: (details) {
                                                 pdfeditorcontroller
-                                                    .pdfEditorItems.length;
-                                            i++) ...[
-                                          GestureDetector(
-                                            onPanUpdate: (details) {
-                                              pdfeditorcontroller
-                                                  .onPositionChange(
-                                                      i,
-                                                      details.delta.dx,
-                                                      details.delta.dy,
-                                                      647);
+                                                    .onPositionChange(
+                                                        i,
+                                                        details.delta.dx,
+                                                        details.delta.dy,
+                                                        647);
 
-                                              pdfeditorcontroller
-                                                  .toggleItemSelection(i);
+                                                pdfeditorcontroller
+                                                    .toggleItemSelection(i);
 
-                                              pdfeditorcontroller
-                                                  .toggleEditingTool(
-                                                      pdfeditorcontroller
+                                                pdfeditorcontroller
+                                                    .toggleEditingTool(
+                                                        pdfeditorcontroller
+                                                            .pdfEditorItems[i]
+                                                            .editingTool);
+                                              },
+                                              onTap: () {
+                                                pdfeditorcontroller
+                                                    .toggleItemSelection(i);
+
+                                                pdfeditorcontroller
+                                                    .toggleEditingTool(
+                                                        pdfeditorcontroller
+                                                            .pdfEditorItems[i]
+                                                            .editingTool);
+                                              },
+                                              child: Stack(
+                                                children: [
+                                                  if (pdfeditorcontroller
+                                                          .getItemEditingType(
+                                                              i) ==
+                                                      EditingTool.SIGN)
+                                                    Positioned(
+                                                      left: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .editingTool);
-                                            },
-                                            onTap: () {
-                                              pdfeditorcontroller
-                                                  .toggleItemSelection(i);
-
-                                              pdfeditorcontroller
-                                                  .toggleEditingTool(
-                                                      pdfeditorcontroller
+                                                          .signatureModel
+                                                          ?.signaturePosition
+                                                          .dx,
+                                                      top: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .editingTool);
-                                            },
-                                            child: Stack(
-                                              children: [
-                                                if (pdfeditorcontroller
-                                                        .getItemEditingType(
-                                                            i) ==
-                                                    EditingTool.SIGN)
-                                                  Positioned(
-                                                    left: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .signatureModel
-                                                        ?.signaturePosition
-                                                        .dx,
-                                                    top: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .signatureModel
-                                                        ?.signaturePosition
-                                                        .dy,
-                                                    child: Stack(
-                                                      clipBehavior: Clip.none,
-                                                      children: [
-                                                        Container(
-                                                          width: pdfeditorcontroller
-                                                              .pdfEditorItems[i]
-                                                              .signatureModel
-                                                              ?.signatureSize
-                                                              .width,
-                                                          height: pdfeditorcontroller
-                                                              .pdfEditorItems[i]
-                                                              .signatureModel
-                                                              ?.signatureSize
-                                                              .height,
-                                                          decoration: pdfeditorcontroller
-                                                                      .selectedItemIndex ==
-                                                                  i
-                                                              ? BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    width: 2,
-                                                                  ),
-                                                                )
-                                                              : BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    width: 2,
-                                                                  ),
-                                                                ),
-                                                          child: FittedBox(
-                                                            child: Text(
-                                                              pdfeditorcontroller
-                                                                      .pdfEditorItems[
-                                                                          i]
-                                                                      .signatureModel
-                                                                      ?.signatureText
-                                                                      .toString() ??
-                                                                  "",
-                                                              style: TextStyle(
-                                                                fontFamily: pdfeditorcontroller
-                                                                    .getFontFamily(
-                                                                        i,
-                                                                        isSimpleText:
-                                                                            false),
-                                                                color: pdfeditorcontroller
-                                                                    .getSignatureColor(
-                                                                        i),
-                                                                fontSize:
-                                                                    pdfeditorcontroller
-                                                                        .getFontSize(
-                                                                            i),
-                                                              ),
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightBottom(
-                                                              i,
-                                                              pdfeditorcontroller,
-                                                              EditingTool.SIGN),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.SIGN),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftBottom(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.SIGN),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.SIGN),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                if (pdfeditorcontroller
-                                                        .getItemEditingType(
-                                                            i) ==
-                                                    EditingTool.STAMP)
-                                                  Positioned(
-                                                    left: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .stampModel
-                                                        ?.stampPosition
-                                                        .dx,
-                                                    top: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .stampModel
-                                                        ?.stampPosition
-                                                        .dy,
-                                                    child: Stack(
-                                                      clipBehavior: Clip.none,
-                                                      children: [
-                                                        Container(
-                                                          decoration: pdfeditorcontroller
-                                                                      .selectedItemIndex ==
-                                                                  i
-                                                              ? BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    width: 2,
-                                                                  ),
-                                                                )
-                                                              : BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    width: 2,
-                                                                  ),
-                                                                ),
-                                                          child: Image.asset(
-                                                            pdfeditorcontroller
-                                                                .getStampImage(
-                                                                    i),
+                                                          .signatureModel
+                                                          ?.signaturePosition
+                                                          .dy,
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        children: [
+                                                          Container(
                                                             width: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .stampModel!
-                                                                .stampSize
+                                                                .signatureModel
+                                                                ?.signatureSize
                                                                 .width,
                                                             height: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .stampModel!
-                                                                .stampSize
+                                                                .signatureModel
+                                                                ?.signatureSize
                                                                 .height,
-                                                          ),
-                                                        ),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightBottom(
-                                                              i,
-                                                              pdfeditorcontroller,
-                                                              EditingTool
-                                                                  .STAMP),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool
-                                                                  .STAMP),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftBottom(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool
-                                                                  .STAMP),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool
-                                                                  .STAMP),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                if (pdfeditorcontroller
-                                                        .getItemEditingType(
-                                                            i) ==
-                                                    EditingTool.DATE)
-                                                  Positioned(
-                                                    left: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .dateModel
-                                                        ?.dateWidgetPosition
-                                                        .dx,
-                                                    top: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .dateModel
-                                                        ?.dateWidgetPosition
-                                                        .dy,
-                                                    child: Stack(
-                                                      clipBehavior: Clip.none,
-                                                      children: [
-                                                        Container(
-                                                          decoration:
-                                                              BoxDecoration(
-                                                            border: Border.all(
-                                                              color: Colors
-                                                                  .transparent,
-                                                              width: 2,
-                                                            ),
-                                                          ),
-
-                                                          width:
-                                                              pdfeditorcontroller
-                                                                  .pdfEditorItems[
-                                                                      i]
-                                                                  .dateModel
-                                                                  ?.dataSize
-                                                                  .width,
-                                                          // height: pdfeditorcontroller
-                                                          //     .pdfEditorItems[i]
-                                                          //     .dateModel
-                                                          //     ?.dataSize
-                                                          //     .height,
-                                                          child:
-                                                              pdfeditorcontroller
-                                                                  .pdfEditorItems[
-                                                                      i]
-                                                                  .dateModel
-                                                                  ?.dateWidget,
-                                                        ),
-                                                        // if (pdfeditorcontroller
-                                                        //         .selectedItemIndex ==
-                                                        //     i)
-                                                        //   PinchRightBottom(
-                                                        //       i,
-                                                        //       pdfeditorcontroller,
-                                                        //       EditingTool.DATE),
-                                                        // if (pdfeditorcontroller
-                                                        //         .selectedItemIndex ==
-                                                        //     i)
-                                                        //   PinchLeftTop(pdfeditorcontroller,
-                                                        //       i, EditingTool.DATE),
-                                                        // if (pdfeditorcontroller
-                                                        //         .selectedItemIndex ==
-                                                        //     i)
-                                                        //   PinchLeftBottom(
-                                                        //       pdfeditorcontroller,
-                                                        //       i,
-                                                        //       EditingTool.DATE),
-                                                        // if (pdfeditorcontroller
-                                                        //         .selectedItemIndex ==
-                                                        //     i)
-                                                        //   PinchRightTop(pdfeditorcontroller,
-                                                        //       i, EditingTool.DATE),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                if (pdfeditorcontroller
-                                                        .getItemEditingType(
-                                                            i) ==
-                                                    EditingTool.TEXT)
-                                                  Positioned(
-                                                    left: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .textModel
-                                                        ?.textPosition
-                                                        .dx,
-                                                    top: pdfeditorcontroller
-                                                        .pdfEditorItems[i]
-                                                        .textModel
-                                                        ?.textPosition
-                                                        .dy,
-                                                    child: Stack(
-                                                      clipBehavior: Clip.none,
-                                                      children: [
-                                                        Container(
-                                                          // width: signatureSize.width,
-                                                          // height: signatureSize.height,
-                                                          width:
-                                                              pdfeditorcontroller
-                                                                  .pdfEditorItems[
-                                                                      i]
-                                                                  .textModel!
-                                                                  .textSize
-                                                                  .width,
-                                                          height:
-                                                              pdfeditorcontroller
-                                                                  .pdfEditorItems[
-                                                                      i]
-                                                                  .textModel!
-                                                                  .textSize
-                                                                  .height,
-                                                          decoration: pdfeditorcontroller
-                                                                      .selectedItemIndex ==
-                                                                  i
-                                                              ? BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .black,
-                                                                    width: 2,
+                                                            decoration: pdfeditorcontroller
+                                                                        .selectedItemIndex ==
+                                                                    i
+                                                                ? BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      width: 2,
+                                                                    ),
+                                                                  )
+                                                                : BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      width: 2,
+                                                                    ),
                                                                   ),
-                                                                )
-                                                              : BoxDecoration(
-                                                                  border: Border
-                                                                      .all(
-                                                                    color: Colors
-                                                                        .transparent,
-                                                                    width: 2,
-                                                                  ),
+                                                            child: FittedBox(
+                                                              child: Text(
+                                                                pdfeditorcontroller
+                                                                        .pdfEditorItems[
+                                                                            i]
+                                                                        .signatureModel
+                                                                        ?.signatureText
+                                                                        .toString() ??
+                                                                    "",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily: pdfeditorcontroller
+                                                                      .getFontFamily(
+                                                                          i,
+                                                                          isSimpleText:
+                                                                              false),
+                                                                  color: pdfeditorcontroller
+                                                                      .getSignatureColor(
+                                                                          i),
+                                                                  fontSize:
+                                                                      pdfeditorcontroller
+                                                                          .getFontSize(
+                                                                              i),
                                                                 ),
-                                                          child: FittedBox(
-                                                            child: Text(
-                                                              pdfeditorcontroller
-                                                                      .pdfEditorItems[
-                                                                          i]
-                                                                      .textModel
-                                                                      ?.text
-                                                                      .toString() ??
-                                                                  "",
-                                                              style: TextStyle(
-                                                                fontFamily: pdfeditorcontroller
-                                                                    .getFontFamily(
-                                                                        i,
-                                                                        isSimpleText:
-                                                                            true),
-                                                                color: pdfeditorcontroller
-                                                                    .getTextColor(
-                                                                        i),
                                                               ),
                                                             ),
                                                           ),
-                                                        ),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.TEXT),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchLeftBottom(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.TEXT),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightTop(
-                                                              pdfeditorcontroller,
-                                                              i,
-                                                              EditingTool.TEXT),
-                                                        if (pdfeditorcontroller
-                                                                .selectedItemIndex ==
-                                                            i)
-                                                          PinchRightBottom(
-                                                              i,
-                                                              pdfeditorcontroller,
-                                                              EditingTool.TEXT),
-                                                      ],
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightBottom(
+                                                                i,
+                                                                pdfeditorcontroller,
+                                                                EditingTool
+                                                                    .SIGN),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .SIGN),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftBottom(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .SIGN),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .SIGN),
+                                                        ],
+                                                      ),
                                                     ),
-                                                  ),
-                                              ],
+                                                  if (pdfeditorcontroller
+                                                          .getItemEditingType(
+                                                              i) ==
+                                                      EditingTool.STAMP)
+                                                    Positioned(
+                                                      left: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .stampModel
+                                                          ?.stampPosition
+                                                          .dx,
+                                                      top: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .stampModel
+                                                          ?.stampPosition
+                                                          .dy,
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        children: [
+                                                          Container(
+                                                            decoration: pdfeditorcontroller
+                                                                        .selectedItemIndex ==
+                                                                    i
+                                                                ? BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      width: 2,
+                                                                    ),
+                                                                  )
+                                                                : BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      width: 2,
+                                                                    ),
+                                                                  ),
+                                                            child: Image.asset(
+                                                              pdfeditorcontroller
+                                                                  .getStampImage(
+                                                                      i),
+                                                              width: pdfeditorcontroller
+                                                                  .pdfEditorItems[
+                                                                      i]
+                                                                  .stampModel!
+                                                                  .stampSize
+                                                                  .width,
+                                                              height: pdfeditorcontroller
+                                                                  .pdfEditorItems[
+                                                                      i]
+                                                                  .stampModel!
+                                                                  .stampSize
+                                                                  .height,
+                                                            ),
+                                                          ),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightBottom(
+                                                                i,
+                                                                pdfeditorcontroller,
+                                                                EditingTool
+                                                                    .STAMP),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .STAMP),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftBottom(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .STAMP),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .STAMP),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  if (pdfeditorcontroller
+                                                          .getItemEditingType(
+                                                              i) ==
+                                                      EditingTool.DATE)
+                                                    Positioned(
+                                                      left: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .dateModel
+                                                          ?.dateWidgetPosition
+                                                          .dx,
+                                                      top: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .dateModel
+                                                          ?.dateWidgetPosition
+                                                          .dy,
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        children: [
+                                                          Container(
+                                                            decoration:
+                                                                BoxDecoration(
+                                                              border:
+                                                                  Border.all(
+                                                                color: Colors
+                                                                    .transparent,
+                                                                width: 2,
+                                                              ),
+                                                            ),
+
+                                                            width: pdfeditorcontroller
+                                                                .pdfEditorItems[
+                                                                    i]
+                                                                .dateModel
+                                                                ?.dataSize
+                                                                .width,
+                                                            // height: pdfeditorcontroller
+                                                            //     .pdfEditorItems[i]
+                                                            //     .dateModel
+                                                            //     ?.dataSize
+                                                            //     .height,
+                                                            child: pdfeditorcontroller
+                                                                .pdfEditorItems[
+                                                                    i]
+                                                                .dateModel
+                                                                ?.dateWidget,
+                                                          ),
+                                                          // if (pdfeditorcontroller
+                                                          //         .selectedItemIndex ==
+                                                          //     i)
+                                                          //   PinchRightBottom(
+                                                          //       i,
+                                                          //       pdfeditorcontroller,
+                                                          //       EditingTool.DATE),
+                                                          // if (pdfeditorcontroller
+                                                          //         .selectedItemIndex ==
+                                                          //     i)
+                                                          //   PinchLeftTop(pdfeditorcontroller,
+                                                          //       i, EditingTool.DATE),
+                                                          // if (pdfeditorcontroller
+                                                          //         .selectedItemIndex ==
+                                                          //     i)
+                                                          //   PinchLeftBottom(
+                                                          //       pdfeditorcontroller,
+                                                          //       i,
+                                                          //       EditingTool.DATE),
+                                                          // if (pdfeditorcontroller
+                                                          //         .selectedItemIndex ==
+                                                          //     i)
+                                                          //   PinchRightTop(pdfeditorcontroller,
+                                                          //       i, EditingTool.DATE),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  if (pdfeditorcontroller
+                                                          .getItemEditingType(
+                                                              i) ==
+                                                      EditingTool.TEXT)
+                                                    Positioned(
+                                                      left: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .textModel
+                                                          ?.textPosition
+                                                          .dx,
+                                                      top: pdfeditorcontroller
+                                                          .pdfEditorItems[i]
+                                                          .textModel
+                                                          ?.textPosition
+                                                          .dy,
+                                                      child: Stack(
+                                                        clipBehavior: Clip.none,
+                                                        children: [
+                                                          Container(
+                                                            // width: signatureSize.width,
+                                                            // height: signatureSize.height,
+                                                            width: pdfeditorcontroller
+                                                                .pdfEditorItems[
+                                                                    i]
+                                                                .textModel!
+                                                                .textSize
+                                                                .width,
+                                                            height: pdfeditorcontroller
+                                                                .pdfEditorItems[
+                                                                    i]
+                                                                .textModel!
+                                                                .textSize
+                                                                .height,
+                                                            decoration: pdfeditorcontroller
+                                                                        .selectedItemIndex ==
+                                                                    i
+                                                                ? BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .black,
+                                                                      width: 2,
+                                                                    ),
+                                                                  )
+                                                                : BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      width: 2,
+                                                                    ),
+                                                                  ),
+                                                            child: FittedBox(
+                                                              child: Text(
+                                                                pdfeditorcontroller
+                                                                        .pdfEditorItems[
+                                                                            i]
+                                                                        .textModel
+                                                                        ?.text
+                                                                        .toString() ??
+                                                                    "",
+                                                                style:
+                                                                    TextStyle(
+                                                                  fontFamily: pdfeditorcontroller
+                                                                      .getFontFamily(
+                                                                          i,
+                                                                          isSimpleText:
+                                                                              true),
+                                                                  color: pdfeditorcontroller
+                                                                      .getTextColor(
+                                                                          i),
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .TEXT),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchLeftBottom(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .TEXT),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightTop(
+                                                                pdfeditorcontroller,
+                                                                i,
+                                                                EditingTool
+                                                                    .TEXT),
+                                                          if (pdfeditorcontroller
+                                                                  .selectedItemIndex ==
+                                                              i)
+                                                            PinchRightBottom(
+                                                                i,
+                                                                pdfeditorcontroller,
+                                                                EditingTool
+                                                                    .TEXT),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                ],
+                                              ),
                                             ),
-                                          ),
-                                        ]
-                                      ],
-                                    ),
-                            ],
+                                          ]
+                                        ],
+                                      ),
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -1598,4 +1627,60 @@ Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller) {
       )
     ],
   );
+}
+
+class DiscardChangesDialog extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    Pdfeditorcontroller pdfeditorcontroller =
+        Provider.of<Pdfeditorcontroller>(context, listen: false);
+    return AlertDialog(
+      backgroundColor: Color(0xFF212326),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      content: Text(
+        'All the changes will be discarded.',
+        style: TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Cancel action
+          },
+          child: Text('Cancel'),
+          style: TextButton.styleFrom(
+            foregroundColor: Colors.white,
+            backgroundColor: Color(0xFF2B2E32),
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pop(); // Ok action
+            pdfeditorcontroller.resetValues();
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+                (Route<dynamic> route) => false);
+          },
+          child: Text(
+            'Ok',
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF2B2E32),
+
+            //
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
 }

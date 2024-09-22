@@ -19,9 +19,9 @@ class SplashScreenController {
       try {
         if (Platform.isAndroid) {
           SharedPreferencesHelper.setBool(
-              AppConsts.subscriptionStatuskey, true);
+              AppConsts.subscriptionStatuskey, false);
 
-          proScreenController.isUserPro = true;
+          proScreenController.isUserPro = false;
         } else if (Platform.isIOS) {
           CustomerInfo customerInfo = await Purchases.getCustomerInfo();
           if (customerInfo.activeSubscriptions.isEmpty) {
@@ -30,7 +30,7 @@ class SplashScreenController {
 
             proScreenController.isUserPro = true;
           } else {
-            if (customerInfo.entitlements.all['premium']!.isActive) {
+            if (customerInfo.entitlements.all['Pro']!.isActive) {
               proScreenController.isUserPro = true;
 
               SharedPreferencesHelper.setBool(

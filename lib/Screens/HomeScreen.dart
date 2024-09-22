@@ -2,10 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:intl/intl.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:pdf_editor/Controllers/HistoryViewController.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/Screens/HistoryView.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/utils/AppColors.dart';
 import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
@@ -47,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
 
     _controller.repeat(reverse: true); // Zoom in and out continuously
+    files = HistoryViewController().getFilesInDirectory();
   }
 
   @override
@@ -55,6 +60,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.dispose();
   }
 
+  late Future<List<FileSystemEntity>> files;
   @override
   Widget build(BuildContext context) {
     HomeScreenController homeScreenController =
@@ -97,201 +103,350 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ),
         ),
-        body: SingleChildScrollView(
-          child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  proScreenController.isUserPro
-                      ? Container()
-                      : GestureDetector(
-                          onTap: _navigateToPremiumScreen,
-                          child: Container(
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  Colors.red.shade800,
-                                  Colors.red.shade400
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(16),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 10),
+                    proScreenController.isUserPro
+                        ? Container()
+                        : GestureDetector(
+                            onTap: _navigateToPremiumScreen,
+                            child: Container(
+                              padding: const EdgeInsets.all(16.0),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    Color(0xFFF65050),
+                                    Colors.red.shade800,
+                                    // Color.fromARGB(255, 255, 163, 109),
+                                  ],
+                                  // stops: [2, 1, 3],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                borderRadius: BorderRadius.circular(15),
                               ),
-                              borderRadius: BorderRadius.circular(10),
-                            ),
-                            width: double.infinity,
-                            height: 120,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  children: [
-                                    Container(
-                                      margin: EdgeInsets.only(top: 10),
-                                      child: SvgPicture.asset(
-                                        'assets/proBannerStars.svg',
-                                        width: 25,
-                                        height: 25,
-                                      ),
+                              width: double.infinity,
+                              height: 120,
+                              child: Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Container(
+                                    margin: EdgeInsets.only(top: 10),
+                                    child: SvgPicture.asset(
+                                      'assets/proBannerStars.svg',
+                                      width: 25,
+                                      height: 25,
                                     ),
-                                  ],
-                                ),
-                                const Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Upgrade to Premium',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 24,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Text(
-                                      'Unlimited access to all the premium\nfeatures',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w400,
-                                        fontFamily: 'intern',
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                CircleAvatar(
-                                  radius: 20,
-                                  backgroundColor:
-                                      Colors.white.withOpacity(.22),
-                                  child: Icon(
-                                    Icons.arrow_forward,
-                                    color: Colors.white,
                                   ),
-                                )
-                              ],
+                                  const Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Upgrade to Premium',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        'Unlimited access to all the premium\nfeatures',
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w400,
+                                          fontFamily: 'intern',
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  CircleAvatar(
+                                    radius: 20,
+                                    backgroundColor:
+                                        Colors.white.withOpacity(.22),
+                                    child: Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Tools',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Tools',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildToolBox(
-                          context,
-                          'assets/signicon.png', // Custom asset icon
-                          'Add signature',
-                          onPressed: () {
-                            homeScreenController.pickImage(
-                                context, PdfTool.AddSignature);
-                          },
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildToolBox(
+                            context,
+                            'assets/signicon.png', // Custom asset icon
+                            'Add signature',
+                            onPressed: () {
+                              homeScreenController.pickImage(
+                                  context, PdfTool.AddSignature);
+                            },
+                          ),
                         ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.topRight,
-                          children: [
-                            _buildToolBox(
-                              context,
-                              'assets/stampicon.png', // Custom asset icon
-                              'Add stamp',
-                              onPressed: () {
-                                homeScreenController.pickImage(
-                                    context, PdfTool.AddStamp);
-                              },
-                            ),
-                            proScreenController.isUserPro
-                                ? Container()
-                                : GestureDetector(
-                                    onTap: _navigateToPremiumScreen,
-                                    child: Container(
-                                      margin: EdgeInsets.all(5),
-                                      child: Image.asset(
-                                        'assets/crown.png',
-                                        height: 25,
-                                        width: 25,
-                                      ),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.topRight,
-                          children: [
-                            _buildToolBox(
-                              context,
-                              'assets/pdficon.png', // Custom asset icon
-                              'Image to PDF',
-                              onPressed: () {
-                                homeScreenController.pickImage(
-                                    context, PdfTool.ImageToPDF);
-                              },
-                            ),
-                            proScreenController.isUserPro
-                                ? Container()
-                                : GestureDetector(
-                                    onTap: _navigateToPremiumScreen,
-                                    child: Container(
-                                      margin: EdgeInsets.all(5),
-                                      child: Image.asset(
-                                        'assets/crown.png',
-                                        height: 25,
-                                        width: 25,
-                                      ),
-                                    ),
-                                  ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 24),
-                  SizedBox(
-                    width: double.infinity,
-                    child: Card(
-                      color: Color.fromRGBO(33, 35, 38, 1),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      elevation: 5,
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Recent Files',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              _buildToolBox(
+                                context,
+                                'assets/stampicon.png', // Custom asset icon
+                                'Add stamp',
+                                onPressed: () {
+                                  homeScreenController.pickImage(
+                                      context, PdfTool.AddStamp);
+                                },
                               ),
-                            ),
-                            const SizedBox(height: 16),
-                            _buildRecentFilesSection(),
-                          ],
+                              proScreenController.isUserPro
+                                  ? Container()
+                                  : GestureDetector(
+                                      onTap: _navigateToPremiumScreen,
+                                      child: Container(
+                                        margin: EdgeInsets.all(5),
+                                        child: Image.asset(
+                                          'assets/crown.png',
+                                          height: 25,
+                                          width: 25,
+                                        ),
+                                      ),
+                                    ),
+                            ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Stack(
+                            alignment: Alignment.topRight,
+                            children: [
+                              _buildToolBox(
+                                context,
+                                'assets/pdficon.png', // Custom asset icon
+                                'Image to PDF',
+                                onPressed: () {
+                                  homeScreenController.pickImage(
+                                      context, PdfTool.ImageToPDF);
+                                },
+                              ),
+                              proScreenController.isUserPro
+                                  ? Container()
+                                  : GestureDetector(
+                                      onTap: _navigateToPremiumScreen,
+                                      child: Container(
+                                        margin: EdgeInsets.all(5),
+                                        child: Image.asset(
+                                          'assets/crown.png',
+                                          height: 25,
+                                          width: 25,
+                                        ),
+                                      ),
+                                    ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 24),
+              Expanded(
+                child: Container(
+                  color: AppColors.primarybgColor,
+                  width: double.infinity,
+                  height: MediaQuery.of(context).size.height * .30,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Recent Files',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        Expanded(
+                          child: FutureBuilder<Object>(
+                              future: files,
+                              builder: (BuildContext context,
+                                  AsyncSnapshot snapshot) {
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                      child: CircularProgressIndicator());
+                                } else if (snapshot.hasError) {
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            'assets/noFiles.png',
+                                            width: 140,
+                                            height: 140,
+                                          ),
+                                          const Text(
+                                            'No File Found',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                } else if (!snapshot.hasData ||
+                                    snapshot.data!.isEmpty) {
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.center,
+                                        children: [
+                                          Image.asset(
+                                            'assets/noFiles.png',
+                                            width: 140,
+                                            height: 140,
+                                          ),
+                                          const Text(
+                                            'No File Found',
+                                            style: TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 18,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  );
+                                } else {
+                                  return GridView.builder(
+                                      itemCount: snapshot.data!.length,
+                                      gridDelegate:
+                                          SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: 2,
+                                        childAspectRatio: 1 / 1,
+                                        mainAxisSpacing: 10,
+                                        crossAxisSpacing: 10,
+                                      ),
+                                      itemBuilder: (context, index) {
+                                        final file = snapshot.data![index]
+                                            as FileSystemEntity;
+                                        final stat =
+                                            FileStat.statSync(file.path);
+                                        String time = DateFormat('dd MMMM yyyy')
+                                            .format(stat.modified);
+                                        File _file = File(file.path);
+                                        String fileSize =
+                                            (_file.lengthSync() / 1000)
+                                                .toStringAsFixed(0);
+
+                                        String fileExt =
+                                            file.path.split('.').last;
+                                        return GestureDetector(
+                                          onTap: () async {
+                                            try {
+                                              if (fileExt == 'pdf' ||
+                                                  fileExt == 'PDF') {
+                                                OpenResult openResult =
+                                                    await OpenFilex.open(
+                                                  file.path,
+                                                  type: 'application/pdf',
+                                                );
+                                              }
+                                              if (fileExt == 'png' ||
+                                                  fileExt == 'PNG') {
+                                                OpenResult openResult =
+                                                    await OpenFilex.open(
+                                                  file.path,
+                                                  type: 'image/png',
+                                                );
+                                                print(openResult.message);
+                                              }
+                                            } catch (e) {
+                                              print(e);
+                                            }
+                                          },
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: AppColors.secondaryBgColor,
+                                              borderRadius:
+                                                  BorderRadius.circular(16),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                fileExt == 'PDF' ||
+                                                        fileExt == 'pdf'
+                                                    ? Image.asset(
+                                                        'assets/pdficon1.png',
+                                                        width: 60,
+                                                        height: 60,
+                                                      )
+                                                    : Image.asset(
+                                                        'assets/pngsaveicon.png',
+                                                        width: 60,
+                                                        height: 60,
+                                                      ),
+                                                SizedBox(
+                                                  height: 10,
+                                                ),
+                                                Text(
+                                                  file.path.split('/').last,
+                                                  style: CustomTextStyles
+                                                      .primaryText16
+                                                      .copyWith(fontSize: 12),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        );
+                                      });
+                                }
+                              }),
+                        )
+
+                        // _buildRecentFilesSection(),
+                      ],
                     ),
                   ),
-                ],
+                ),
               ),
-            ),
+            ],
           ),
         ),
         floatingActionButton: FloatingActionButton(

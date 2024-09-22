@@ -1,7 +1,16 @@
+import 'dart:io';
+
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/CustomWidgets/shimmer_animation.dart';
+import 'package:pdf_editor/utils/AppColors.dart';
+import 'package:pdf_editor/utils/AppConsts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'dart:math' as math; // import this
 
 class PremiumScreen extends StatefulWidget {
   @override
@@ -17,9 +26,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
     ProScreenController controller = Provider.of<ProScreenController>(context);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
-        backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
+        backgroundColor: AppColors.secondaryBgColor,
         centerTitle: true,
         leading: IconButton(
           icon: const Icon(
@@ -57,35 +65,49 @@ class _PremiumScreenState extends State<PremiumScreen> {
             children: [
               SizedBox(height: 20),
 
-              Center(
-                child: Container(
-                  padding: EdgeInsets.all(24.0),
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.red.shade900, Colors.red.shade500],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(10),
+              Container(
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                padding: EdgeInsets.all(24.0),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Color(0xFFF65050),
+                      Colors.red.shade800,
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  width: 350,
-                  height: 120,
-                  child: const Center(
-                    child: Text(
-                      'Get Access to all Unlimited features',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                width: 350,
+                height: 100,
+                child: Center(
+                  child: Row(
+                    children: [
+                      SvgPicture.asset('assets/proLeaveIcon.svg'),
+                      const Expanded(
+                        child: FittedBox(
+                          child: Text(
+                            ' Get Access to all Unlimited   \nfeatures',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontFamily: 'Inter',
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      Transform(
+                          alignment: Alignment.center,
+                          transform: Matrix4.rotationY(math.pi),
+                          child: SvgPicture.asset('assets/proLeaveIcon.svg')),
+                    ],
                   ),
                 ),
               ),
 
-              const SizedBox(height: 30),
+              const SizedBox(height: 20),
 
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30.0),
@@ -95,14 +117,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.picture_as_pdf, color: Colors.redAccent),
+                        // Icon(Icons.picture_as_pdf, color: Colors.redAccent),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Add Stamp to PDF',
+                            '🎟️  Add Stamp to PDF',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -113,14 +135,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.edit, color: Colors.lightBlue),
+                        // Icon(Icons.edit, color: Colors.lightBlue),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Create & Add Signature',
+                            '📝  Create & Add Signature',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -131,14 +153,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.scanner, color: Colors.yellowAccent),
+                        // Icon(Icons.scanner, color: Colors.yellowAccent),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Scan Unlimited Files',
+                            '✨ Scan Unlimited Files',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -149,14 +171,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.image, color: Colors.blueGrey),
+                        // Icon(Icons.image, color: Colors.blueGrey),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Image to PDF converter',
+                            '🔄  Image to PDF Converter',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -167,14 +189,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        Icon(Icons.block, color: Colors.red),
+                        // Icon(Icons.block, color: Colors.red),
                         SizedBox(width: 10),
                         Expanded(
                           child: Text(
-                            'Remove ads',
+                            '⛔ Remove Ads',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: 16,
                               color: Colors.white,
                             ),
                           ),
@@ -185,14 +207,14 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
 
-              const SizedBox(height: 5),
+              const SizedBox(height: 20),
 
               Padding(
-                padding: EdgeInsets.all(20.0),
+                padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Card(
-                  color: Color.fromRGBO(33, 35, 38, 1),
+                  color: Color.fromARGB(255, 65, 67, 71),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   elevation: 4,
                   child: Padding(
@@ -225,10 +247,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 constraints: BoxConstraints(
                                   maxWidth: 500, // Prevent overflow
                                 ),
-                                padding: EdgeInsets.all(25),
+                                padding: EdgeInsets.all(22),
                                 decoration: BoxDecoration(
-                                  color: Color.fromRGBO(66, 69, 73, 1),
-                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 92, 97, 102),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: isMonthlyPlanSelected
+                                        ? Color.fromRGBO(238, 76, 76, 1)
+                                        : Color.fromARGB(255, 105, 110, 116),
+                                    width: 1.5,
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -239,11 +267,36 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                         _buildCheckbox(isMonthlyPlanSelected),
                                         SizedBox(width: 10),
                                         Text(
-                                          'Monthly plan',
+                                          'Monthly',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
                                             fontSize: 16,
                                             color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Container(
+                                          height: 20,
+                                          // width: 50,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Colors.red,
+                                          ),
+                                          child: const Center(
+                                            child: FittedBox(
+                                              child: Text(
+                                                "Basic",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontSize: 14,
+                                                    fontFamily: 'intern'),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -258,7 +311,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                             : '${controller.subscriptionItems[0].priceString}}/mo',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Colors.white,
                                         ),
                                         overflow: TextOverflow
@@ -279,13 +332,19 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               },
                               child: Container(
                                 width: double.infinity,
-                                constraints: BoxConstraints(
+                                constraints: const BoxConstraints(
                                   maxWidth: 500, // Prevent overflow
                                 ),
-                                padding: EdgeInsets.all(25),
+                                padding: EdgeInsets.all(22),
                                 decoration: BoxDecoration(
-                                  color: Color.fromRGBO(66, 69, 73, 1),
-                                  borderRadius: BorderRadius.circular(10),
+                                  color: Color.fromARGB(255, 92, 97, 102),
+                                  borderRadius: BorderRadius.circular(15),
+                                  border: Border.all(
+                                    color: isYearlyPlanSelected
+                                        ? Color.fromRGBO(238, 76, 76, 1)
+                                        : Color.fromARGB(255, 105, 110, 116),
+                                    width: 1.5,
+                                  ),
                                 ),
                                 child: Row(
                                   mainAxisAlignment:
@@ -296,11 +355,40 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                         _buildCheckbox(isYearlyPlanSelected),
                                         SizedBox(width: 10),
                                         Text(
-                                          'Yearly plan',
+                                          'Yearly',
                                           style: TextStyle(
                                             fontFamily: 'Inter',
                                             fontSize: 16,
                                             color: Colors.white,
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          width: 5,
+                                        ),
+                                        Container(
+                                          height: 20,
+                                          // width: 50,
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 10),
+
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                            color: Colors.red,
+                                          ),
+                                          child: Center(
+                                            child: FittedBox(
+                                              child: Text(
+                                                controller.subscriptionItems
+                                                        .isEmpty
+                                                    ? "0.00% off"
+                                                    : "${controller.calculatePercentageOff(controller.subscriptionItems[0].price, controller.subscriptionItems[1].price, 12)}% off",
+                                                style: TextStyle(
+                                                    color: Colors.white,
+                                                    fontFamily: 'intern',
+                                                    fontSize: 14),
+                                              ),
+                                            ),
                                           ),
                                         ),
                                       ],
@@ -315,7 +403,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                             : '\$ ${controller.subscriptionItems[1].priceString}/yr',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
-                                          fontSize: 16,
+                                          fontSize: 14,
                                           color: Colors.white,
                                         ),
                                         overflow: TextOverflow
@@ -367,12 +455,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: const Center(
+                        child: Center(
                           child: Text(
-                            'Continue',
+                            isYearlyPlanSelected
+                                ? controller.subscriptionItems.isEmpty
+                                    ? "3 Days Free Trial Then USD 0.00 per year"
+                                    : "3 Days Free Trial Then ${controller.subscriptionItems[1].priceString} per year"
+                                : 'Continue',
                             style: TextStyle(
                               fontFamily: 'Inter',
-                              fontSize: 18,
+                              fontSize: isYearlyPlanSelected ? 16 : 18,
                               color: Colors.white,
                             ),
                           ),
@@ -387,55 +479,21 @@ class _PremiumScreenState extends State<PremiumScreen> {
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.0),
                 child: Text(
-                  'You can cancel your subscription anytime. It stays active until the current billing period remains active.',
+                  'No commitment | Cancel Anytime',
                   style: TextStyle(
                     fontFamily: 'Inter',
-                    fontSize: 14,
+                    fontSize: 12,
                     color: Color.fromRGBO(147, 155, 168, 1),
                   ),
                   textAlign: TextAlign.center,
                 ),
               ),
-              SizedBox(height: 30),
+              SizedBox(height: 10),
 
               // Footer section
-              Padding(
-                padding: EdgeInsets.symmetric(horizontal: 20.0),
-                child: Column(
-                  children: [
-                    SizedBox(height: 10),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text(
-                          'Privacy Policy',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Terms and Conditions',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          'Restore Purchase',
-                          style: TextStyle(
-                            fontFamily: 'Inter',
-                            fontSize: 12,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    SizedBox(height: 10),
-                  ],
-                ),
+              BottomOptions(
+                size: size,
+                proScreenController: controller,
               ),
             ],
           ),
@@ -446,8 +504,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
 
   Widget _buildCheckbox(bool isSelected) {
     return Container(
-      height: 24,
-      width: 24,
+      height: 20,
+      width: 20,
       decoration: BoxDecoration(
         color: isSelected ? Colors.red.shade900 : Colors.transparent,
         borderRadius: BorderRadius.circular(6),
@@ -459,9 +517,213 @@ class _PremiumScreenState extends State<PremiumScreen> {
           ? Icon(
               Icons.check,
               color: Colors.white,
-              size: 20,
+              size: 16,
             )
           : null,
     );
+  }
+}
+
+class BottomOptions extends StatelessWidget {
+  BottomOptions(
+      {super.key, required this.size, required this.proScreenController});
+
+  final Size size;
+  ProScreenController proScreenController;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(
+        bottom: MediaQuery.of(context).size.width <= 380 ? 0 : 20,
+        left: 20,
+        right: 20,
+      ),
+      padding: MediaQuery.of(context).size.width <= 380
+          ? null
+          : EdgeInsets.only(left: 5),
+      width: size.width,
+      height: MediaQuery.of(context).size.width <= 380
+          ? size.height * .040
+          : size.height * .045,
+      decoration: BoxDecoration(
+          border: Border.all(color: Color(0xFF616161), width: 1),
+          borderRadius: const BorderRadius.all(
+            Radius.circular(5),
+          )),
+      child: Row(
+        children: [
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                bool isConnectedToInternet = await checkInternet();
+                if (isConnectedToInternet) {
+                  launchUrl(Uri.parse(AppConsts.TermsAndCondition));
+                } else {
+                  if (context.mounted) {
+                    Fluttertoast.showToast(
+                      msg: "No Internet Connection",
+                      gravity: ToastGravity.CENTER,
+                    );
+                  }
+                }
+              },
+              child: const AutoSizeText(
+                "Terms of Use",
+                textAlign: TextAlign.center,
+                maxFontSize: 12,
+                minFontSize: 12,
+                style: TextStyle(
+                  color: Color.fromARGB(255, 167, 165, 165),
+                  fontFamily: 'intern',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+          const VerticalDivider(
+            color: Color.fromARGB(255, 167, 165, 165),
+            thickness: 0.5,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
+                bool isConnectedToInternet = await checkInternet();
+                if (isConnectedToInternet) {
+                  launchUrl(Uri.parse(AppConsts.PrivacyPolicy));
+                } else {
+                  if (context.mounted) {
+                    Fluttertoast.showToast(
+                      msg: "No Internet Connection",
+                      gravity: ToastGravity.CENTER,
+                    );
+                  }
+                }
+              },
+              child: const AutoSizeText(
+                "Privacy Policy",
+                textAlign: TextAlign.center,
+                maxFontSize: 12,
+                minFontSize: 12,
+                style: TextStyle(
+                  color: Color.fromARGB(255, 167, 165, 165),
+                  fontFamily: 'intern',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+          const VerticalDivider(
+            color: Color.fromARGB(255, 167, 165, 165),
+            thickness: 0.5,
+          ),
+          Expanded(
+              child: GestureDetector(
+            onTap: () async {
+              bool isConnectedToInternet = await checkInternet();
+              if (isConnectedToInternet) {
+                if (context.mounted) {
+                  // IAPSerice().restorePurchases(context);
+                  // proScreenController.restorePreviousPurchase(context);
+                }
+              } else {
+                if (context.mounted) {
+                  Fluttertoast.showToast(
+                    msg: "No Internet Connection",
+                    gravity: ToastGravity.CENTER,
+                  );
+                }
+              }
+            },
+            child: AutoSizeText(
+              "Restore",
+              maxFontSize: 12,
+              minFontSize: 12,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: Color.fromARGB(255, 167, 165, 165),
+                fontFamily: 'intern',
+                fontWeight: FontWeight.w400,
+              ),
+            ),
+          )),
+
+          // InkWell(
+          //   child: GestureDetector(
+          //     onTap: proScreenVC.appStatus == AppStatus.LOADING
+          //         ? null
+          //         : () async {
+
+          //           },
+          //     child: Container(
+          //       // width: size.width * .3,
+          //       child: AutoSizeText(
+          //         "Privacy Policy",
+          //         textAlign: TextAlign.center,
+          //         style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: 12,
+          //           fontFamily: SoraFont.soraSemiBold,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+
+          // InkWell(
+          //   child: MouseRegion(
+          //     cursor: SystemMouseCursors.click,
+          //     child: GestureDetector(
+
+          //       child: Text(
+          //         "Terms of Use",
+          //         style: TextStyle(
+          //           color: Colors.white,
+          //           fontSize: 12,
+          //           fontFamily: SoraFont.soraRegular,
+          //         ),
+          //       ),
+          //     ),
+          //   ),
+          // ),
+          // const VerticalDivider(
+          //   color: Colors.white,
+          //   thickness: 1,
+          // ),
+          // Container(
+          //   // width: size.width * .2,
+          //   child: InkWell(
+          //     splashColor: Colors.transparent,
+
+          //     child: Text(
+          //       // "Restore Purchase",
+          //       "",
+          //       textAlign: TextAlign.center,
+          //       style: TextStyle(
+          //         color: Colors.white,
+          //         fontSize: 12,
+          //         fontFamily: SoraFont.soraRegular,
+          //       ),
+          //     ),
+          //   ),
+          // ),
+        ],
+      ),
+    );
+  }
+
+  Future<bool> checkInternet() async {
+    bool isActive = false;
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        isActive = true;
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      isActive = false;
+    }
+    return isActive;
   }
 }

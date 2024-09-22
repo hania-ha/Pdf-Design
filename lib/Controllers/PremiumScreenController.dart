@@ -20,6 +20,7 @@ class ProScreenController with ChangeNotifier implements PurchaseCallback {
     'com.edit.pdf.send.documents.monthly',
     'com.edit.pdf.send.documents.yearly',
   ];
+  double percentageOff = 0.0;
   bool _isUserPro = false;
 
   bool get isUserPro => _isUserPro;
@@ -59,6 +60,18 @@ class ProScreenController with ChangeNotifier implements PurchaseCallback {
       int indexB = _ksubscriptionIdentifiers.indexOf(b.identifier);
       return indexA.compareTo(indexB);
     });
+  }
+
+  String calculatePercentageOff(
+      double defaultMonthPrice, double packagePrice, double multiplier) {
+    // Calculate the expected price based on the multiplier (e.g., yearly price)
+    double expectedPrice = defaultMonthPrice * multiplier;
+
+    // Calculate the percentage off
+    double percentOfExpectedPrice = (packagePrice / expectedPrice) * 100;
+    double percentageOff = 100 - percentOfExpectedPrice;
+
+    return percentageOff.toStringAsFixed(0);
   }
 
   @override

@@ -26,7 +26,7 @@ class Inappservice {
     try {
       CustomerInfo purchaserInfo =
           await Purchases.purchaseStoreProduct(product);
-      if (purchaserInfo.entitlements.all["premium"]!.isActive) {
+      if (purchaserInfo.entitlements.all["Pro"]!.isActive) {
         if (context.mounted) {
           purchaseCallback.onPurchaseSuccessCallBack(context);
         }
@@ -53,7 +53,7 @@ class Inappservice {
     try {
       CustomerInfo restoredCustomerInfo = await Purchases.restorePurchases();
 
-      if (restoredCustomerInfo.entitlements.all["premium"]!.isActive) {
+      if (restoredCustomerInfo.entitlements.all["Pro"]!.isActive) {
         if (context.mounted) {
           inAppPaymentCallback.onPurchaseRestored(context);
         }
