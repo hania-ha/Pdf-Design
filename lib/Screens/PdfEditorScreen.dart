@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -144,23 +145,25 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         appBar: AppBar(
           backgroundColor: AppColors.secondaryBgColor,
           elevation: 0,
-          title: Text(
-            pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
-                ? "Paint Tool"
-                : pdfeditorcontroller.currentEditingTool == EditingTool.SIGN
-                    ? "Sign Tool"
-                    : pdfeditorcontroller.currentEditingTool ==
-                            EditingTool.STAMP
-                        ? "Stamp Tool"
-                        : pdfeditorcontroller.currentEditingTool ==
-                                EditingTool.TEXT
-                            ? "Text Tool"
-                            : pdfeditorcontroller.currentEditingTool ==
-                                    EditingTool.DATE
-                                ? "Date Tool"
-                                : "PDF Editor",
-            style: const TextStyle(
+          title: const Text(
+            "PDF Editor",
+            // pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
+            //     ? "Paint Tool"
+            //     : pdfeditorcontroller.currentEditingTool == EditingTool.SIGN
+            //         ? "Sign Tool"
+            //         : pdfeditorcontroller.currentEditingTool ==
+            //                 EditingTool.STAMP
+            //             ? "Stamp Tool"
+            //             : pdfeditorcontroller.currentEditingTool ==
+            //                     EditingTool.TEXT
+            //                 ? "Text Tool"
+            //                 : pdfeditorcontroller.currentEditingTool ==
+            //                         EditingTool.DATE
+            //                     ? "Date Tool"
+            //                     : "PDF Editor",
+            style: TextStyle(
               color: Colors.white,
+              fontFamily: 'intern',
             ),
           ),
           centerTitle: true,

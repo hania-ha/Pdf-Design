@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 
@@ -347,7 +348,19 @@ class Pdfeditorcontroller with ChangeNotifier {
   //   return await rootBundle.loadString('assets/stampsImages.json');
   // }
 
-  void exportImage(BuildContext context) async {
+  void exportImage(BuildContext context, {showLoading = true}) async {
+    if (showLoading) {
+      showDialog(
+        context: context,
+        builder: (contex) {
+          return CupertinoActivityIndicator(
+            color: Colors.white,
+            radius: 10,
+          );
+        },
+      );
+    }
+
     final pdf = pw.Document();
     Uint8List? exportedImageBytes = await screenshotController.capture();
     if (exportedImageBytes != null) {
@@ -356,6 +369,7 @@ class Pdfeditorcontroller with ChangeNotifier {
 
       if (context.mounted) {
         countQueries();
+        context.pop();
         context.push(SaveScreen(
           imageBytes: exportedImageBytes,
           fileName: DateTime.now().millisecondsSinceEpoch.toString(),

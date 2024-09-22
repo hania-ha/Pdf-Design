@@ -6,13 +6,14 @@ import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
 
+// import 'package:open_file_plus/open_file_plus.dart';
+import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf_editor/Controllers/HistoryViewController.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/utils/AppColors.dart';
 import 'package:pdf_editor/utils/AppStyles.dart';
 import 'package:provider/provider.dart';
-import 'package:open_filex/open_filex.dart';
 
 class HistoryView extends StatefulWidget {
   const HistoryView({super.key});
@@ -77,7 +78,6 @@ class _HistoryViewState extends State<HistoryView> {
                         (_file.lengthSync() / 1000).toStringAsFixed(0);
 
                     String fileExt = file.path.split('.').last;
-                    print(fileExt);
 
                     // DateTime creationDate = stat.
 
@@ -91,19 +91,26 @@ class _HistoryViewState extends State<HistoryView> {
                         width: double.infinity,
                         child: ListTile(
                           onTap: () async {
-                            print(_file.path);
+                            print(file.path);
                             try {
-                              OpenResult openResult = await OpenFilex.open(
-                                snapshot.data![index].path,
-                                // isIOSAppOpen: true,
-                                type: 'application/pdf',
-                              );
-                              print(openResult);
+                              if (fileExt == 'pdf' || fileExt == 'PDF') {
+                                OpenResult openResult = await OpenFilex.open(
+                                  file.path,
+                                  type: 'application/pdf',
+                                );
+                              }
+                              if (fileExt == 'png' || fileExt == 'PNG') {
+                                OpenResult openResult = await OpenFilex.open(
+                                  file.path,
+                                  type: 'image/png',
+                                );
+                                print(openResult.message);
+                              }
                             } catch (e) {
                               print(e);
                             }
                           },
-                          leading: fileExt == "pdf"
+                          leading: fileExt == "pdf" || fileExt == 'PDF'
                               ? Container(
                                   margin: EdgeInsets.all(5),
                                   child: Image.asset('assets/pdficon1.png'))
@@ -128,6 +135,7 @@ class _HistoryViewState extends State<HistoryView> {
                       //   child: Text(file.toString()),
                       // ),
                     );
+                   
                     // return ListTile(
                     //   title:
                     //       Text(file.path.split('/').last), // Display file name

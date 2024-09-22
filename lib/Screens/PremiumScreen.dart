@@ -8,23 +8,21 @@ class PremiumScreen extends StatefulWidget {
   _PremiumScreenState createState() => _PremiumScreenState();
 }
 
-class _PremiumScreenState extends State<PremiumScreen>
-    with SingleTickerProviderStateMixin {
-  bool isMonthlyPlanSelected = false;
+class _PremiumScreenState extends State<PremiumScreen> {
+  bool isMonthlyPlanSelected = true;
   bool isYearlyPlanSelected = false;
 
   @override
   Widget build(BuildContext context) {
-    ProScreenController proScreenController =
-        Provider.of<ProScreenController>(context);
+    ProScreenController controller = Provider.of<ProScreenController>(context);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+      backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
       appBar: AppBar(
-        backgroundColor: Color.fromRGBO(43, 46, 50, 1),
+        backgroundColor: const Color.fromRGBO(43, 46, 50, 1),
         centerTitle: true,
         leading: IconButton(
-          icon: Icon(
+          icon: const Icon(
             Icons.arrow_back,
             color: Colors.white,
           ),
@@ -34,14 +32,14 @@ class _PremiumScreenState extends State<PremiumScreen>
         ),
         title: RichText(
           text: TextSpan(
-            style: TextStyle(
+            style: const TextStyle(
               fontFamily: 'Inter',
               fontSize: 28,
               fontWeight: FontWeight.bold,
               color: Colors.white,
             ),
             children: [
-              TextSpan(text: 'Upgrade to '),
+              const TextSpan(text: 'Upgrade to '),
               TextSpan(
                 text: 'PRO',
                 style: TextStyle(
@@ -72,7 +70,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                   ),
                   width: 350,
                   height: 120,
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'Get Access to all Unlimited features',
                       textAlign: TextAlign.center,
@@ -87,7 +85,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                 ),
               ),
 
-              SizedBox(height: 30),
+              const SizedBox(height: 30),
 
               const Padding(
                 padding: EdgeInsets.symmetric(horizontal: 30.0),
@@ -187,7 +185,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                 ),
               ),
 
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
 
               Padding(
                 padding: EdgeInsets.all(20.0),
@@ -202,7 +200,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(
+                        const Text(
                           'Choose Plan',
                           style: TextStyle(
                             fontFamily: 'Inter',
@@ -255,7 +253,9 @@ class _PremiumScreenState extends State<PremiumScreen>
                                             20), // Adjust space to prevent overflow
                                     Flexible(
                                       child: Text(
-                                        '\$8.99/mo',
+                                        controller.subscriptionItems.isEmpty
+                                            ? '0.00/mo'
+                                            : '${controller.subscriptionItems[0].priceString}}/mo',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 16,
@@ -310,7 +310,9 @@ class _PremiumScreenState extends State<PremiumScreen>
                                             20), // Adjust space to prevent overflow
                                     Flexible(
                                       child: Text(
-                                        '\$26.99/yr',
+                                        controller.subscriptionItems.isEmpty
+                                            ? '0.00/yr'
+                                            : '\$ ${controller.subscriptionItems[1].priceString}/yr',
                                         style: TextStyle(
                                           fontFamily: 'Inter',
                                           fontSize: 16,
@@ -332,7 +334,7 @@ class _PremiumScreenState extends State<PremiumScreen>
                 ),
               ),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -349,16 +351,23 @@ class _PremiumScreenState extends State<PremiumScreen>
                       width: size.width * .50,
                       child: ElevatedButton(
                         onPressed: () {
-                          proScreenController.buyProduct(context);
+                          if (isMonthlyPlanSelected) {
+                            controller.buyProduct(
+                                context, controller.subscriptionItems[0]);
+                          }
+                          if (isYearlyPlanSelected) {
+                            controller.buyProduct(
+                                context, controller.subscriptionItems[1]);
+                          }
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(238, 76, 76, 1),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: EdgeInsets.symmetric(vertical: 16),
+                          padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
-                        child: Center(
+                        child: const Center(
                           child: Text(
                             'Continue',
                             style: TextStyle(

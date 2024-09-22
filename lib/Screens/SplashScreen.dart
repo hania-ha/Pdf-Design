@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Controllers/SplashScreenController.dart';
 import 'package:pdf_editor/Screens/BottomScreen.dart';
 import 'dart:async';
 import 'HomeScreen.dart';
@@ -16,6 +17,9 @@ class _SplashScreenState extends State<SplashScreen>
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      SplashScreenController().checkingPreviousPurchase(context);
+    });
 
     _animationController = AnimationController(
       duration: Duration(seconds: 3),

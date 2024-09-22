@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -122,7 +123,7 @@ class SaveScreen extends StatelessWidget {
                     logoPath: 'assets/pdficon1.png',
                     onPressed: () {
                       SaveScreenController()
-                          .saveDocumentFile(imageBytes, fileName);
+                          .saveDocumentFile(imageBytes, fileName, context);
                     },
                   ),
                   SaveDocumentWidget(
@@ -131,7 +132,7 @@ class SaveScreen extends StatelessWidget {
                     logoPath: 'assets/pngsaveicon.png',
                     onPressed: () {
                       SaveScreenController()
-                          .saveImageFile(imageBytes, fileName);
+                          .saveImageFile(imageBytes, fileName, context);
                     },
                   ),
                   SaveDocumentWidget(
@@ -273,8 +274,9 @@ class DiscardChangesDialog extends StatelessWidget {
           onPressed: () {
             Navigator.of(context).pop(); // Ok action
             pdfeditorcontroller.resetValues();
-            Navigator.of(context)
-    .pushAndRemoveUntil(MaterialPageRoute(builder: (context)=>HomeScreen()), (Route<dynamic> route) => false);
+            Navigator.of(context).pushAndRemoveUntil(
+                MaterialPageRoute(builder: (context) => HomeScreen()),
+                (Route<dynamic> route) => false);
           },
           child: Text(
             'Ok',
