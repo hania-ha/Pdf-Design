@@ -51,12 +51,12 @@ dependencies:
   flutter_file_dialog: ^3.0.2
   lottie: ^3.1.2
   # shimmer: ^3.0.0
-  
+  open_filex: ^4.5.0
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  open_file: ^3.5.3
+  
 
   # The "flutter_lints" package below contains a set of recommended lints to
   # encourage good coding practices. The lint set provided by the package is
