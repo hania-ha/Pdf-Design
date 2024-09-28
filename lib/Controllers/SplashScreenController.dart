@@ -19,9 +19,9 @@ class SplashScreenController {
       try {
         if (Platform.isAndroid) {
           SharedPreferencesHelper.setBool(
-              AppConsts.subscriptionStatuskey, false);
+              AppConsts.subscriptionStatuskey, true);
 
-          proScreenController.isUserPro = false;
+          proScreenController.isUserPro = true;
         } else if (Platform.isIOS) {
           CustomerInfo customerInfo = await Purchases.getCustomerInfo();
           if (customerInfo.activeSubscriptions.isEmpty) {

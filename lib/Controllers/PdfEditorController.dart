@@ -2,7 +2,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
+// import 'package:image_gallery_saver/image_gallery_saver.dart';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -310,18 +310,38 @@ class Pdfeditorcontroller with ChangeNotifier {
     notifyListeners();
   }
 
-  void addDate(Widget dateWidget) {
+  void addDate(Widget dateWidget, Color dateColor, String dateFormat,
+      {DateTime? date}) {
     pdfEditorItems.add(
       PdfEditorModel(
         editingTool: EditingTool.DATE,
         dateModel: DateModel(
-          dateWidget: dateWidget,
-          dataSize: Size(150, 180),
-          dateWidgetPosition: Offset(0, 0),
-        ),
+            dateWidget: dateWidget,
+            dataSize: Size(150, 180),
+            dateWidgetPosition: Offset(0, 0),
+            dateColor: dateColor,
+            date: date ?? DateTime.now(),
+            dateFormat: dateFormat),
       ),
     );
 
+    notifyListeners();
+  }
+
+  void editDate(Widget dateWidget, {DateTime? newDate}) {
+    PdfEditorModel pdfDateModel = PdfEditorModel(
+      editingTool: EditingTool.DATE,
+      dateModel: DateModel(
+          dateWidget: dateWidget,
+          dateWidgetPosition:
+              pdfEditorItems[selectedItemIndex].dateModel!.dateWidgetPosition,
+          dataSize: pdfEditorItems[selectedItemIndex].dateModel!.dataSize,
+          dateColor: pdfEditorItems[selectedItemIndex].dateModel!.dateColor,
+          date: newDate ?? DateTime.now(),
+          dateFormat: pdfEditorItems[selectedItemIndex].dateModel!.dateFormat),
+    );
+
+    pdfEditorItems[selectedItemIndex] = pdfDateModel;
     notifyListeners();
   }
 
@@ -435,6 +455,8 @@ class Pdfeditorcontroller with ChangeNotifier {
     'DancingMedium',
     'GreatVibesRegular',
     'RougeScriptRegular',
-    'BilboRegular'
+    'BilboRegular',
+    'DrSugiyamaRegular',
+    'MrDeHavilandRegular'
   ];
 }

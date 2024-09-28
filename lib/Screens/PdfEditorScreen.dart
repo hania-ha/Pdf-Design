@@ -1,4 +1,5 @@
-import 'dart:math';
+import 'dart:developer';
+import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/Screens/HomeScreen.dart';
 import 'package:pdf_editor/Screens/PremiumScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
@@ -62,9 +64,10 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    // Pdfeditorcontroller().loadAsset();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadImage();
+      Provider.of<Pdfeditorcontroller>(context, listen: false)
+          .toggleEditingTool(EditingTool.NONE);
     });
   }
 
@@ -72,7 +75,6 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
   void dispose() {
     // TODO: implement dispose
     super.dispose();
-    print("DISPOSE");
   }
 
   double _imageWidth = 0;
@@ -98,6 +100,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     Size size = MediaQuery.of(context).size;
     Pdfeditorcontroller pdfeditorcontroller =
         Provider.of<Pdfeditorcontroller>(context);
+    ProScreenController proScreenController =
+        Provider.of<ProScreenController>(context);
     return PopScope(
       onPopInvoked: (value) {
         Provider.of<Pdfeditorcontroller>(context, listen: false).resetValues();
@@ -111,29 +115,26 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
               // height: 90,
               // color: Colors.red,
               child: pdfeditorcontroller.currentEditingTool == EditingTool.NONE
-                  ? _buildBottomBar(pdfeditorcontroller)
+                  ? _buildBottomBar(pdfeditorcontroller, proScreenController)
                   : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
                       ? _buildColorPalette()
                       : pdfeditorcontroller.currentEditingTool ==
-                              EditingTool.PAINT
-                          ? _buildColorPalette()
+                                  EditingTool.SIGN &&
+                              pdfeditorcontroller.checkIfSignatureExist() ==
+                                  true
+                          ? _buildSignSelection(pdfeditorcontroller)
                           : pdfeditorcontroller.currentEditingTool ==
                                       EditingTool.SIGN &&
                                   pdfeditorcontroller.checkIfSignatureExist() ==
-                                      true
-                              ? _buildSignSelection(pdfeditorcontroller)
+                                      false
+                              ? _buildAddSignature(pdfeditorcontroller,
+                                  toAddSimpleText: false)
                               : pdfeditorcontroller.currentEditingTool ==
-                                          EditingTool.SIGN &&
-                                      pdfeditorcontroller
-                                              .checkIfSignatureExist() ==
-                                          false
+                                      EditingTool.TEXT
                                   ? _buildAddSignature(pdfeditorcontroller,
-                                      toAddSimpleText: false)
-                                  : pdfeditorcontroller.currentEditingTool ==
-                                          EditingTool.TEXT
-                                      ? _buildAddSignature(pdfeditorcontroller,
-                                          toAddSimpleText: true)
-                                      : _buildBottomBar(pdfeditorcontroller),
+                                      toAddSimpleText: true)
+                                  : _buildBottomBar(
+                                      pdfeditorcontroller, proScreenController),
             ),
           ],
         ),
@@ -171,15 +172,16 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
           iconTheme: IconThemeData(color: Colors.white),
           actions: [
             // if (_isPaintingMode || _isStampMode || _isSignMode)
-
-            IconButton(
-                onPressed: () {
-                  pdfeditorcontroller.deleteItem();
-                },
-                icon: Icon(
-                  Icons.delete,
-                  color: Colors.red,
-                )),
+            pdfeditorcontroller.selectedItemIndex != -1
+                ? IconButton(
+                    onPressed: () {
+                      pdfeditorcontroller.deleteItem();
+                    },
+                    icon: Icon(
+                      Icons.delete,
+                      color: Colors.red,
+                    ))
+                : Container(),
             TextButton(
               onPressed: () {
                 if (pdfeditorcontroller.currentEditingTool !=
@@ -330,6 +332,68 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                         pdfeditorcontroller
                                                             .pdfEditorItems[i]
                                                             .editingTool);
+                                              },
+                                              onDoubleTap: () async {
+                                                if (pdfeditorcontroller
+                                                        .currentEditingTool ==
+                                                    EditingTool.DATE) {
+                                                  // print("on double tap");
+                                                  // pdfeditorcontroller
+                                                  //     .toggleItemSelection(i);
+
+                                                  // pdfeditorcontroller
+                                                  //     .toggleEditingTool(
+                                                  //         pdfeditorcontroller
+                                                  //             .pdfEditorItems[i]
+                                                  //             .editingTool);
+
+                                                  DateTime? currentDate =
+                                                      pdfeditorcontroller
+                                                          .pdfEditorItems[
+                                                              pdfeditorcontroller
+                                                                  .selectedItemIndex]
+                                                          .dateModel!
+                                                          .date;
+                                                  int selectedIndex =
+                                                      pdfeditorcontroller
+                                                          .selectedItemIndex;
+                                                  Color dateColor =
+                                                      pdfeditorcontroller
+                                                          .pdfEditorItems[
+                                                              selectedIndex]
+                                                          .dateModel!
+                                                          .dateColor;
+
+                                                  currentDate =
+                                                      await showDatePicker(
+                                                    context: context,
+                                                    firstDate: DateTime(1970),
+                                                    lastDate: DateTime(2060),
+                                                    initialDate: currentDate,
+                                                  );
+                                                  if (currentDate != null) {
+                                                    String dateFormat =
+                                                        pdfeditorcontroller
+                                                            .pdfEditorItems[
+                                                                selectedIndex]
+                                                            .dateModel!
+                                                            .dateFormat;
+
+                                                    String formatWithNewDate =
+                                                        DateFormat(dateFormat)
+                                                            .format(
+                                                                currentDate);
+
+                                                    pdfeditorcontroller
+                                                        .editDate(
+                                                      _buildDateOption(
+                                                        formatWithNewDate,
+                                                        dateColor,
+                                                      ),
+                                                      newDate: currentDate,
+                                                    );
+                                                  }
+                                                }
                                               },
                                               child: Stack(
                                                 children: [
@@ -559,22 +623,34 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                         clipBehavior: Clip.none,
                                                         children: [
                                                           Container(
-                                                            decoration:
-                                                                BoxDecoration(
-                                                              border:
-                                                                  Border.all(
-                                                                color: Colors
-                                                                    .transparent,
-                                                                width: 2,
-                                                              ),
-                                                            ),
+                                                            decoration: pdfeditorcontroller
+                                                                        .selectedItemIndex ==
+                                                                    i
+                                                                ? BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      width: 2,
+                                                                    ),
+                                                                  )
+                                                                : BoxDecoration(
+                                                                    border:
+                                                                        Border
+                                                                            .all(
+                                                                      color: Colors
+                                                                          .transparent,
+                                                                      width: 2,
+                                                                    ),
+                                                                  ),
 
-                                                            width: pdfeditorcontroller
-                                                                .pdfEditorItems[
-                                                                    i]
-                                                                .dateModel
-                                                                ?.dataSize
-                                                                .width,
+                                                            // width: pdfeditorcontroller
+                                                            //     .pdfEditorItems[
+                                                            //         i]
+                                                            //     .dateModel
+                                                            //     ?.dataSize
+                                                            //     .width,
                                                             // height: pdfeditorcontroller
                                                             //     .pdfEditorItems[i]
                                                             //     .dateModel
@@ -586,6 +662,26 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                                 .dateModel
                                                                 ?.dateWidget,
                                                           ),
+
+                                                          // IconButton(
+                                                          //   icon: Icon(
+                                                          //       Icons.edit),
+                                                          //   onPressed: () {
+
+                                                          //     // pdfeditorcontroller
+                                                          //     //     .editDate(
+                                                          //     //         _buildDateOption(
+                                                          //     //   "Hello World",
+                                                          //     //   pdfeditorcontroller
+                                                          //     //       .pdfEditorItems[
+                                                          //     //           pdfeditorcontroller
+                                                          //     //               .selectedItemIndex]
+                                                          //     //       .dateModel!
+                                                          //     //       .dateColor,
+                                                          //     //   onTapped: () {},
+                                                          //     // ));
+                                                          //   },
+                                                          // ),
                                                           // if (pdfeditorcontroller
                                                           //         .selectedItemIndex ==
                                                           //     i)
@@ -728,6 +824,47 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                 ],
                                               ),
                                             ),
+                                            if (pdfeditorcontroller
+                                                    .currentEditingTool ==
+                                                EditingTool.DATE)
+                                              pdfeditorcontroller
+                                                          .selectedItemIndex ==
+                                                      i
+                                                  ? Positioned(
+                                                      left: pdfeditorcontroller
+                                                              .pdfEditorItems[i]
+                                                              .dateModel!
+                                                              .dateWidgetPosition
+                                                              .dx +
+                                                          40,
+                                                      top: pdfeditorcontroller
+                                                              .pdfEditorItems[i]
+                                                              .dateModel!
+                                                              .dateWidgetPosition
+                                                              .dy -
+                                                          40,
+                                                      child: GestureDetector(
+                                                        onTap: () {
+                                                          print("hello");
+                                                        },
+                                                        child: Container(
+                                                          width: 40,
+                                                          height: 40,
+                                                          decoration: BoxDecoration(
+                                                              color:
+                                                                  Colors.white,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .circular(
+                                                                          10)),
+                                                          child: IconButton(
+                                                              onPressed: () {},
+                                                              icon: Icon(
+                                                                  Icons.edit)),
+                                                        ),
+                                                      ),
+                                                    )
+                                                  : Container(),
                                           ]
                                         ],
                                       ),
@@ -1175,7 +1312,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                   },
                   child: Container(
                     margin: const EdgeInsets.symmetric(horizontal: 8.0),
-                    width: 70,
+                    width: 80,
                     height: 30,
                     padding: EdgeInsets.all(4.0),
                     decoration:
@@ -1183,8 +1320,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                             ? BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(
-                                  color: Colors.black,
-                                  width: 1,
+                                  color: Colors.red,
+                                  width: 3,
                                 ),
                                 borderRadius: BorderRadius.circular(8.0),
                               )
@@ -1192,7 +1329,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                 color: Colors.white,
                                 border: Border.all(
                                   color: Colors.transparent,
-                                  width: 1,
+                                  width: 3,
                                 ),
                                 borderRadius: BorderRadius.circular(8.0),
                               ),
@@ -1319,7 +1456,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         });
   }
 
-  Widget _buildBottomBar(Pdfeditorcontroller pdfeditorcontroller) {
+  Widget _buildBottomBar(Pdfeditorcontroller pdfeditorcontroller,
+      ProScreenController proScreenController) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
@@ -1333,13 +1471,15 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                   pdfeditorcontroller.toggleEditingTool(EditingTool.SIGN)),
           _buildIconButton(Icons.format_paint, "Stamp", onTap: () {
             // pdfeditorcontroller.toggleEditingTool(EditingTool.STAMP);
-            _openStampModalSheet(context, pdfeditorcontroller);
+            _openStampModalSheet(
+                context, pdfeditorcontroller, proScreenController);
           }),
           _buildIconButton(Icons.text_fields, "Text", onTap: () {
             pdfeditorcontroller.toggleEditingTool(EditingTool.TEXT);
           }),
           _buildIconButton(Icons.calendar_month, "Date", onTap: () {
-            _openDateModalSheet(context, pdfeditorcontroller);
+            _openDateModalSheet(
+                context, pdfeditorcontroller, proScreenController);
           }),
         ],
       ),
@@ -1347,7 +1487,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
   }
 
   List<Color> generateRandomColors(int count) {
-    final random = Random();
+    final random = math.Random();
     List<Color> colors = [];
 
     for (int i = 0; i < count; i++) {
@@ -1369,28 +1509,46 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     return colors;
   }
 
-  void _openDateModalSheet(
-      BuildContext context, Pdfeditorcontroller controller) {
+  void _openDateModalSheet(BuildContext context, Pdfeditorcontroller controller,
+      ProScreenController proSreenController) {
     final now = DateTime.now();
+    List<String> dateFormats = [
+      'yyyy-MM-dd',
+      'dd/MM/yyyy',
+      'MM-dd-yyyy',
+      'yyyy/MM/dd',
+      'EEEE, MMMM d, yyyy',
+      'MMM d, yyyy',
+      'd MMM yyyy',
+      'dd MMMM yyyy',
+      'yyyy.MM.dd',
+      'yy-MM-dd',
+      'MMMM d, yyyy',
+      'd-MMM-yyyy',
+      'd MMM yyyy',
+      'MM/yyyy',
+      'yyyy/MMM/dd',
+      'dd.MM.yyyy'
+    ];
 
     // Define date formats
-    final dateFormats = [
-      DateFormat('yyyy-MM-dd').format(now),
-      DateFormat('dd/MM/yyyy').format(now),
-      DateFormat('MM-dd-yyyy').format(now),
-      DateFormat('yyyy/MM/dd').format(now),
-      DateFormat('EEEE, MMMM d, yyyy').format(now),
-      DateFormat('MMM d, yyyy').format(now),
-      DateFormat('d MMM yyyy').format(now),
-      DateFormat('dd MMMM yyyy').format(now),
-      DateFormat('yyyy.MM.dd').format(now),
-      DateFormat('yy-MM-dd').format(now),
-      DateFormat('MMMM d, yyyy').format(now),
-      DateFormat('d-MMM-yyyy').format(now),
-      DateFormat('d MMM yyyy').format(now),
-      DateFormat('MM/yyyy').format(now),
-      DateFormat('yyyy/MMM/dd').format(now),
-      DateFormat('dd.MM.yyyy').format(now),
+    final dates = [
+      DateFormat(dateFormats[0]).format(now),
+      DateFormat(dateFormats[1]).format(now),
+      DateFormat(dateFormats[2]).format(now),
+      DateFormat(dateFormats[3]).format(now),
+      DateFormat(dateFormats[4]).format(now),
+      DateFormat(dateFormats[5]).format(now),
+      DateFormat(dateFormats[6]).format(now),
+      DateFormat(dateFormats[7]).format(now),
+      DateFormat(dateFormats[8]).format(now),
+      DateFormat(dateFormats[9]).format(now),
+      DateFormat(dateFormats[10]).format(now),
+      DateFormat(dateFormats[11]).format(now),
+      DateFormat(dateFormats[12]).format(now),
+      DateFormat(dateFormats[13]).format(now),
+      DateFormat(dateFormats[14]).format(now),
+      DateFormat(dateFormats[15]).format(now),
     ];
     final colors = generateRandomColors(dateFormats.length);
     Size size = MediaQuery.of(context).size;
@@ -1439,32 +1597,40 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                       return Stack(
                         alignment: Alignment.topRight,
                         children: [
-                          _buildDateOption(dateFormats[index], colors[index],
+                          _buildDateOption(dates[index], colors[index],
                               onTapped: () {
                             context.pop();
                             if (Inappservice().isUserPro()) {
-                              controller.addDate(_buildDateOption(
-                                  dateFormats[index], colors[index],
-                                  onTapped: () {}));
+                              controller.addDate(
+                                _buildDateOption(
+                                  dates[
+                                      index], //after formatting with the new date and passing it
+                                  colors[index],
+                                ),
+                                colors[index],
+                                dateFormats[index],
+                              );
                             } else {
                               context.push(PremiumScreen());
                             }
                           }),
-                          GestureDetector(
-                              onTap: () {
-                                try {
-                                  context.pop();
-                                  context.push(PremiumScreen());
-                                } catch (e) {}
-                              },
-                              child: Container(
-                                margin: EdgeInsets.all(5),
-                                child: Image.asset(
-                                  AppConsts.proCrown,
-                                  width: 25,
-                                  height: 25,
-                                ),
-                              )),
+                          proSreenController.isUserPro
+                              ? Container()
+                              : GestureDetector(
+                                  onTap: () {
+                                    try {
+                                      context.pop();
+                                      context.push(PremiumScreen());
+                                    } catch (e) {}
+                                  },
+                                  child: Container(
+                                    margin: EdgeInsets.all(5),
+                                    child: Image.asset(
+                                      AppConsts.proCrown,
+                                      width: 25,
+                                      height: 25,
+                                    ),
+                                  )),
                         ],
                       );
                     }),
@@ -1476,8 +1642,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     );
   }
 
-  void _openStampModalSheet(
-      BuildContext context, Pdfeditorcontroller controller) {
+  void _openStampModalSheet(BuildContext context,
+      Pdfeditorcontroller controller, ProScreenController proScreenController) {
     Size size = MediaQuery.of(context).size;
     showModalBottomSheet(
       context: context,
@@ -1490,13 +1656,13 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
       builder: (BuildContext context) {
         return Container(
             height: size.height * .90,
-            child: StampsWidget(context, controller));
+            child: StampsWidget(context, controller, proScreenController));
       },
     );
   }
 
-  Widget _buildDateOption(String date, Color color,
-      {required Function() onTapped}) {
+  Widget _buildDateOption(String dateFormatLabel, Color color,
+      {Function()? onTapped}) {
     return GestureDetector(
       onTap: onTapped,
       child: Container(
@@ -1508,7 +1674,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         padding: EdgeInsets.all(12.0),
         child: Center(
           child: Text(
-            date,
+            dateFormatLabel,
             style: TextStyle(color: color, fontSize: 16),
           ),
         ),
@@ -1559,7 +1725,8 @@ class _DrawingPainter extends CustomPainter {
   }
 }
 
-Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller) {
+Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller,
+    ProScreenController proController) {
   Size size = MediaQuery.of(context).size;
   return Column(
     children: [
@@ -1609,18 +1776,20 @@ Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller) {
                         } catch (e) {}
                       },
                       child: Image.asset(stamp)),
-                  GestureDetector(
-                      onTap: () {
-                        try {
-                          context.pop();
-                          context.push(PremiumScreen());
-                        } catch (e) {}
-                      },
-                      child: Image.asset(
-                        AppConsts.proCrown,
-                        width: 30,
-                        height: 30,
-                      )),
+                  proController.isUserPro
+                      ? Container()
+                      : GestureDetector(
+                          onTap: () {
+                            try {
+                              context.pop();
+                              context.push(PremiumScreen());
+                            } catch (e) {}
+                          },
+                          child: Image.asset(
+                            AppConsts.proCrown,
+                            width: 30,
+                            height: 30,
+                          )),
                 ],
               );
             }),

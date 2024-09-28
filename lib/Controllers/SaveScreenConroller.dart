@@ -3,9 +3,10 @@ import 'dart:developer';
 import 'dart:io';
 import 'dart:typed_data';
 
-import 'package:document_file_save_plus/document_file_save_plus.dart';
+// import 'package:document_file_save_plus/document_file_save_plus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_file_dialog/flutter_file_dialog.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
@@ -17,7 +18,7 @@ import 'package:share_plus/share_plus.dart';
 
 class SaveScreenController {
   void saveImageFile(Uint8List data, String fileName, BuildContext context) {
-    DocumentFileSavePlus().saveFile(data, fileName, 'image/png');
+    // DocumentFileSavePlus().saveFile(data, fileName, 'image/png');
     storeFileToPhoneDirectory(data, "$fileName.png", context);
   }
 
@@ -35,8 +36,7 @@ class SaveScreenController {
     Uint8List? pdfImage = await generatePdf(data);
     context.pop();
     if (pdfImage != null) {
-      DocumentFileSavePlus()
-          .saveFile(pdfImage, "$fileName.pdf", 'appliation/pdf');
+      saveImageToGallery(pdfImage, context);
     }
     storeFileToPhoneDirectory(pdfImage, "$fileName.pdf", context);
   }
@@ -63,27 +63,6 @@ class SaveScreenController {
       }
     } catch (e) {
       print(e);
-    }
-  }
-
-  Future<void> pickIosDirectory(Uint8List data, String fileName) async {
-    if (!await FlutterFileDialog.isPickDirectorySupported()) {
-      print("Picking directory not supported");
-      return;
-    }
-    final pickedDirectory = await FlutterFileDialog.pickDirectory();
-    if (pickedDirectory != null) {
-      try {
-        final filePath = await FlutterFileDialog.saveFileToDirectory(
-          directory: pickedDirectory,
-          data: data,
-          mimeType: "appliation/pdf",
-          fileName: "fileName",
-          replace: true,
-        );
-
-        print("File Path:: $filePath");
-      } catch (e) {}
     }
   }
 
@@ -163,5 +142,76 @@ class SaveScreenController {
         ),
       ],
     );
+  }
+
+  void saveImageToGallery(Uint8List pngBytes, BuildContext context) async {
+    const platform = MethodChannel('save_file');
+
+    try {
+      await platform.invokeMethod('saveImageToGallery', {
+        'imageData': pngBytes,
+      }).then((value) {
+        print("Value:: $value");
+        if (value) {
+          if (context.mounted) {
+            showDialog(
+                context: context,
+                builder: (context) {
+                  return saveDialog(context);
+                });
+          }
+          // Dialogs.showOSDialog(
+          //   context,
+          //   "Success",
+          //   "Image saved to gallery!",
+          //   "Close!",
+          //   () {
+          //     if (kDebugMode) {
+          //       print("Close");
+          //     }
+          //   },
+          //   firstActionStyle: ActionStyle.normal,
+          // );
+        }
+      });
+    } on PlatformException catch (e) {
+      if (e.code == "SAVE_FAILED") {}
+    }
+  }
+
+  void savePdfToFilesDir(Uint8List pngBytes, BuildContext context) async {
+    const platform = MethodChannel('save_file');
+
+    try {
+      await platform.invokeMethod('savePdfToFiles', {
+        'fileData': pngBytes,
+      }).then((value) {
+        print("Value:: $value");
+        if (value) {
+          if (context.mounted) {
+            showDialog(
+              context: context,
+              builder: (context) {
+                return saveDialog(context);
+              },
+            );
+          }
+          // Dialogs.showOSDialog(
+          //   context,
+          //   "Success",
+          //   "Image saved to gallery!",
+          //   "Close!",
+          //   () {
+          //     if (kDebugMode) {
+          //       print("Close");
+          //     }
+          //   },
+          //   firstActionStyle: ActionStyle.normal,
+          // );
+        }
+      });
+    } on PlatformException catch (e) {
+      if (e.code == "SAVE_FAILED") {}
+    }
   }
 }

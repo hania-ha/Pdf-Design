@@ -439,13 +439,18 @@ class _PremiumScreenState extends State<PremiumScreen> {
                       width: size.width * .50,
                       child: ElevatedButton(
                         onPressed: () {
-                          if (isMonthlyPlanSelected) {
-                            controller.buyProduct(
-                                context, controller.subscriptionItems[0]);
-                          }
-                          if (isYearlyPlanSelected) {
-                            controller.buyProduct(
-                                context, controller.subscriptionItems[1]);
+                          try {
+                            if (isMonthlyPlanSelected) {
+                              controller.buyProduct(
+                                  context, controller.subscriptionItems[0]);
+                            }
+                            if (isYearlyPlanSelected) {
+                              controller.buyProduct(
+                                  context, controller.subscriptionItems[1]);
+                            }
+                          } catch (e) {
+                            
+                            
                           }
                         },
                         style: ElevatedButton.styleFrom(

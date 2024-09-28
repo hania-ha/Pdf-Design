@@ -183,7 +183,7 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                             ),
                           ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 10),
                     const Text(
                       'Tools',
                       style: TextStyle(
@@ -192,7 +192,7 @@ class _HomeScreenState extends State<HomeScreen>
                         fontWeight: FontWeight.bold,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 10),
                     Row(
                       children: [
                         Expanded(
@@ -271,7 +271,7 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
-              SizedBox(height: 24),
+              SizedBox(height: 10),
               Expanded(
                 child: Container(
                   color: AppColors.primarybgColor,
@@ -469,18 +469,21 @@ class _HomeScreenState extends State<HomeScreen>
         GestureDetector(
           onTap: onPressed,
           child: Container(
-            width: 100,
-            height: 100,
+            // width: 100,
+            // height: 100,
             decoration: BoxDecoration(
               color: const Color.fromRGBO(33, 35, 38, 1),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Center(
-              child: Image.asset(
-                assetPath,
-                width: 50,
-                height: 50,
-                fit: BoxFit.cover,
+              child: Container(
+                margin: EdgeInsets.all(30),
+                child: Image.asset(
+                  assetPath,
+                  // width: 50,
+                  // height: 50,
+                  fit: BoxFit.cover,
+                ),
               ),
             ),
           ),

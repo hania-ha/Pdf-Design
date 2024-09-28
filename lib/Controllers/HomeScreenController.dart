@@ -29,6 +29,7 @@ class HomeScreenController with ChangeNotifier {
       if (isImagePicking) return; //To Prevent Spamming
       isImagePicking = true;
       XFile? xfile = await ImagePicker().pickImage(source: ImageSource.gallery);
+
       if (xfile != null) {
         isImagePicking = false;
         file = File(xfile.path);
@@ -41,7 +42,7 @@ class HomeScreenController with ChangeNotifier {
               ),
             );
           } else {
-            context.pop();
+            // context.pop();
             try {
               if (file != null) {
                 context.push(SaveScreen(

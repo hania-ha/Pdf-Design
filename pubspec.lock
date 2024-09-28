@@ -121,13 +121,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.2.0"
-  document_file_save_plus:
-    dependency: "direct main"
-    description:
-      path: document_file_save_plus
-      relative: true
-    source: path
-    version: "2.0.0"
   draggable_resizer:
     dependency: "direct main"
     description:
@@ -292,14 +285,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.2.0"
-  image_gallery_saver:
-    dependency: "direct main"
-    description:
-      name: image_gallery_saver
-      sha256: "0aba74216a4d9b0561510cb968015d56b701ba1bd94aace26aacdd8ae5761816"
-      url: "https://pub.dev"
-    source: hosted
-    version: "2.0.3"
   image_picker:
     dependency: "direct main"
     description:

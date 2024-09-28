@@ -54,18 +54,56 @@ class _HistoryViewState extends State<HistoryView> {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const Center(child: CircularProgressIndicator());
               } else if (snapshot.hasError) {
-                return const Center(
-                    child: Text(
-                  'No files found',
-                  style: CustomTextStyles.primaryText20,
-                ));
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/noFiles.png',
+                          width: 140,
+                          height: 140,
+                        ),
+                        const Text(
+                          'No File Found',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
               } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
-                return const Center(
-                    child: Text(
-                  'No files found',
-                  style: CustomTextStyles.primaryText20,
-                ));
-              } else {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Image.asset(
+                          'assets/noFiles.png',
+                          width: 140,
+                          height: 140,
+                        ),
+                        const Text(
+                          'No File Found',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+               } else {
                 return ListView.builder(
                   itemCount: snapshot.data!.length,
                   itemBuilder: (context, index) {

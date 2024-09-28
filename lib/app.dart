@@ -35,12 +35,13 @@ class MyApp extends StatelessWidget {
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            fontFamily: Fonts.intern,
-            textTheme: TextTheme(),
-            scaffoldBackgroundColor: AppColors.secondaryBgColor,
-            appBarTheme: AppBarTheme(
-              backgroundColor: AppColors.secondaryBgColor,
-            )),
+          fontFamily: Fonts.intern,
+          textTheme: TextTheme(),
+          scaffoldBackgroundColor: AppColors.secondaryBgColor,
+          appBarTheme: AppBarTheme(
+            backgroundColor: AppColors.secondaryBgColor,
+          ),
+        ),
         home: SplashScreen(),
       ),
     );
