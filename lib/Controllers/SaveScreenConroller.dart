@@ -15,11 +15,68 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf_editor/Screens/HomeScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:saver_gallery/saver_gallery.dart';
 
 class SaveScreenController {
-  void saveImageFile(Uint8List data, String fileName, BuildContext context) {
-    // DocumentFileSavePlus().saveFile(data, fileName, 'image/png');
-    storeFileToPhoneDirectory(data, "$fileName.png", context);
+  void saveImageFile(
+      Uint8List data, String fileName, BuildContext context) async {
+    const platform = MethodChannel('save_file');
+    String picturePath = "${DateTime.now()}.png";
+
+    if (Platform.isAndroid) {
+      SaveResult result = await SaverGallery.saveImage(
+        data,
+        quality: 80,
+        name: picturePath,
+        // androidRelativePath: "Pictures/appName/xx",
+        androidExistNotSave: false,
+      );
+      print(result);
+      if (result.isSuccess) {
+        storeFileToPhoneDirectory(data, "$fileName.png", context);
+        if (context.mounted) {
+          showDialog(
+            context: context,
+            builder: (context) {
+              return saveDialog(context);
+            },
+          );
+        }
+      }
+    } else {
+      try {
+        await platform.invokeMethod('saveImageToGallery', {
+          'imageData': data,
+        }).then((value) {
+          print("Value:: $value");
+          if (value) {
+            storeFileToPhoneDirectory(data, "$fileName.png", context);
+            if (context.mounted) {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return saveDialog(context);
+                },
+              );
+            }
+            // Dialogs.showOSDialog(
+            //   context,
+            //   "Success",
+            //   "Image saved to gallery!",
+            //   "Close!",
+            //   () {
+            //     if (kDebugMode) {
+            //       print("Close");
+            //     }
+            //   },
+            //   firstActionStyle: ActionStyle.normal,
+            // );
+          }
+        });
+      } on PlatformException catch (e) {
+        if (e.code == "SAVE_FAILED") {}
+      }
+    }
   }
 
   void saveDocumentFile(
@@ -36,7 +93,11 @@ class SaveScreenController {
     Uint8List? pdfImage = await generatePdf(data);
     context.pop();
     if (pdfImage != null) {
-      saveImageToGallery(pdfImage, context);
+      if (context.mounted) {
+        storeFileToPhoneDirectory(pdfImage, fileName, context);
+      }
+
+      // saveImageToGallery(pdfImage, context);
     }
     storeFileToPhoneDirectory(pdfImage, "$fileName.pdf", context);
   }
@@ -54,13 +115,6 @@ class SaveScreenController {
       final newFile = File("${newDirectory.path}/$fileName");
       await newFile.create();
       await newFile.writeAsBytes(data.buffer.asUint8List());
-      if (context.mounted) {
-        showDialog(
-            context: context,
-            builder: (context) {
-              return saveDialog(context);
-            });
-      }
     } catch (e) {
       print(e);
     }
@@ -111,14 +165,16 @@ class SaveScreenController {
     return await pdf.save();
   }
 
-  Widget saveDialog(BuildContext context) {
+  Widget saveDialog(
+    BuildContext context,
+  ) {
     return AlertDialog(
       backgroundColor: Color(0xFF212326),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(10.0),
       ),
       content: Text(
-        'File Has Been Saved To Downloads',
+        'File Has Been Saved',
         style: TextStyle(color: Colors.white, fontSize: 16),
       ),
       actions: [
@@ -142,41 +198,6 @@ class SaveScreenController {
         ),
       ],
     );
-  }
-
-  void saveImageToGallery(Uint8List pngBytes, BuildContext context) async {
-    const platform = MethodChannel('save_file');
-
-    try {
-      await platform.invokeMethod('saveImageToGallery', {
-        'imageData': pngBytes,
-      }).then((value) {
-        print("Value:: $value");
-        if (value) {
-          if (context.mounted) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return saveDialog(context);
-                });
-          }
-          // Dialogs.showOSDialog(
-          //   context,
-          //   "Success",
-          //   "Image saved to gallery!",
-          //   "Close!",
-          //   () {
-          //     if (kDebugMode) {
-          //       print("Close");
-          //     }
-          //   },
-          //   firstActionStyle: ActionStyle.normal,
-          // );
-        }
-      });
-    } on PlatformException catch (e) {
-      if (e.code == "SAVE_FAILED") {}
-    }
   }
 
   void savePdfToFilesDir(Uint8List pngBytes, BuildContext context) async {

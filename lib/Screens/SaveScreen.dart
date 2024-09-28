@@ -2,9 +2,14 @@ import 'dart:developer';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
+import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/Controllers/SaveScreenConroller.dart';
 import 'package:pdf_editor/Screens/HomeScreen.dart';
+import 'package:pdf_editor/Screens/PremiumScreen.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/services/InAppService.dart';
 import 'dart:io';
 
 import 'package:pdf_editor/utils/AppColors.dart';
@@ -23,6 +28,8 @@ class SaveScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size.height;
+    ProScreenController proScreenController =
+        Provider.of<ProScreenController>(context);
     Size size = MediaQuery.of(context).size;
 
     return Scaffold(
@@ -119,15 +126,6 @@ class SaveScreen extends StatelessWidget {
                   ),
                   SaveDocumentWidget(
                     size: size,
-                    label: 'Save as PDF',
-                    logoPath: 'assets/pdficon1.png',
-                    onPressed: () {
-                      SaveScreenController()
-                          .saveDocumentFile(imageBytes, fileName, context);
-                    },
-                  ),
-                  SaveDocumentWidget(
-                    size: size,
                     label: 'Save as PNG',
                     logoPath: 'assets/pngsaveicon.png',
                     onPressed: () {
@@ -135,13 +133,67 @@ class SaveScreen extends StatelessWidget {
                           .saveImageFile(imageBytes, fileName, context);
                     },
                   ),
-                  SaveDocumentWidget(
-                    size: size,
-                    label: 'Share File',
-                    logoPath: 'assets/shareicon1.png',
-                    onPressed: () {
-                      SaveScreenController().shareFile(imageBytes, fileName);
-                    },
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      SaveDocumentWidget(
+                        size: size,
+                        label: 'Save as PDF',
+                        logoPath: 'assets/pdficon1.png',
+                        onPressed: () {
+                          if (Inappservice().isUserPro()) {
+                            SaveScreenController().saveDocumentFile(
+                                imageBytes, fileName, context);
+                          } else {
+                            context.push(PremiumScreen());
+                          }
+                        },
+                      ),
+                      proScreenController.isUserPro
+                          ? Container(
+                              height: 40,
+                              width: 40,
+                            )
+                          : Container(
+                              margin: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/crown.png',
+                                height: 40,
+                                width: 40,
+                              ),
+                            )
+                    ],
+                  ),
+                  Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      SaveDocumentWidget(
+                        size: size,
+                        label: 'Share File',
+                        logoPath: 'assets/shareicon1.png',
+                        onPressed: () {
+                          if (Inappservice().isUserPro()) {
+                            SaveScreenController()
+                                .shareFile(imageBytes, fileName);
+                          } else {
+                            context.push(PremiumScreen());
+                          }
+                        },
+                      ),
+                      proScreenController.isUserPro
+                          ? Container(
+                              height: 40,
+                              width: 40,
+                            )
+                          : Container(
+                              margin: EdgeInsets.all(10),
+                              child: Image.asset(
+                                'assets/crown.png',
+                                height: 40,
+                                width: 40,
+                              ),
+                            )
+                    ],
                   )
                 ],
               ),

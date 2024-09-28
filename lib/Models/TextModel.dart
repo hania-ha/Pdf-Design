@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 
 class TextModel {
-  Size textSize;
   Offset textPosition;
   String text;
   String textFontFamily;
@@ -9,8 +8,7 @@ class TextModel {
   Color textColor;
 
   TextModel(
-      {required this.textSize,
-      required this.textPosition,
+      {required this.textPosition,
       required this.text,
       required this.textFontFamily,
       required this.fontSize,

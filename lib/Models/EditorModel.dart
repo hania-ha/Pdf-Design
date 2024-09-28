@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
 import 'package:pdf_editor/Models/SignatureModel.dart';
 import 'package:pdf_editor/Models/StampModel.dart';
@@ -10,6 +11,8 @@ class PdfEditorModel {
   DateModel? dateModel;
   EditingTool editingTool;
   TextModel? textModel;
+  Offset pdfItemPosition;
+  Size itemSize;
 
   PdfEditorModel({
     this.signatureModel,
@@ -17,5 +20,7 @@ class PdfEditorModel {
     this.dateModel,
     this.textModel,
     required this.editingTool,
+    required this.pdfItemPosition,
+    required this.itemSize,
   });
 }

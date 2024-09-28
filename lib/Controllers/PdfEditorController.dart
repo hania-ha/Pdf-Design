@@ -139,76 +139,74 @@ class Pdfeditorcontroller with ChangeNotifier {
 
   void onPositionChange(int index, double xPosition, double yPosition, int i) {
     // signaturePosition = ;
+    try {
+      pdfEditorItems[index].pdfItemPosition = Offset(
+        (pdfEditorItems[index].pdfItemPosition.dx) + xPosition,
+        (pdfEditorItems[index].pdfItemPosition.dy) + yPosition,
+      );
+    } catch (e) {}
 
-    if (currentEditingTool == EditingTool.SIGN) {
-      try {
-        pdfEditorItems[index].signatureModel?.signaturePosition = Offset(
-          (pdfEditorItems[index].signatureModel?.signaturePosition.dx ?? 0) +
-              xPosition,
-          (pdfEditorItems[index].signatureModel?.signaturePosition.dy ?? 0) +
-              yPosition,
-        );
-      } catch (e) {}
+    // if (currentEditingTool == EditingTool.SIGN) {
+    //   try {
+    //     pdfEditorItems[index].signatureModel?.signaturePosition = Offset(
+    //       (pdfEditorItems[index].signatureModel?.signaturePosition.dx ?? 0) +
+    //           xPosition,
+    //       (pdfEditorItems[index].signatureModel?.signaturePosition.dy ?? 0) +
+    //           yPosition,
+    //     );
+    //   } catch (e) {}
 
-      print(pdfEditorItems[index].signatureModel?.signaturePosition);
-    }
-    if (currentEditingTool == EditingTool.STAMP) {
-      pdfEditorItems[index].stampModel?.stampPosition = Offset(
-        (pdfEditorItems[index].stampModel?.stampPosition.dx ?? 0) + xPosition,
-        (pdfEditorItems[index].stampModel?.stampPosition.dy ?? 0) + yPosition,
-      );
-    }
-    if (currentEditingTool == EditingTool.DATE) {
-      pdfEditorItems[index].dateModel?.dateWidgetPosition = Offset(
-        (pdfEditorItems[index].dateModel?.dateWidgetPosition.dx ?? 0) +
-            xPosition,
-        (pdfEditorItems[index].dateModel?.dateWidgetPosition.dy ?? 0) +
-            yPosition,
-      );
-    }
-    if (currentEditingTool == EditingTool.TEXT) {
-      pdfEditorItems[index].textModel?.textPosition = Offset(
-        (pdfEditorItems[index].textModel?.textPosition.dx ?? 0) + xPosition,
-        (pdfEditorItems[index].textModel?.textPosition.dy ?? 0) + yPosition,
-      );
-    }
+    //   print(pdfEditorItems[index].signatureModel?.signaturePosition);
+    // }
+    // if (currentEditingTool == EditingTool.STAMP) {
+    //   pdfEditorItems[index].stampModel?.stampPosition = Offset(
+    //     (pdfEditorItems[index].stampModel?.stampPosition.dx ?? 0) + xPosition,
+    //     (pdfEditorItems[index].stampModel?.stampPosition.dy ?? 0) + yPosition,
+    //   );
+    // }
+    // if (currentEditingTool == EditingTool.DATE) {
+    //   pdfEditorItems[index].dateModel?.dateWidgetPosition = Offset(
+    //     (pdfEditorItems[index].dateModel?.dateWidgetPosition.dx ?? 0) +
+    //         xPosition,
+    //     (pdfEditorItems[index].dateModel?.dateWidgetPosition.dy ?? 0) +
+    //         yPosition,
+    //   );
+    // }
+    // if (currentEditingTool == EditingTool.TEXT) {
+    //   pdfEditorItems[index].textModel?.textPosition = Offset(
+    //     (pdfEditorItems[index].textModel?.textPosition.dx ?? 0) + xPosition,
+    //     (pdfEditorItems[index].textModel?.textPosition.dy ?? 0) + yPosition,
+    //   );
+    // }
 
     notifyListeners();
   }
 
   void onPinchRightTop(int i, double dx, double dy) {
-    pdfEditorItems[i].signatureModel?.signatureSize = Size(
-      (pdfEditorItems[i].signatureModel!.signatureSize.width + dx)
-          .clamp(20.0, double.infinity),
-      (pdfEditorItems[i].signatureModel!.signatureSize.height - dy)
-          .clamp(20.0, double.infinity),
+    pdfEditorItems[i].itemSize = Size(
+      (pdfEditorItems[i].itemSize.width + dx).clamp(20.0, double.infinity),
+      (pdfEditorItems[i].itemSize.height - dy).clamp(20.0, double.infinity),
     );
   }
 
   void onPinchLeftBottom(int i, double dx, double dy) {
-    pdfEditorItems[i].signatureModel?.signatureSize = Size(
-      (pdfEditorItems[i].signatureModel!.signatureSize.width - dx)
-          .clamp(20.0, double.infinity),
-      (pdfEditorItems[i].signatureModel!.signatureSize.height + dy)
-          .clamp(20.0, double.infinity),
+    pdfEditorItems[i].itemSize = Size(
+      (pdfEditorItems[i].itemSize.width - dx).clamp(20.0, double.infinity),
+      (pdfEditorItems[i].itemSize.height + dy).clamp(20.0, double.infinity),
     );
   }
 
   void onPinchPinchLeftTop(int i, double dx, double dy) {
-    pdfEditorItems[i].signatureModel?.signatureSize = Size(
-      (pdfEditorItems[i].signatureModel!.signatureSize.width - dx)
-          .clamp(20.0, double.infinity),
-      (pdfEditorItems[i].signatureModel!.signatureSize.height - dy)
-          .clamp(20.0, double.infinity),
+    pdfEditorItems[i].itemSize = Size(
+      (pdfEditorItems[i].itemSize.width - dx).clamp(20.0, double.infinity),
+      (pdfEditorItems[i].itemSize.height - dy).clamp(20.0, double.infinity),
     );
   }
 
   void onPinchRightBottom(int i, double dx, double dy) {
-    pdfEditorItems[i].signatureModel?.signatureSize = Size(
-      (pdfEditorItems[i].signatureModel!.signatureSize.width + dx)
-          .clamp(20.0, double.infinity),
-      (pdfEditorItems[i].signatureModel!.signatureSize.height + dy)
-          .clamp(20.0, double.infinity),
+    pdfEditorItems[i].itemSize = Size(
+      (pdfEditorItems[i].itemSize.width + dx).clamp(20.0, double.infinity),
+      (pdfEditorItems[i].itemSize.height + dy).clamp(20.0, double.infinity),
     );
   }
 
@@ -264,7 +262,6 @@ class Pdfeditorcontroller with ChangeNotifier {
   void addText(String text) {
     pdfEditorItems.add(PdfEditorModel(
       textModel: TextModel(
-        textSize: Size(100, 60),
         textPosition: Offset(0, 0),
         text: text,
         textFontFamily: 'times',
@@ -272,6 +269,8 @@ class Pdfeditorcontroller with ChangeNotifier {
         textColor: Colors.black,
       ),
       editingTool: EditingTool.TEXT,
+      pdfItemPosition: Offset(0, 0),
+      itemSize: Size(100, 60),
     ));
     notifyListeners();
   }
@@ -285,9 +284,10 @@ class Pdfeditorcontroller with ChangeNotifier {
         signatureFontFamilty: signatureFontFamilies[0],
         signatureColor: Colors.black,
         signatureFontSize: 18,
-        signatureSize: Size(120, 50),
       ),
       editingTool: EditingTool.SIGN,
+      pdfItemPosition: Offset(0, 0),
+      itemSize: Size(120, 50),
     ));
 
     print(pdfEditorItems);
@@ -298,12 +298,15 @@ class Pdfeditorcontroller with ChangeNotifier {
   void addStamp(String stampSrc) {
     try {
       pdfEditorItems.add(PdfEditorModel(
-          editingTool: EditingTool.STAMP,
-          stampModel: StampModel(
-            stampSize: Size(120, 70),
-            stampPosition: Offset(0, 0),
-            stampPath: stampSrc,
-          )));
+        editingTool: EditingTool.STAMP,
+        stampModel: StampModel(
+          stampSize: Size(120, 70),
+          stampPosition: Offset(0, 0),
+          stampPath: stampSrc,
+        ),
+        pdfItemPosition: Offset(0, 0),
+        itemSize: Size(120, 70),
+      ));
     } catch (e) {
     } finally {}
 
@@ -317,11 +320,12 @@ class Pdfeditorcontroller with ChangeNotifier {
         editingTool: EditingTool.DATE,
         dateModel: DateModel(
             dateWidget: dateWidget,
-            dataSize: Size(150, 180),
             dateWidgetPosition: Offset(0, 0),
             dateColor: dateColor,
             date: date ?? DateTime.now(),
             dateFormat: dateFormat),
+        pdfItemPosition: Offset(0, 0),
+        itemSize: Size(150, 180),
       ),
     );
 
@@ -335,10 +339,33 @@ class Pdfeditorcontroller with ChangeNotifier {
           dateWidget: dateWidget,
           dateWidgetPosition:
               pdfEditorItems[selectedItemIndex].dateModel!.dateWidgetPosition,
-          dataSize: pdfEditorItems[selectedItemIndex].dateModel!.dataSize,
           dateColor: pdfEditorItems[selectedItemIndex].dateModel!.dateColor,
           date: newDate ?? DateTime.now(),
           dateFormat: pdfEditorItems[selectedItemIndex].dateModel!.dateFormat),
+      pdfItemPosition: pdfEditorItems[selectedItemIndex].pdfItemPosition,
+      itemSize: pdfEditorItems[selectedItemIndex].itemSize,
+    );
+
+    pdfEditorItems[selectedItemIndex] = pdfDateModel;
+    notifyListeners();
+  }
+
+  void editSignature(String userSignature) {
+    PdfEditorModel pdfDateModel = PdfEditorModel(
+      editingTool: EditingTool.SIGN,
+      signatureModel: SignatureModel(
+          signatureText: userSignature,
+          signaturePosition: pdfEditorItems[selectedItemIndex].pdfItemPosition,
+          signatureFontFamilty: pdfEditorItems[selectedItemIndex]
+              .signatureModel!
+              .signatureFontFamilty,
+          signatureColor:
+              pdfEditorItems[selectedItemIndex].signatureModel!.signatureColor,
+          signatureFontSize: pdfEditorItems[selectedItemIndex]
+              .signatureModel!
+              .signatureFontSize),
+      pdfItemPosition: pdfEditorItems[selectedItemIndex].pdfItemPosition,
+      itemSize: pdfEditorItems[selectedItemIndex].itemSize,
     );
 
     pdfEditorItems[selectedItemIndex] = pdfDateModel;

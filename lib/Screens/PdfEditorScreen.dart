@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:intl/intl.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
@@ -172,16 +173,16 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
           iconTheme: IconThemeData(color: Colors.white),
           actions: [
             // if (_isPaintingMode || _isStampMode || _isSignMode)
-            pdfeditorcontroller.selectedItemIndex != -1
-                ? IconButton(
-                    onPressed: () {
-                      pdfeditorcontroller.deleteItem();
-                    },
-                    icon: Icon(
-                      Icons.delete,
-                      color: Colors.red,
-                    ))
-                : Container(),
+            // pdfeditorcontroller.selectedItemIndex != -1
+            //     ? IconButton(
+            //         onPressed: () {
+            //           pdfeditorcontroller.deleteItem();
+            //         },
+            //         icon: Icon(
+            //           Icons.delete,
+            //           color: Colors.red,
+            //         ))
+            //     : Container(),
             TextButton(
               onPressed: () {
                 if (pdfeditorcontroller.currentEditingTool !=
@@ -232,22 +233,17 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
               child: Column(
                 children: [
                   if (kDebugMode)
-                    ElevatedButton(
-                        onPressed: () {
-                          pdfeditorcontroller.resetCounterInTesting();
-                        },
-                        child: Text("Reset Counter")),
+                    Container(
+                      height: 20,
+                    ),
                   Container(
-                    height: 20,
-                  ),
-                  Container(
-                    constraints: BoxConstraints(maxHeight: size.height * 0.6),
+                    constraints: BoxConstraints(maxHeight: size.height * 0.67),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Container(
                           width: size.width * .9,
-                          height: size.height * .60,
+                          height: size.height * .67,
                           decoration: const BoxDecoration(
                             borderRadius: BorderRadius.all(Radius.circular(15)),
                             image: DecorationImage(
@@ -270,30 +266,28 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                     ),
                                   ),
                                 ),
-                                Container(
-                                  child: GestureDetector(
-                                    onPanStart: pdfeditorcontroller
-                                                .currentEditingTool ==
-                                            EditingTool.PAINT
-                                        ? (details) =>
-                                            _startDrawing(details.localPosition)
-                                        : null,
-                                    onPanUpdate: pdfeditorcontroller
-                                                .currentEditingTool ==
-                                            EditingTool.PAINT
-                                        ? (details) => _updateDrawing(
-                                            details.localPosition)
-                                        : null,
-                                    onPanEnd: pdfeditorcontroller
-                                                .currentEditingTool ==
-                                            EditingTool.PAINT
-                                        ? (details) => _endDrawing()
-                                        : null,
-                                    child: CustomPaint(
-                                      painter: _DrawingPainter(
-                                          _points, _selectedColor, _brushSize),
-                                      size: Size.infinite,
-                                    ),
+                                GestureDetector(
+                                  onPanStart: pdfeditorcontroller
+                                              .currentEditingTool ==
+                                          EditingTool.PAINT
+                                      ? (details) =>
+                                          _startDrawing(details.localPosition)
+                                      : null,
+                                  onPanUpdate: pdfeditorcontroller
+                                              .currentEditingTool ==
+                                          EditingTool.PAINT
+                                      ? (details) =>
+                                          _updateDrawing(details.localPosition)
+                                      : null,
+                                  onPanEnd:
+                                      pdfeditorcontroller.currentEditingTool ==
+                                              EditingTool.PAINT
+                                          ? (details) => _endDrawing()
+                                          : null,
+                                  child: CustomPaint(
+                                    painter: _DrawingPainter(
+                                        _points, _selectedColor, _brushSize),
+                                    size: Size.infinite,
                                   ),
                                 ),
                                 pdfeditorcontroller.pdfEditorItems.isEmpty
@@ -308,20 +302,19 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                             GestureDetector(
                                               onPanUpdate: (details) {
                                                 pdfeditorcontroller
+                                                    .toggleItemSelection(-1);
+
+                                                // pdfeditorcontroller
+                                                //     .toggleEditingTool(
+                                                //         pdfeditorcontroller
+                                                //             .pdfEditorItems[i]
+                                                //             .editingTool);
+                                                pdfeditorcontroller
                                                     .onPositionChange(
                                                         i,
                                                         details.delta.dx,
                                                         details.delta.dy,
                                                         647);
-
-                                                pdfeditorcontroller
-                                                    .toggleItemSelection(i);
-
-                                                pdfeditorcontroller
-                                                    .toggleEditingTool(
-                                                        pdfeditorcontroller
-                                                            .pdfEditorItems[i]
-                                                            .editingTool);
                                               },
                                               onTap: () {
                                                 pdfeditorcontroller
@@ -333,68 +326,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                             .pdfEditorItems[i]
                                                             .editingTool);
                                               },
-                                              onDoubleTap: () async {
-                                                if (pdfeditorcontroller
-                                                        .currentEditingTool ==
-                                                    EditingTool.DATE) {
-                                                  // print("on double tap");
-                                                  // pdfeditorcontroller
-                                                  //     .toggleItemSelection(i);
+                                              // onDoubleTap:
 
-                                                  // pdfeditorcontroller
-                                                  //     .toggleEditingTool(
-                                                  //         pdfeditorcontroller
-                                                  //             .pdfEditorItems[i]
-                                                  //             .editingTool);
-
-                                                  DateTime? currentDate =
-                                                      pdfeditorcontroller
-                                                          .pdfEditorItems[
-                                                              pdfeditorcontroller
-                                                                  .selectedItemIndex]
-                                                          .dateModel!
-                                                          .date;
-                                                  int selectedIndex =
-                                                      pdfeditorcontroller
-                                                          .selectedItemIndex;
-                                                  Color dateColor =
-                                                      pdfeditorcontroller
-                                                          .pdfEditorItems[
-                                                              selectedIndex]
-                                                          .dateModel!
-                                                          .dateColor;
-
-                                                  currentDate =
-                                                      await showDatePicker(
-                                                    context: context,
-                                                    firstDate: DateTime(1970),
-                                                    lastDate: DateTime(2060),
-                                                    initialDate: currentDate,
-                                                  );
-                                                  if (currentDate != null) {
-                                                    String dateFormat =
-                                                        pdfeditorcontroller
-                                                            .pdfEditorItems[
-                                                                selectedIndex]
-                                                            .dateModel!
-                                                            .dateFormat;
-
-                                                    String formatWithNewDate =
-                                                        DateFormat(dateFormat)
-                                                            .format(
-                                                                currentDate);
-
-                                                    pdfeditorcontroller
-                                                        .editDate(
-                                                      _buildDateOption(
-                                                        formatWithNewDate,
-                                                        dateColor,
-                                                      ),
-                                                      newDate: currentDate,
-                                                    );
-                                                  }
-                                                }
-                                              },
                                               child: Stack(
                                                 children: [
                                                   if (pdfeditorcontroller
@@ -404,13 +337,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                     Positioned(
                                                       left: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .signatureModel
-                                                          ?.signaturePosition
+                                                          .pdfItemPosition
                                                           .dx,
                                                       top: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .signatureModel
-                                                          ?.signaturePosition
+                                                          .pdfItemPosition
                                                           .dy,
                                                       child: Stack(
                                                         clipBehavior: Clip.none,
@@ -419,14 +350,12 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                             width: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .signatureModel
-                                                                ?.signatureSize
+                                                                .itemSize
                                                                 .width,
                                                             height: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .signatureModel
-                                                                ?.signatureSize
+                                                                .itemSize
                                                                 .height,
                                                             decoration: pdfeditorcontroller
                                                                         .selectedItemIndex ==
@@ -518,13 +447,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                     Positioned(
                                                       left: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .stampModel
-                                                          ?.stampPosition
+                                                          .pdfItemPosition
                                                           .dx,
                                                       top: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .stampModel
-                                                          ?.stampPosition
+                                                          .pdfItemPosition
                                                           .dy,
                                                       child: Stack(
                                                         clipBehavior: Clip.none,
@@ -611,13 +538,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                     Positioned(
                                                       left: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .dateModel
-                                                          ?.dateWidgetPosition
+                                                          .pdfItemPosition
                                                           .dx,
                                                       top: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .dateModel
-                                                          ?.dateWidgetPosition
+                                                          .pdfItemPosition
                                                           .dy,
                                                       child: Stack(
                                                         clipBehavior: Clip.none,
@@ -716,13 +641,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                     Positioned(
                                                       left: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .textModel
-                                                          ?.textPosition
+                                                          .pdfItemPosition
                                                           .dx,
                                                       top: pdfeditorcontroller
                                                           .pdfEditorItems[i]
-                                                          .textModel
-                                                          ?.textPosition
+                                                          .pdfItemPosition
                                                           .dy,
                                                       child: Stack(
                                                         clipBehavior: Clip.none,
@@ -733,14 +656,12 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                             width: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .textModel!
-                                                                .textSize
+                                                                .itemSize
                                                                 .width,
                                                             height: pdfeditorcontroller
                                                                 .pdfEditorItems[
                                                                     i]
-                                                                .textModel!
-                                                                .textSize
+                                                                .itemSize
                                                                 .height,
                                                             decoration: pdfeditorcontroller
                                                                         .selectedItemIndex ==
@@ -824,47 +745,148 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                 ],
                                               ),
                                             ),
-                                            if (pdfeditorcontroller
-                                                    .currentEditingTool ==
-                                                EditingTool.DATE)
-                                              pdfeditorcontroller
-                                                          .selectedItemIndex ==
-                                                      i
-                                                  ? Positioned(
-                                                      left: pdfeditorcontroller
-                                                              .pdfEditorItems[i]
-                                                              .dateModel!
-                                                              .dateWidgetPosition
-                                                              .dx +
-                                                          40,
-                                                      top: pdfeditorcontroller
-                                                              .pdfEditorItems[i]
-                                                              .dateModel!
-                                                              .dateWidgetPosition
-                                                              .dy -
-                                                          40,
-                                                      child: GestureDetector(
-                                                        onTap: () {
-                                                          print("hello");
-                                                        },
-                                                        child: Container(
-                                                          width: 40,
-                                                          height: 40,
-                                                          decoration: BoxDecoration(
-                                                              color:
-                                                                  Colors.white,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .circular(
-                                                                          10)),
-                                                          child: IconButton(
-                                                              onPressed: () {},
-                                                              icon: Icon(
-                                                                  Icons.edit)),
+                                            pdfeditorcontroller
+                                                        .selectedItemIndex ==
+                                                    i
+                                                ? Positioned(
+                                                    left: pdfeditorcontroller
+                                                            .pdfEditorItems[i]
+                                                            .pdfItemPosition
+                                                            .dx +
+                                                        30,
+                                                    top: pdfeditorcontroller
+                                                            .pdfEditorItems[i]
+                                                            .pdfItemPosition
+                                                            .dy -
+                                                        40,
+                                                    child: GestureDetector(
+                                                      onTap: () {
+                                                        print("hello");
+                                                      },
+                                                      child: Container(
+                                                        // width: 40,
+                                                        height: 40,
+                                                        decoration: BoxDecoration(
+                                                            color: Colors.white,
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10)),
+                                                        child: Row(
+                                                          children: [
+                                                            if (pdfeditorcontroller.currentEditingTool == EditingTool.SIGN ||
+                                                                pdfeditorcontroller
+                                                                        .currentEditingTool ==
+                                                                    EditingTool
+                                                                        .DATE ||
+                                                                pdfeditorcontroller
+                                                                        .currentEditingTool ==
+                                                                    EditingTool
+                                                                        .TEXT)
+                                                              IconButton(
+                                                                  onPressed:
+                                                                      () async {
+                                                                    if (pdfeditorcontroller
+                                                                            .currentEditingTool ==
+                                                                        EditingTool
+                                                                            .DATE) {
+                                                                      DateTime? currentDate = pdfeditorcontroller
+                                                                          .pdfEditorItems[
+                                                                              pdfeditorcontroller.selectedItemIndex]
+                                                                          .dateModel!
+                                                                          .date;
+                                                                      int selectedIndex =
+                                                                          pdfeditorcontroller
+                                                                              .selectedItemIndex;
+                                                                      Color dateColor = pdfeditorcontroller
+                                                                          .pdfEditorItems[
+                                                                              selectedIndex]
+                                                                          .dateModel!
+                                                                          .dateColor;
+
+                                                                      currentDate =
+                                                                          await showDatePicker(
+                                                                        context:
+                                                                            context,
+                                                                        firstDate:
+                                                                            DateTime(1970),
+                                                                        lastDate:
+                                                                            DateTime(2060),
+                                                                        initialDate:
+                                                                            currentDate,
+                                                                      );
+                                                                      if (currentDate !=
+                                                                          null) {
+                                                                        String dateFormat = pdfeditorcontroller
+                                                                            .pdfEditorItems[selectedIndex]
+                                                                            .dateModel!
+                                                                            .dateFormat;
+
+                                                                        String
+                                                                            formatWithNewDate =
+                                                                            DateFormat(dateFormat).format(currentDate);
+
+                                                                        pdfeditorcontroller
+                                                                            .editDate(
+                                                                          _buildDateOption(
+                                                                            formatWithNewDate,
+                                                                            dateColor,
+                                                                          ),
+                                                                          newDate:
+                                                                              currentDate,
+                                                                        );
+                                                                      }
+                                                                    } else if (pdfeditorcontroller
+                                                                            .currentEditingTool ==
+                                                                        EditingTool
+                                                                            .SIGN) {
+                                                                      int index =
+                                                                          pdfeditorcontroller
+                                                                              .selectedItemIndex;
+                                                                      String? userSignature = await showSignatureAddDialog(
+                                                                          existedText: pdfeditorcontroller
+                                                                              .pdfEditorItems[
+                                                                                  index]
+                                                                              .signatureModel!
+                                                                              .signatureText,
+                                                                          toEditText:
+                                                                              true);
+                                                                      if (userSignature !=
+                                                                              null &&
+                                                                          userSignature
+                                                                              .isNotEmpty) {
+                                                                        if (kDebugMode) {
+                                                                          print(
+                                                                              userSignature);
+                                                                        }
+                                                                        pdfeditorcontroller
+                                                                            .editSignature(userSignature);
+                                                                      } else {}
+                                                                    } else {
+                                                                      print(
+                                                                          "UNKNOWN OPTION");
+                                                                    }
+                                                                  },
+                                                                  icon: const Icon(
+                                                                      Icons
+                                                                          .edit)),
+                                                            IconButton(
+                                                                onPressed: () {
+                                                                  pdfeditorcontroller
+                                                                      .deleteItem();
+                                                                },
+                                                                icon:
+                                                                    const Icon(
+                                                                  Icons.delete,
+                                                                  color: Colors
+                                                                      .red,
+                                                                ))
+                                                          ],
                                                         ),
                                                       ),
-                                                    )
-                                                  : Container(),
+                                                    ),
+                                                  )
+                                                : Container(),
                                           ]
                                         ],
                                       ),
@@ -893,14 +915,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         onPanUpdate: (details) {
           if (editingTool == EditingTool.SIGN) {
             setState(() {
-              pdfeditorcontroller
-                  .pdfEditorItems[i].signatureModel?.signatureSize = Size(
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.width +
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width +
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.height -
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height -
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -923,13 +942,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             });
           } else if (editingTool == EditingTool.TEXT) {
             setState(() {
-              pdfeditorcontroller.pdfEditorItems[i].textModel?.textSize = Size(
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.width +
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width +
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.height -
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height -
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -960,14 +977,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         onPanUpdate: (details) {
           if (editingTool == EditingTool.SIGN) {
             setState(() {
-              pdfeditorcontroller
-                  .pdfEditorItems[i].signatureModel?.signatureSize = Size(
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.width -
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width -
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.height +
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height +
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -992,13 +1006,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             });
           } else if (editingTool == EditingTool.TEXT) {
             setState(() {
-              pdfeditorcontroller.pdfEditorItems[i].textModel?.textSize = Size(
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.width -
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width -
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.height +
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height +
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -1032,14 +1044,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         onPanUpdate: (details) {
           if (sign == EditingTool.SIGN) {
             setState(() {
-              pdfeditorcontroller
-                  .pdfEditorItems[i].signatureModel?.signatureSize = Size(
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.width -
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width -
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller.pdfEditorItems[i].signatureModel!
-                            .signatureSize.height -
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height -
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -1066,13 +1075,11 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             });
           } else if (sign == EditingTool.TEXT) {
             setState(() {
-              pdfeditorcontroller.pdfEditorItems[i].textModel?.textSize = Size(
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.width -
+              pdfeditorcontroller.pdfEditorItems[i].itemSize = Size(
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.width -
                         details.delta.dx)
                     .clamp(50.0, double.infinity),
-                (pdfeditorcontroller
-                            .pdfEditorItems[i].textModel!.textSize.height -
+                (pdfeditorcontroller.pdfEditorItems[i].itemSize.height -
                         details.delta.dy)
                     .clamp(50.0, double.infinity),
               );
@@ -1107,17 +1114,13 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
 
           if (editingTool == EditingTool.SIGN) {
             setState(() {
-              pdfEdiorController
-                      .pdfEditorItems[i].signatureModel?.signatureSize =
-                  Size(
-                      (pdfEdiorController.pdfEditorItems[i].signatureModel!
-                                  .signatureSize.width +
-                              details.delta.dx)
-                          .clamp(50.0, double.infinity),
-                      (pdfEdiorController.pdfEditorItems[i].signatureModel!
-                                  .signatureSize.height +
-                              details.delta.dy)
-                          .clamp(50.0, double.infinity));
+              pdfEdiorController.pdfEditorItems[i].itemSize = Size(
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.width +
+                          details.delta.dx)
+                      .clamp(50.0, double.infinity),
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.height +
+                          details.delta.dy)
+                      .clamp(50.0, double.infinity));
             });
           } else if (editingTool == EditingTool.STAMP) {
             setState(() {
@@ -1133,25 +1136,21 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             });
           } else if (editingTool == EditingTool.TEXT) {
             setState(() {
-              pdfEdiorController.pdfEditorItems[i].textModel?.textSize = Size(
-                  (pdfEdiorController
-                              .pdfEditorItems[i].textModel!.textSize.width +
+              pdfEdiorController.pdfEditorItems[i].itemSize = Size(
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.width +
                           details.delta.dx)
                       .clamp(50.0, double.infinity),
-                  (pdfEdiorController
-                              .pdfEditorItems[i].textModel!.textSize.height +
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.height +
                           details.delta.dy)
                       .clamp(50.0, double.infinity));
             });
           } else if (editingTool == EditingTool.DATE) {
             setState(() {
-              pdfEdiorController.pdfEditorItems[i].dateModel?.dataSize = Size(
-                  (pdfEdiorController
-                              .pdfEditorItems[i].dateModel!.dataSize.width +
+              pdfEdiorController.pdfEditorItems[i].itemSize = Size(
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.width +
                           details.delta.dx)
                       .clamp(50.0, double.infinity),
-                  (pdfEdiorController
-                              .pdfEditorItems[i].dateModel!.dataSize.height +
+                  (pdfEdiorController.pdfEditorItems[i].itemSize.height +
                           details.delta.dy)
                       .clamp(50.0, double.infinity));
             });
@@ -1190,6 +1189,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
 
   Widget _buildColorPalette() {
     List<Color> colors = [
+      Colors.transparent,
       Colors.red,
       Colors.green,
       Colors.blue,
@@ -1275,7 +1275,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         children: [
           GestureDetector(
             onTap: () async {
-              String? userSignature = await showSignatureAddDialog();
+              String? userSignature =
+                  await showSignatureAddDialog(toEditText: false);
               if (userSignature != null) {
                 if (kDebugMode) {
                   print(userSignature);
@@ -1358,8 +1359,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
       {required bool toAddSimpleText}) {
     return GestureDetector(
       onTap: () async {
-        String? userSignature =
-            await showSignatureAddDialog(toAddSimpleText: toAddSimpleText);
+        String? userSignature = await showSignatureAddDialog(
+            toAddSimpleText: toAddSimpleText, toEditText: false);
         if (userSignature != null) {
           if (toAddSimpleText) {
             controller.addText(userSignature);
@@ -1400,11 +1401,13 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     );
   }
 
-  Future<dynamic> showSignatureAddDialog({bool? toAddSimpleText}) {
+  Future<dynamic> showSignatureAddDialog(
+      {bool? toAddSimpleText, String? existedText, required bool toEditText}) {
     String? UserSignature;
     return showDialog(
         context: context,
         builder: (context) {
+          UserSignature = existedText;
           return Theme(
             data: ThemeData(useMaterial3: true),
             child: AlertDialog(
@@ -1421,6 +1424,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                 children: [
                   TextFormField(
                     style: TextStyle(color: Colors.white),
+                    initialValue: existedText,
                     onChanged: (value) {
                       UserSignature = value;
                     },
@@ -1438,17 +1442,23 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                     height: 40,
                   ),
                   TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        padding: EdgeInsets.symmetric(horizontal: 20),
-                      ),
-                      onPressed: () {
+                    style: TextButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                    ),
+                    onPressed: () {
+                      if (UserSignature != null && UserSignature!.isNotEmpty) {
                         Navigator.of(context).pop(UserSignature);
-                      },
-                      child: const Text(
-                        "Add Signature",
-                        style: TextStyle(fontSize: 14),
-                      ))
+                      } else {
+                        Fluttertoast.showToast(
+                            msg: "Signature should not be empty");
+                      }
+                    },
+                    child: Text(
+                      toEditText ? "Update Signature" : "Add Signature",
+                      style: TextStyle(fontSize: 14),
+                    ),
+                  )
                 ],
               ),
             ),
@@ -1491,18 +1501,10 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
     List<Color> colors = [];
 
     for (int i = 0; i < count; i++) {
-      // Generate random color components
-      int r = random.nextInt(256);
-      int g = random.nextInt(256);
-      int b = random.nextInt(256);
-
-      // Increase brightness to ensure good contrast against black
-      // This can be done by ensuring the color is sufficiently bright
-      if ((r * 0.299 + g * 0.587 + b * 0.114) < 186) {
-        r = (r + 128).clamp(0, 255).toInt();
-        g = (g + 128).clamp(0, 255).toInt();
-        b = (b + 128).clamp(0, 255).toInt();
-      }
+      // Generate random color components within a lower range to ensure dark colors
+      int r = random.nextInt(128);
+      int g = random.nextInt(128);
+      int b = random.nextInt(128);
 
       colors.add(Color.fromRGBO(r, g, b, 1.0));
     }
@@ -1765,17 +1767,18 @@ Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller,
                 alignment: Alignment.topRight,
                 children: [
                   GestureDetector(
-                      onTap: () {
-                        try {
-                          context.pop();
-                          if (Inappservice().isUserPro()) {
-                            controller.addStamp(stamp);
-                          } else {
-                            context.push(PremiumScreen());
-                          }
-                        } catch (e) {}
-                      },
-                      child: Image.asset(stamp)),
+                    onTap: () {
+                      try {
+                        context.pop();
+                        if (Inappservice().isUserPro()) {
+                          controller.addStamp(stamp);
+                        } else {
+                          context.push(PremiumScreen());
+                        }
+                      } catch (e) {}
+                    },
+                    child: Image.asset(stamp),
+                  ),
                   proController.isUserPro
                       ? Container()
                       : GestureDetector(
@@ -1789,7 +1792,8 @@ Widget StampsWidget(BuildContext context, Pdfeditorcontroller controller,
                             AppConsts.proCrown,
                             width: 30,
                             height: 30,
-                          )),
+                          ),
+                        ),
                 ],
               );
             }),

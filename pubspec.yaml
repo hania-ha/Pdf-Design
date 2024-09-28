@@ -55,6 +55,8 @@ dependencies:
   url_launcher: ^6.3.0
   fluttertoast: ^8.2.8
   auto_size_text: ^3.0.0
+  saver_gallery: ^3.0.6
+  
   
   
 
