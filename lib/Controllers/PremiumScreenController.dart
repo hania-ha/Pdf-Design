@@ -74,6 +74,20 @@ class ProScreenController with ChangeNotifier implements PurchaseCallback {
     return percentageOff.toStringAsFixed(0);
   }
 
+  void restorePurchase(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (contex) {
+        return const CupertinoActivityIndicator(
+          color: Colors.white,
+          radius: 10,
+        );
+      },
+    );
+
+    Inappservice().restorePurchases(context, this);
+  }
+
   @override
   void onPurchaseSuccessCallBack(BuildContext context) {
     // TODO: implement onPurchaseSuccessCallBack
@@ -86,18 +100,62 @@ class ProScreenController with ChangeNotifier implements PurchaseCallback {
   @override
   void onPurchaseRestored(BuildContext context) {
     context.pop();
-    // TODO: implement onPurchaseRestored
+    isUserPro = true;
+    SharedPreferencesHelper.setBool(AppConsts.subscriptionStatuskey, true);
+    context.pop();
   }
 
   @override
   void onSubscriptionExpired(BuildContext context) {
     context.pop();
-    // TODO: implement onSubscriptionExpired
+
+    showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) {
+          return RestoreDialog(context, "Nothing to Restore!");
+        });
   }
 
   @override
   void onSheetClosed(BuildContext context) {
     context.pop();
     // TODO: implement onSheetClosed
+  }
+
+  Widget RestoreDialog(
+    BuildContext context,
+    String text,
+  ) {
+    return AlertDialog(
+      backgroundColor: Color(0xFF212326),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      content: Text(
+        text,
+        style: TextStyle(color: Colors.white, fontSize: 16),
+      ),
+      actions: [
+        ElevatedButton(
+          onPressed: () {
+            context.pop();
+          },
+          child: Text(
+            'Close',
+            style: TextStyle(color: Colors.white),
+          ),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color(0xFF2B2E32),
+
+            //
+            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
+          ),
+        ),
+      ],
+    );
   }
 }

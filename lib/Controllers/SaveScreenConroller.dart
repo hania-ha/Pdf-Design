@@ -14,6 +14,8 @@ import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:pdf_editor/Screens/HomeScreen.dart';
 import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/services/sharedPreferenceManager.dart';
+import 'package:pdf_editor/utils/AppConsts.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:saver_gallery/saver_gallery.dart';
 
@@ -163,6 +165,21 @@ class SaveScreenController {
     ); // Page
 
     return await pdf.save();
+  }
+
+  bool isBasicAvailable() {
+    bool isQueryAvailable = false;
+    int availableQueries =
+        SharedPreferencesHelper.getInt(AppConsts.remainingEditingQueriesKey);
+    print("availableQueries:: ${availableQueries}");
+    print("Total Queries:: ${AppConsts.TotalQueries}");
+
+    if (availableQueries >= AppConsts.TotalQueries) {
+      isQueryAvailable = false;
+    } else {
+      isQueryAvailable = true;
+    }
+    return isQueryAvailable;
   }
 
   Widget saveDialog(

@@ -4,6 +4,7 @@ import 'package:pdf_editor/Controllers/HistoryViewController.dart';
 import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PdfEditorController.dart';
 import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
+import 'package:pdf_editor/Controllers/SaveScreenConroller.dart';
 import 'package:pdf_editor/Screens/SplashScreen.dart';
 import 'package:pdf_editor/utils/AppColors.dart';
 import 'package:pdf_editor/utils/AppStyles.dart';
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) {
           return HistoryViewController();
         }),
+        
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,

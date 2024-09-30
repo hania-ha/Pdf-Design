@@ -28,6 +28,7 @@ class SaveScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size.height;
+
     ProScreenController proScreenController =
         Provider.of<ProScreenController>(context);
     Size size = MediaQuery.of(context).size;
@@ -119,82 +120,115 @@ class SaveScreen extends StatelessWidget {
             flex: 3,
             child: Container(
               color: AppColors.secondaryBgColor,
-              child: Column(
+              child: ListView(
+                padding: EdgeInsets.only(bottom: 20),
                 children: [
-                  SizedBox(
-                    height: 30,
-                  ),
-                  SaveDocumentWidget(
-                    size: size,
-                    label: 'Save as PNG',
-                    logoPath: 'assets/pngsaveicon.png',
-                    onPressed: () {
-                      SaveScreenController()
-                          .saveImageFile(imageBytes, fileName, context);
-                    },
-                  ),
-                  Stack(
-                    alignment: Alignment.topRight,
+                  Column(
                     children: [
-                      SaveDocumentWidget(
-                        size: size,
-                        label: 'Save as PDF',
-                        logoPath: 'assets/pdficon1.png',
-                        onPressed: () {
-                          if (Inappservice().isUserPro()) {
-                            SaveScreenController().saveDocumentFile(
-                                imageBytes, fileName, context);
-                          } else {
-                            context.push(PremiumScreen());
-                          }
-                        },
+                      SizedBox(
+                        height: 30,
                       ),
-                      proScreenController.isUserPro
-                          ? Container(
-                              height: 40,
-                              width: 40,
-                            )
-                          : Container(
-                              margin: EdgeInsets.all(10),
-                              child: Image.asset(
-                                'assets/crown.png',
-                                height: 40,
-                                width: 40,
-                              ),
-                            )
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          SaveDocumentWidget(
+                            size: size,
+                            label: 'Save as PNG',
+                            logoPath: 'assets/pngsaveicon.png',
+                            onPressed: () {
+                              if (proScreenController.isUserPro) {
+                                SaveScreenController().saveImageFile(
+                                    imageBytes, fileName, context);
+                              } else {
+                                if (SaveScreenController().isBasicAvailable()) {
+                                  SaveScreenController().saveImageFile(
+                                      imageBytes, fileName, context);
+                                } else {
+                                  context.push(PremiumScreen());
+                                }
+                              }
+                            },
+                          ),
+                          proScreenController.isUserPro &&
+                                  !SaveScreenController().isBasicAvailable()
+                              ? Container(
+                                  height: 40,
+                                  width: 40,
+                                )
+                              : Container(
+                                  margin: EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    'assets/crown.png',
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                )
+                        ],
+                      ),
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          SaveDocumentWidget(
+                            size: size,
+                            label: 'Save as PDF',
+                            logoPath: 'assets/pdficon1.png',
+                            onPressed: () {
+                              if (Inappservice().isUserPro()) {
+                                SaveScreenController().saveDocumentFile(
+                                    imageBytes, fileName, context);
+                              } else {
+                                context.push(PremiumScreen());
+                              }
+                            },
+                          ),
+                          proScreenController.isUserPro
+                              ? Container(
+                                  height: 40,
+                                  width: 40,
+                                )
+                              : Container(
+                                  margin: EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    'assets/crown.png',
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                )
+                        ],
+                      ),
+                      Stack(
+                        alignment: Alignment.topRight,
+                        children: [
+                          SaveDocumentWidget(
+                            size: size,
+                            label: 'Share File',
+                            logoPath: 'assets/shareicon1.png',
+                            onPressed: () {
+                              if (Inappservice().isUserPro()) {
+                                SaveScreenController()
+                                    .shareFile(imageBytes, fileName);
+                              } else {
+                                context.push(PremiumScreen());
+                              }
+                            },
+                          ),
+                          proScreenController.isUserPro
+                              ? Container(
+                                  height: 40,
+                                  width: 40,
+                                )
+                              : Container(
+                                  margin: EdgeInsets.all(10),
+                                  child: Image.asset(
+                                    'assets/crown.png',
+                                    height: 40,
+                                    width: 40,
+                                  ),
+                                )
+                        ],
+                      )
                     ],
                   ),
-                  Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      SaveDocumentWidget(
-                        size: size,
-                        label: 'Share File',
-                        logoPath: 'assets/shareicon1.png',
-                        onPressed: () {
-                          if (Inappservice().isUserPro()) {
-                            SaveScreenController()
-                                .shareFile(imageBytes, fileName);
-                          } else {
-                            context.push(PremiumScreen());
-                          }
-                        },
-                      ),
-                      proScreenController.isUserPro
-                          ? Container(
-                              height: 40,
-                              width: 40,
-                            )
-                          : Container(
-                              margin: EdgeInsets.all(10),
-                              child: Image.asset(
-                                'assets/crown.png',
-                                height: 40,
-                                width: 40,
-                              ),
-                            )
-                    ],
-                  )
                 ],
               ),
             ),

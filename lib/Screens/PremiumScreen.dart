@@ -4,8 +4,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:pdf_editor/Controllers/HomeScreenController.dart';
 import 'package:pdf_editor/Controllers/PremiumScreenController.dart';
 import 'package:pdf_editor/CustomWidgets/shimmer_animation.dart';
+import 'package:pdf_editor/extensions.dart/navigatorExtension.dart';
+import 'package:pdf_editor/services/InAppService.dart';
 import 'package:pdf_editor/utils/AppColors.dart';
 import 'package:pdf_editor/utils/AppConsts.dart';
 import 'package:provider/provider.dart';
@@ -20,6 +23,20 @@ class PremiumScreen extends StatefulWidget {
 class _PremiumScreenState extends State<PremiumScreen> {
   bool isMonthlyPlanSelected = true;
   bool isYearlyPlanSelected = false;
+  Future<bool> checkInternet() async {
+    bool isActive = false;
+    try {
+      final result = await InternetAddress.lookup('example.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        print('connected');
+        isActive = true;
+      }
+    } on SocketException catch (_) {
+      print('not connected');
+      isActive = false;
+    }
+    return isActive;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -38,6 +55,34 @@ class _PremiumScreenState extends State<PremiumScreen> {
             Navigator.of(context).pop();
           },
         ),
+        actions: [
+          TextButton(
+            onPressed: () async {
+              bool isConnectedToInternet = await checkInternet();
+              if (isConnectedToInternet) {
+                if (context.mounted) {
+                  // Inappservice().restorePurchases(context);
+                  // controller.restorePreviousPurchase(context);
+                }
+              } else {
+                if (context.mounted) {
+                  Fluttertoast.showToast(
+                    msg: "No Internet Connection",
+                    gravity: ToastGravity.CENTER,
+                  );
+                }
+              }
+            },
+            child: const Text(
+              "Restore",
+              style: TextStyle(
+                color: Color.fromRGBO(47, 168, 255, 1),
+                fontSize: 14,
+                fontFamily: 'Inter',
+              ),
+            ),
+          ),
+        ],
         title: RichText(
           text: TextSpan(
             style: const TextStyle(
@@ -218,7 +263,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                   ),
                   elevation: 4,
                   child: Padding(
-                    padding: EdgeInsets.all(24.0),
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -247,7 +292,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 constraints: BoxConstraints(
                                   maxWidth: 500, // Prevent overflow
                                 ),
-                                padding: EdgeInsets.all(22),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
                                 decoration: BoxDecoration(
                                   color: Color.fromARGB(255, 92, 97, 102),
                                   borderRadius: BorderRadius.circular(15),
@@ -266,38 +312,44 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       children: [
                                         _buildCheckbox(isMonthlyPlanSelected),
                                         SizedBox(width: 10),
-                                        Text(
-                                          'Monthly',
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Container(
-                                          height: 20,
-                                          // width: 50,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: Colors.red,
-                                          ),
-                                          child: const Center(
-                                            child: FittedBox(
-                                              child: Text(
-                                                "Basic",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontSize: 14,
-                                                    fontFamily: 'intern'),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Monthly',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 16,
+                                                color: Colors.white,
                                               ),
                                             ),
-                                          ),
+                                            SizedBox(
+                                              height: 5,
+                                            ),
+                                            Container(
+                                              height: 20,
+                                              // width: 50,
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10),
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color: Colors.red,
+                                              ),
+                                              child: const Center(
+                                                child: FittedBox(
+                                                  child: Text(
+                                                    "Basic",
+                                                    style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontSize: 12,
+                                                        fontFamily: 'intern'),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -335,7 +387,8 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 constraints: const BoxConstraints(
                                   maxWidth: 500, // Prevent overflow
                                 ),
-                                padding: EdgeInsets.all(22),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10, horizontal: 20),
                                 decoration: BoxDecoration(
                                   color: Color.fromARGB(255, 92, 97, 102),
                                   borderRadius: BorderRadius.circular(15),
@@ -354,42 +407,48 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                       children: [
                                         _buildCheckbox(isYearlyPlanSelected),
                                         SizedBox(width: 10),
-                                        Text(
-                                          'Yearly',
-                                          style: TextStyle(
-                                            fontFamily: 'Inter',
-                                            fontSize: 16,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 5,
-                                        ),
-                                        Container(
-                                          height: 20,
-                                          // width: 50,
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 10),
-
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(5),
-                                            color: Colors.red,
-                                          ),
-                                          child: Center(
-                                            child: FittedBox(
-                                              child: Text(
-                                                controller.subscriptionItems
-                                                        .isEmpty
-                                                    ? "0.00% off"
-                                                    : "${controller.calculatePercentageOff(controller.subscriptionItems[0].price, controller.subscriptionItems[1].price, 12)}% off",
-                                                style: TextStyle(
-                                                    color: Colors.white,
-                                                    fontFamily: 'intern',
-                                                    fontSize: 14),
+                                        Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Yearly',
+                                              style: TextStyle(
+                                                fontFamily: 'Inter',
+                                                fontSize: 16,
+                                                color: Colors.white,
                                               ),
                                             ),
-                                          ),
+                                            Container(
+                                              height: 20,
+                                              // height: 20,
+                                              // width: 50,
+
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 10),
+
+                                              decoration: BoxDecoration(
+                                                borderRadius:
+                                                    BorderRadius.circular(10),
+                                                color: Colors.red,
+                                              ),
+                                              child: Center(
+                                                child: FittedBox(
+                                                  child: Text(
+                                                    controller.subscriptionItems
+                                                            .isEmpty
+                                                        ? "0.00% off"
+                                                        : "${controller.calculatePercentageOff(controller.subscriptionItems[0].price, controller.subscriptionItems[1].price, 12)}% off",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontFamily: 'intern',
+                                                      fontSize: 12,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
                                       ],
                                     ),
@@ -414,6 +473,9 @@ class _PremiumScreenState extends State<PremiumScreen> {
                                 ),
                               ),
                             ),
+                            SizedBox(
+                              height: 10,
+                            ),
                           ],
                         ),
                       ],
@@ -422,6 +484,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                 ),
               ),
 
+              const SizedBox(height: 20),
+              isYearlyPlanSelected
+                  ? Text(
+                      controller.subscriptionItems.isEmpty
+                          ? "3 Days Free Trial, Then USD 0.00 per year"
+                          : "3 Days Free Trial, Then ${controller.subscriptionItems[1].priceString} per year",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 12, color: Colors.white),
+                    )
+                  : Container(),
               const SizedBox(height: 10),
 
               Padding(
@@ -448,10 +520,7 @@ class _PremiumScreenState extends State<PremiumScreen> {
                               controller.buyProduct(
                                   context, controller.subscriptionItems[1]);
                             }
-                          } catch (e) {
-                            
-                            
-                          }
+                          } catch (e) {}
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Color.fromRGBO(238, 76, 76, 1),
@@ -461,16 +530,16 @@ class _PremiumScreenState extends State<PremiumScreen> {
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         child: Center(
-                          child: Text(
-                            isYearlyPlanSelected
-                                ? controller.subscriptionItems.isEmpty
-                                    ? "3 Days Free Trial Then USD 0.00 per year"
-                                    : "3 Days Free Trial Then ${controller.subscriptionItems[1].priceString} per year"
-                                : 'Continue',
-                            style: TextStyle(
-                              fontFamily: 'Inter',
-                              fontSize: isYearlyPlanSelected ? 16 : 18,
-                              color: Colors.white,
+                          child: FittedBox(
+                            child: Text(
+                              isYearlyPlanSelected
+                                  ? "Start for free"
+                                  : "Continue",
+                              style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontSize: isYearlyPlanSelected ? 16 : 18,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ),
@@ -593,6 +662,28 @@ class BottomOptions extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: () async {
+                context.pop();
+              },
+              child: const AutoSizeText(
+                "Continue for free",
+                textAlign: TextAlign.center,
+                maxFontSize: 12,
+                minFontSize: 12,
+                style: TextStyle(
+                  color: Colors.blue,
+                  fontFamily: 'intern',
+                  fontWeight: FontWeight.w400,
+                ),
+              ),
+            ),
+          ),
+          const VerticalDivider(
+            color: Color.fromARGB(255, 167, 165, 165),
+            thickness: 0.5,
+          ),
+          Expanded(
+            child: GestureDetector(
+              onTap: () async {
                 bool isConnectedToInternet = await checkInternet();
                 if (isConnectedToInternet) {
                   launchUrl(Uri.parse(AppConsts.PrivacyPolicy));
@@ -618,40 +709,6 @@ class BottomOptions extends StatelessWidget {
               ),
             ),
           ),
-          const VerticalDivider(
-            color: Color.fromARGB(255, 167, 165, 165),
-            thickness: 0.5,
-          ),
-          Expanded(
-              child: GestureDetector(
-            onTap: () async {
-              bool isConnectedToInternet = await checkInternet();
-              if (isConnectedToInternet) {
-                if (context.mounted) {
-                  // IAPSerice().restorePurchases(context);
-                  // proScreenController.restorePreviousPurchase(context);
-                }
-              } else {
-                if (context.mounted) {
-                  Fluttertoast.showToast(
-                    msg: "No Internet Connection",
-                    gravity: ToastGravity.CENTER,
-                  );
-                }
-              }
-            },
-            child: AutoSizeText(
-              "Restore",
-              maxFontSize: 12,
-              minFontSize: 12,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Color.fromARGB(255, 167, 165, 165),
-                fontFamily: 'intern',
-                fontWeight: FontWeight.w400,
-              ),
-            ),
-          )),
 
           // InkWell(
           //   child: GestureDetector(

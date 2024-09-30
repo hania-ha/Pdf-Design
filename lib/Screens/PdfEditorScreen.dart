@@ -20,7 +20,13 @@ import 'package:pdf_editor/utils/enums.dart';
 import 'package:provider/provider.dart';
 import 'package:screenshot/screenshot.dart';
 import 'dart:io';
-import 'SignatureScreen.dart';
+
+class Stroke {
+  List<Offset?> points;
+  Color color;
+
+  Stroke({required this.points, required this.color});
+}
 
 class PdfEditorScreen extends StatefulWidget {
   final File imageFile;
@@ -34,8 +40,10 @@ class PdfEditorScreen extends StatefulWidget {
 
 class _PdfEditorScreenState extends State<PdfEditorScreen> {
   Color _selectedColor = Colors.black;
+  Color newColor = Colors.black;
   double _brushSize = 5.0;
   List<Offset?> _points = [];
+  List<Stroke> strokes = [];
 
   String selectedSignature = '';
   String? userSignature;
@@ -54,7 +62,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
 
   void _endDrawing() {
     setState(() {
-      _points.add(null);
+      strokes.add(Stroke(points: List.from(_points), color: _selectedColor));
+      _points.clear();
     });
   }
 
@@ -95,6 +104,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
 
   // Offset signaturePosition = Offset(20, 20);
   Size signatureSize = Size(100, 60);
+  bool toAddNewSignature = false;
 
   @override
   Widget build(BuildContext context) {
@@ -118,16 +128,22 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
               child: pdfeditorcontroller.currentEditingTool == EditingTool.NONE
                   ? _buildBottomBar(pdfeditorcontroller, proScreenController)
                   : pdfeditorcontroller.currentEditingTool == EditingTool.PAINT
-                      ? _buildColorPalette()
+                      ? Column(
+                          children: [
+                            _buildColorPalette(),
+                            Container(height: 10),
+                            // _buildBrushSizeSlider(),
+                          ],
+                        )
                       : pdfeditorcontroller.currentEditingTool ==
                                   EditingTool.SIGN &&
                               pdfeditorcontroller.checkIfSignatureExist() ==
-                                  true
+                                  true &&
+                              toAddNewSignature == false
                           ? _buildSignSelection(pdfeditorcontroller)
                           : pdfeditorcontroller.currentEditingTool ==
                                       EditingTool.SIGN &&
-                                  pdfeditorcontroller.checkIfSignatureExist() ==
-                                      false
+                                  toAddNewSignature
                               ? _buildAddSignature(pdfeditorcontroller,
                                   toAddSimpleText: false)
                               : pdfeditorcontroller.currentEditingTool ==
@@ -143,7 +159,7 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
         // bottomNavigationBar:
 
         // if (pdfeditorcontroller.currentEditingTool == EditingTool.PAINT)
-        //   _buildBrushSizeSlider(),
+        //
 
         appBar: AppBar(
           backgroundColor: AppColors.secondaryBgColor,
@@ -185,19 +201,23 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
             //     : Container(),
             TextButton(
               onPressed: () {
+                setState(() {
+                  toAddNewSignature = false;
+                });
                 if (pdfeditorcontroller.currentEditingTool !=
                     EditingTool.NONE) {
                   pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
                 } else {
-                  if (Inappservice().isUserPro()) {
-                    pdfeditorcontroller.exportImage(context);
-                  } else {
-                    if (pdfeditorcontroller.isBasicAvailable()) {
-                      pdfeditorcontroller.exportImage(context);
-                    } else {
-                      context.push(PremiumScreen());
-                    }
-                  }
+                  pdfeditorcontroller.exportImage(context);
+                  // if (Inappservice().isUserPro()) {
+                  //   pdfeditorcontroller.exportImage(context);
+                  // } else {
+                  //   if (pdfeditorcontroller.isBasicAvailable()) {
+                  //     pdfeditorcontroller.exportImage(context);
+                  //   } else {
+                  //     context.push(PremiumScreen());
+                  //   }
+                  // }
                 }
                 // pdfeditorcontroller.resetValues();
               },
@@ -229,6 +249,9 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
               onTap: () {
                 pdfeditorcontroller.toggleItemSelection(-1);
                 pdfeditorcontroller.toggleEditingTool(EditingTool.NONE);
+                setState(() {
+                  toAddNewSignature = false;
+                });
               },
               child: Column(
                 children: [
@@ -285,8 +308,8 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                           ? (details) => _endDrawing()
                                           : null,
                                   child: CustomPaint(
-                                    painter: _DrawingPainter(
-                                        _points, _selectedColor, _brushSize),
+                                    painter: _DrawingPainter(strokes, _points,
+                                        _selectedColor, _brushSize),
                                     size: Size.infinite,
                                   ),
                                 ),
@@ -303,6 +326,9 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                               onPanUpdate: (details) {
                                                 pdfeditorcontroller
                                                     .toggleItemSelection(-1);
+                                                pdfeditorcontroller
+                                                        .currentEditingTool =
+                                                    EditingTool.NONE;
 
                                                 // pdfeditorcontroller
                                                 //     .toggleEditingTool(
@@ -325,6 +351,14 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                                                         pdfeditorcontroller
                                                             .pdfEditorItems[i]
                                                             .editingTool);
+
+                                                if (pdfeditorcontroller
+                                                        .currentEditingTool ==
+                                                    EditingTool.SIGN) {
+                                                  setState(() {
+                                                    toAddNewSignature = false;
+                                                  });
+                                                }
                                               },
                                               // onDoubleTap:
 
@@ -1202,28 +1236,54 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: colors.map((color) {
-          return GestureDetector(
-            onTap: () {
-              setState(() {
-                _selectedColor = color;
-              });
-            },
-            child: Container(
-              width: 39,
-              height: 39,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(8),
-                border: _selectedColor == color
-                    ? Border.all(color: Colors.white, width: 2)
-                    : null,
-              ),
-            ),
-          );
-        }).toList(),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: colors.map((color) {
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  if (color == Colors.transparent) {
+                    setState(() {
+                      strokes.clear();
+                    });
+                  } else {
+                    _selectedColor = color;
+                  }
+                });
+              },
+              child: color == Colors.transparent
+                  ? Container(
+                      width: 39,
+                      height: 39,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border.all(color: Colors.black, width: 2),
+                      ),
+                      child: Transform.rotate(
+                        angle: 91.85,
+                        child: Divider(
+                          thickness: 2,
+                          color: Colors.black,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: 39,
+                      height: 39,
+                      decoration: BoxDecoration(
+                        color: color,
+                        borderRadius: BorderRadius.circular(8),
+                        border: _selectedColor == color
+                            ? Border.all(color: Colors.white, width: 2)
+                            : null,
+                      ),
+                    ),
+            );
+          }).toList(),
+        ),
       ),
     );
   }
@@ -1236,9 +1296,9 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
           trackHeight: 4.0,
           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
           overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
-          activeTrackColor: _selectedColor,
+          activeTrackColor: Colors.red,
           inactiveTrackColor: Colors.grey[800],
-          thumbColor: _selectedColor,
+          thumbColor: Colors.red,
           overlayColor: _selectedColor.withOpacity(0.2),
         ),
         child: Slider(
@@ -1317,7 +1377,10 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
                     height: 30,
                     padding: EdgeInsets.all(4.0),
                     decoration:
-                        controller.currentlySelectedFontFamilyIndex == index
+                        // controller.currentlySelectedFontFamilyIndex == index
+                        controller.pdfEditorItems[controller.selectedItemIndex]
+                                    .signatureModel!.signatureFontFamilty ==
+                                fontFamily
                             ? BoxDecoration(
                                 color: Colors.white,
                                 border: Border.all(
@@ -1476,9 +1539,12 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
           _buildIconButton(Icons.draw, "Paint",
               onTap: () =>
                   pdfeditorcontroller.toggleEditingTool(EditingTool.PAINT)),
-          _buildIconButton(Icons.edit, "Sign",
-              onTap: () =>
-                  pdfeditorcontroller.toggleEditingTool(EditingTool.SIGN)),
+          _buildIconButton(Icons.edit, "Sign", onTap: () {
+            setState(() {
+              toAddNewSignature = true;
+            });
+            pdfeditorcontroller.toggleEditingTool(EditingTool.SIGN);
+          }),
           _buildIconButton(Icons.format_paint, "Stamp", onTap: () {
             // pdfeditorcontroller.toggleEditingTool(EditingTool.STAMP);
             _openStampModalSheet(
@@ -1683,24 +1749,54 @@ class _PdfEditorScreenState extends State<PdfEditorScreen> {
       ),
     );
   }
+
+  // Erase points by proximity
+
+  // Erase points by proximity
+  void _erasePoints(Offset position) {
+    setState(() {
+      for (int i = 0; i < strokes.length; i++) {
+        strokes[i].points.removeWhere((point) =>
+            point != null && (point - position).distance < _brushSize * 2);
+
+        // If a stroke has no points left, remove the entire stroke
+        if (strokes[i].points.isEmpty) {
+          strokes.removeAt(i);
+          i--; // Adjust index after removal
+        }
+      }
+    });
+  }
 }
 
 class _DrawingPainter extends CustomPainter {
   final List<Offset?> points;
   final Color color;
   final double brushSize;
+  final List<Stroke> strokes; // List of all strokes
 
-  _DrawingPainter(this.points, this.color, this.brushSize);
+  _DrawingPainter(this.strokes, this.points, this.color, this.brushSize);
 
   @override
   void paint(Canvas canvas, Size size) {
     Paint paint = Paint()
-      ..color = color
+      // ..color = color
       ..strokeCap = StrokeCap.round
       ..strokeWidth = brushSize;
+    // Draw all completed strokes
+    for (var stroke in strokes) {
+      paint.color = stroke.color;
+      _drawStroke(canvas, paint, stroke.points, size);
+    }
+    // Draw the current stroke being drawn
+    paint.color = color;
+    _drawStroke(canvas, paint, points, size);
+    // Draw the current stroke being drawn
+  }
 
+  void _drawStroke(
+      Canvas canvas, Paint paint, List<Offset?> points, Size size) {
     for (int i = 0; i < points.length - 1; i++) {
-      // Check if the point is inside the container size before drawing
       if (points[i] != null && points[i + 1] != null) {
         if (_isInBounds(points[i]!, size) &&
             _isInBounds(points[i + 1]!, size)) {

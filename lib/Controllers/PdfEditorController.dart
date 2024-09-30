@@ -289,6 +289,8 @@ class Pdfeditorcontroller with ChangeNotifier {
       pdfItemPosition: Offset(0, 0),
       itemSize: Size(120, 50),
     ));
+    currentEditingTool = EditingTool.NONE;
+    selectedItemIndex = -1;
 
     print(pdfEditorItems);
 
@@ -430,20 +432,7 @@ class Pdfeditorcontroller with ChangeNotifier {
     SharedPreferencesHelper.setInt(AppConsts.remainingEditingQueriesKey, 0);
   }
 
-  bool isBasicAvailable() {
-    bool isQueryAvailable = false;
-    int availableQueries =
-        SharedPreferencesHelper.getInt(AppConsts.remainingEditingQueriesKey);
-    print("availableQueries:: ${availableQueries}");
-    print("Total Queries:: ${AppConsts.TotalQueries}");
-
-    if (availableQueries >= AppConsts.TotalQueries) {
-      isQueryAvailable = false;
-    } else {
-      isQueryAvailable = true;
-    }
-    return isQueryAvailable;
-  }
+  
 
   void countQueries() {
     int availableQueries =
